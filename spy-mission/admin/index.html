@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>特攻任務局 — 研究後台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e14;
+    --surface: #111720;
+    --surface2: #1a2233;
+    --border: #1e3a5f;
+    --accent: #00d4ff;
+    --amber: #ffb700;
+    --green: #00ff88;
+    --red: #ff3b5c;
+    --text: #c8d8e8;
+    --text-dim: #5a7a9a;
+    --font-mono: 'Share Tech Mono', monospace;
+    --font-body: 'Noto Sans TC', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+
+  /* Login */
+  .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 32px; width: 100%; max-width: 360px; position: relative; }
+  .login-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg, transparent, var(--amber), transparent); }
+  .login-title { font-family: var(--font-mono); font-size: 18px; color: var(--amber); letter-spacing: .2em; margin-bottom: 24px; }
+
+  /* Dashboard */
+  #dashboard { display: none; }
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar-title { font-family: var(--font-mono); font-size: 13px; color: var(--amber); letter-spacing: .2em; }
+  .topbar-right { display: flex; align-items: center; gap: 16px; font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
+
+  .main { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 53px); }
+
+  /* Sidebar */
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; }
+  .sidebar-header { padding: 16px; border-bottom: 1px solid var(--border); font-family: var(--font-mono); font-size: 10px; color: var(--accent); letter-spacing: .2em; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; }
+  .room-item { padding: 12px 16px; border-bottom: 1px solid rgba(30,58,95,.5); cursor: pointer; transition: background .15s; }
+  .room-item:hover { background: var(--surface2); }
+  .room-item.active { background: rgba(0,212,255,.07); border-left: 2px solid var(--accent); }
+  .room-code { font-family: var(--font-mono); font-size: 14px; color: #fff; letter-spacing: .15em; margin-bottom: 4px; }
+  .room-meta { font-size: 11px; color: var(--text-dim); display: flex; gap: 10px; }
+  .room-badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 99px; }
+  .badge-active { background: rgba(0,255,136,.15); color: var(--green); }
+  .badge-done   { background: rgba(0,212,255,.12); color: var(--accent); }
+  .badge-wait   { background: rgba(255,183,0,.12); color: var(--amber); }
+
+  /* Content */
+  .content { padding: 28px; overflow-y: auto; }
+  .section-title { font-family: var(--font-mono); font-size: 11px; color: var(--accent); letter-spacing: .2em; text-transform: uppercase; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  /* Stat cards */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 28px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 16px; }
+  .stat-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: .15em; margin-bottom: 6px; }
+  .stat-val { font-family: var(--font-mono); font-size: 28px; color: #fff; font-weight: 400; }
+  .stat-val.green { color: var(--green); }
+  .stat-val.amber { color: var(--amber); }
+  .stat-val.accent { color: var(--accent); }
+
+  /* Player cards */
+  .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+  .player-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 16px; }
+  .player-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .player-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 14px; font-weight: 700; }
+  .avatar-a { background: rgba(0,212,255,.15); color: var(--accent); border: 1px solid rgba(0,212,255,.3); }
+  .avatar-b { background: rgba(255,183,0,.15); color: var(--amber); border: 1px solid rgba(255,183,0,.3); }
+  .player-name { font-size: 15px; font-weight: 700; color: #fff; }
+  .player-role { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: .1em; }
+  .player-stat-row { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; border-bottom: 1px solid rgba(30,58,95,.4); }
+  .player-stat-row:last-child { border-bottom: none; }
+  .player-stat-label { color: var(--text-dim); }
+  .player-stat-val { color: #fff; font-family: var(--font-mono); }
+
+  /* Timeline */
+  .timeline { margin-bottom: 28px; }
+  .tl-item { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(30,58,95,.3); }
+  .tl-time { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); width: 65px; flex-shrink: 0; padding-top: 2px; }
+  .tl-sender { font-family: var(--font-mono); font-size: 11px; width: 80px; flex-shrink: 0; padding-top: 2px; }
+  .tl-sender.a { color: var(--accent); }
+  .tl-sender.b { color: var(--amber); }
+  .tl-sender.ai { color: var(--red); }
+  .tl-msg { font-size: 13px; color: var(--text); line-height: 1.5; flex: 1; }
+  .tl-mission { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); width: 50px; text-align: right; flex-shrink: 0; padding-top: 2px; }
+
+  /* Reflection */
+  .reflect-grid { display: flex; flex-direction: column; gap: 16px; margin-bottom: 28px; }
+  .reflect-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 16px; }
+  .reflect-who { font-family: var(--font-mono); font-size: 10px; letter-spacing: .15em; margin-bottom: 10px; }
+  .reflect-qa { margin-bottom: 10px; }
+  .reflect-q-label { font-size: 11px; color: var(--text-dim); margin-bottom: 4px; }
+  .reflect-answer { font-size: 13px; color: var(--text); line-height: 1.6; background: var(--surface2); padding: 8px 12px; border-radius: 3px; border-left: 2px solid var(--border); }
+
+  /* Analysis */
+  .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+  .analysis-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 16px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 12px; }
+  .bar-label { width: 60px; color: var(--text-dim); flex-shrink: 0; font-family: var(--font-mono); }
+  .bar-track { flex: 1; background: var(--surface2); border-radius: 2px; height: 8px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 2px; transition: width .6s; }
+  .bar-fill.a { background: var(--accent); }
+  .bar-fill.b { background: var(--amber); }
+  .bar-val { width: 30px; text-align: right; font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
+
+  /* Empty state */
+  .empty { padding: 60px 28px; text-align: center; color: var(--text-dim); font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; }
+
+  /* Buttons */
+  .btn-sm { background: transparent; border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; padding: 6px 12px; border-radius: 3px; cursor: pointer; transition: all .2s; }
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sm.danger:hover { border-color: var(--red); color: var(--red); }
+  .btn-sm.primary { border-color: var(--accent); color: var(--accent); }
+  .btn-sm + .btn-sm { margin-left: 8px; }
+
+  /* Mission selector tabs */
+  .mission-tabs { display: flex; gap: 6px; margin-bottom: 20px; }
+  .m-tab { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; padding: 6px 14px; border-radius: 3px; border: 1px solid var(--border); cursor: pointer; color: var(--text-dim); background: transparent; transition: all .2s; }
+  .m-tab.active, .m-tab:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,.07); }
+
+  /* Form */
+  .field-label { font-family: var(--font-mono); font-size: 11px; color: var(--accent); letter-spacing: .2em; display: block; margin-bottom: 8px; }
+  .field-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; color: #fff; font-family: var(--font-mono); font-size: 14px; padding: 10px 14px; outline: none; margin-bottom: 16px; }
+  .field-input:focus { border-color: var(--accent); }
+  .btn-full { display: block; width: 100%; background: transparent; border: 1px solid var(--amber); color: var(--amber); font-family: var(--font-mono); font-size: 12px; letter-spacing: .15em; padding: 12px; cursor: pointer; border-radius: 3px; transition: all .2s; }
+  .btn-full:hover { background: rgba(255,183,0,.08); }
+  .err { color: var(--red); font-family: var(--font-mono); font-size: 11px; margin-top: 8px; min-height: 16px; }
+
+  /* Export */
+  .export-bar { display: flex; gap: 8px; margin-bottom: 20px; align-items: center; }
+  .export-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: .1em; }
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-card">
+    <div class="login-title">研究後台登入</div>
+    <label class="field-label">管理密碼</label>
+    <input class="field-input" type="password" id="admin-pw" placeholder="輸入研究者密碼">
+    <button class="btn-full" onclick="adminLogin()">進入後台 ›</button>
+    <div class="err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+  <div class="topbar">
+    <div class="topbar-title">特攻任務局 — 研究後台 // ADMIN</div>
+    <div class="topbar-right">
+      <span id="live-count" style="color:var(--green)">● 0 場進行中</span>
+      <span id="total-count">共 0 場紀錄</span>
+      <button class="btn-sm primary" onclick="exportAllCSV()">匯出 CSV</button>
+      <button class="btn-sm" onclick="refreshRooms()">重新整理</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span>房間列表</span>
+        <button class="btn-sm" onclick="refreshRooms()" style="padding:3px 8px;font-size:9px">↻</button>
+      </div>
+      <div id="room-list">
+        <div class="empty">載入中...</div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content" id="content">
+      <div class="empty">← 選擇左側房間以查看詳細資料</div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get, onValue, remove, set }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyByP7iO4XUutmb0jnegliG9xwnDR926rdo",
+  authDomain: "spy-mission-research.firebaseapp.com",
+  databaseURL: "https://spy-mission-research-default-rtdb.firebaseio.com",
+  projectId: "spy-mission-research",
+  storageBucket: "spy-mission-research.firebasestorage.app",
+  messagingSenderId: "939101488132",
+  appId: "1:939101488132:web:3fb169f3c1aaf55c94e151"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+const ADMIN_PASSWORD = 'research2025'; // change this
+
+let allRooms = {};
+let selectedRoom = null;
+let roomsUnsubscribe = null;
+
+window.adminLogin = function() {
+  const pw = document.getElementById('admin-pw').value;
+  if (pw === ADMIN_PASSWORD) {
+    document.getElementById('login-wrap').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    initDashboard();
+  } else {
+    document.getElementById('login-err').textContent = '密碼錯誤';
+  }
+};
+
+document.getElementById('admin-pw').addEventListener('keydown', e => {
+  if (e.key === 'Enter') adminLogin();
+});
+
+function initDashboard() {
+  onValue(ref(db, 'rooms'), snap => {
+    allRooms = snap.val() || {};
+    renderRoomList();
+    updateCounts();
+    if (selectedRoom) renderRoomDetail(selectedRoom);
+  });
+}
+
+function updateCounts() {
+  const keys = Object.keys(allRooms);
+  let live = 0;
+  keys.forEach(k => {
+    const players = allRooms[k].players || {};
+    const online = Object.values(players).filter(p => p.online).length;
+    if (online > 0) live++;
+  });
+  document.getElementById('live-count').textContent = `● ${live} 場進行中`;
+  document.getElementById('total-count').textContent = `共 ${keys.length} 場紀錄`;
+}
+
+function getRoomStatus(room) {
+  const players = room.players || {};
+  const online = Object.values(players).filter(p => p.online).length;
+  if (online === 2) return { label: '進行中', cls: 'badge-active' };
+  if (online === 1) return { label: '等待中', cls: 'badge-wait' };
+  const refs = room.reflections || {};
+  if (Object.keys(refs).length >= 1) return { label: '已完成', cls: 'badge-done' };
+  return { label: '已結束', cls: 'badge-done' };
+}
+
+function renderRoomList() {
+  const list = document.getElementById('room-list');
+  const keys = Object.keys(allRooms).sort().reverse();
+  if (!keys.length) { list.innerHTML = '<div class="empty">尚無房間資料</div>'; return; }
+  list.innerHTML = keys.map(k => {
+    const room = allRooms[k];
+    const status = getRoomStatus(room);
+    const players = room.players || {};
+    const names = Object.values(players).map(p => p.codename || '—').join(' / ');
+    const msgs = Object.keys(room.messages || {}).length;
+    return `<div class="room-item ${selectedRoom === k ? 'active' : ''}" onclick="selectRoom('${k}')">
+      <div class="room-code">${k}</div>
+      <div class="room-meta">
+        <span>${names || '—'}</span>
+        <span class="room-badge ${status.cls}">${status.label}</span>
+      </div>
+      <div class="room-meta" style="margin-top:4px"><span>${msgs} 則訊息</span></div>
+    </div>`;
+  }).join('');
+}
+
+window.selectRoom = function(roomCode) {
+  selectedRoom = roomCode;
+  renderRoomList();
+  renderRoomDetail(roomCode);
+};
+
+window.refreshRooms = function() {
+  get(ref(db, 'rooms')).then(snap => {
+    allRooms = snap.val() || {};
+    renderRoomList();
+    updateCounts();
+    if (selectedRoom) renderRoomDetail(selectedRoom);
+  });
+};
+
+function renderRoomDetail(code) {
+  const room = allRooms[code];
+  if (!room) { document.getElementById('content').innerHTML = '<div class="empty">找不到此房間</div>'; return; }
+
+  const players = room.players || {};
+  const messages = room.messages ? Object.values(room.messages) : [];
+  const reflections = room.reflections || {};
+  const status = getRoomStatus(room);
+
+  // Stats
+  const msgsA = messages.filter(m => m.role === 'A').length;
+  const msgsB = messages.filter(m => m.role === 'B').length;
+  const totalMsgs = messages.filter(m => m.type !== 'ai' && m.type !== 'system').length;
+  const aiMsgs = messages.filter(m => m.type === 'ai').length;
+  const avgLen = totalMsgs ? Math.round(messages.filter(m => m.type !== 'ai').reduce((s, m) => s + (m.text || '').length, 0) / totalMsgs) : 0;
+  const missions = [...new Set(messages.map(m => m.mission).filter(Boolean))].length;
+
+  // Timing
+  const tsList = messages.map(m => m.ts).filter(Boolean).sort((a, b) => a - b);
+  const duration = tsList.length >= 2 ? Math.round((tsList[tsList.length - 1] - tsList[0]) / 60000) : 0;
+
+  // Questions analysis
+  const questionCount = messages.filter(m => (m.text || '').includes('？') || (m.text || '').includes('?')).length;
+
+  const html = `
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+    <div>
+      <div style="font-family:var(--font-mono);font-size:20px;color:#fff;letter-spacing:.15em">${code}</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-top:4px">
+        <span class="room-badge ${status.cls}" style="font-size:11px">${status.label}</span>
+        &nbsp; 持續時間：${duration} 分鐘
+      </div>
+    </div>
+    <div>
+      <button class="btn-sm primary" onclick="exportRoomCSV('${code}')">匯出此場 CSV</button>
+      <button class="btn-sm danger" onclick="advanceMissionAdmin('${code}')">推進關卡</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="section-title">整體統計</div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">總訊息數</div><div class="stat-val accent">${totalMsgs}</div></div>
+    <div class="stat-card"><div class="stat-label">AI介入次數</div><div class="stat-val amber">${aiMsgs}</div></div>
+    <div class="stat-card"><div class="stat-label">平均訊息長度</div><div class="stat-val">${avgLen} 字</div></div>
+    <div class="stat-card"><div class="stat-label">提問次數</div><div class="stat-val green">${questionCount}</div></div>
+    <div class="stat-card"><div class="stat-label">完成關卡數</div><div class="stat-val">${missions}</div></div>
+    <div class="stat-card"><div class="stat-label">遊戲時長</div><div class="stat-val">${duration}m</div></div>
+  </div>
+
+  <!-- Player stats -->
+  <div class="section-title">探員資料</div>
+  <div class="player-grid">
+    ${['A', 'B'].map(r => {
+      const p = players[r] || {};
+      const pm = messages.filter(m => m.role === r);
+      const pq = pm.filter(m => (m.text || '').includes('？') || (m.text || '').includes('?')).length;
+      const avgLenP = pm.length ? Math.round(pm.reduce((s, m) => s + (m.text || '').length, 0) / pm.length) : 0;
+      return `<div class="player-card">
+        <div class="player-header">
+          <div class="player-avatar avatar-${r.toLowerCase()}">${r}</div>
+          <div>
+            <div class="player-name">${p.codename || '（未加入）'}</div>
+            <div class="player-role">探員 ${r} · ${p.online ? '線上' : '離線'}</div>
+          </div>
+        </div>
+        <div class="player-stat-row"><span class="player-stat-label">發言次數</span><span class="player-stat-val">${pm.length}</span></div>
+        <div class="player-stat-row"><span class="player-stat-label">平均字數</span><span class="player-stat-val">${avgLenP}</span></div>
+        <div class="player-stat-row"><span class="player-stat-label">提問次數</span><span class="player-stat-val">${pq}</span></div>
+        <div class="player-stat-row"><span class="player-stat-label">已交覆盤</span><span class="player-stat-val">${reflections[r] ? '是' : '否'}</span></div>
+      </div>`;
+    }).join('')}
+  </div>
+
+  <!-- Message balance chart -->
+  <div class="section-title">發言比例</div>
+  <div class="analysis-grid">
+    <div class="analysis-card">
+      <div class="stat-label" style="margin-bottom:12px">各關卡發言分佈</div>
+      ${[1, 2, 3].map(n => {
+        const mA = messages.filter(m => m.mission === n && m.role === 'A').length;
+        const mB = messages.filter(m => m.mission === n && m.role === 'B').length;
+        const total = mA + mB || 1;
+        return `<div style="margin-bottom:14px">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);margin-bottom:6px">關卡 ${n}</div>
+          <div class="bar-row"><span class="bar-label">A</span><div class="bar-track"><div class="bar-fill a" style="width:${Math.round(mA/total*100)}%"></div></div><span class="bar-val">${mA}</span></div>
+          <div class="bar-row"><span class="bar-label">B</span><div class="bar-track"><div class="bar-fill b" style="width:${Math.round(mB/total*100)}%"></div></div><span class="bar-val">${mB}</span></div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="analysis-card">
+      <div class="stat-label" style="margin-bottom:12px">合作行為標記</div>
+      ${analyzeCollaboration(messages)}
+    </div>
+  </div>
+
+  <!-- Mission tabs for messages -->
+  <div class="section-title">對話紀錄</div>
+  <div class="mission-tabs">
+    <div class="m-tab active" id="tab-all" onclick="filterMsgs('${code}', 0)">全部</div>
+    <div class="m-tab" id="tab-1" onclick="filterMsgs('${code}', 1)">關卡一</div>
+    <div class="m-tab" id="tab-2" onclick="filterMsgs('${code}', 2)">關卡二</div>
+    <div class="m-tab" id="tab-3" onclick="filterMsgs('${code}', 3)">關卡三</div>
+  </div>
+  <div class="timeline" id="timeline-${code}">
+    ${renderTimeline(messages, 0)}
+  </div>
+
+  <!-- Reflections -->
+  <div class="section-title">覆盤問卷</div>
+  <div class="reflect-grid">
+    ${Object.keys(reflections).length === 0 ? '<div style="color:var(--text-dim);font-size:13px">尚未提交覆盤</div>' :
+      Object.entries(reflections).map(([role, r]) => `
+        <div class="reflect-card">
+          <div class="reflect-who" style="color:${role === 'A' ? 'var(--accent)' : 'var(--amber)'}">探員 ${role} — ${r.codename}</div>
+          ${[['Q1','在這次任務中，你們是如何分工合作的？'], ['Q2','過程中你有沒有改變過自己的想法？'], ['Q3','你覺得你們這次合作最好/需要改進的是什麼？']].map(([k, q]) => `
+            <div class="reflect-qa">
+              <div class="reflect-q-label">${q}</div>
+              <div class="reflect-answer">${r[k.toLowerCase()] || '（未填寫）'}</div>
+            </div>`).join('')}
+        </div>`).join('')}
+  </div>`;
+
+  document.getElementById('content').innerHTML = html;
+  window._currentMessages = messages;
+}
+
+function analyzeCollaboration(messages) {
+  const userMsgs = messages.filter(m => m.type !== 'ai' && m.type !== 'system' && m.text);
+  const indicators = [
+    { label: '提出建議', pattern: /我(覺得|建議|認為)|應該|可以試試/, color: 'var(--accent)' },
+    { label: '表示同意', pattern: /對[啊阿]?|沒錯|好[啊阿]?|同意|就這樣/, color: 'var(--green)' },
+    { label: '表示疑問', pattern: /[？?]|不(太|是很)?確定|為什麼/, color: 'var(--amber)' },
+    { label: '讓步調整', pattern: /那就|好吧|也可以|換個|改成/, color: '#a78bfa' },
+  ];
+  return indicators.map(ind => {
+    const count = userMsgs.filter(m => ind.pattern.test(m.text)).length;
+    const pct = userMsgs.length ? Math.round(count / userMsgs.length * 100) : 0;
+    return `<div class="bar-row">
+      <span class="bar-label" style="width:70px;font-size:10px">${ind.label}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${ind.color}"></div></div>
+      <span class="bar-val">${count}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderTimeline(messages, missionFilter) {
+  const filtered = missionFilter === 0 ? messages : messages.filter(m => m.mission === missionFilter);
+  if (!filtered.length) return '<div style="color:var(--text-dim);font-size:12px;font-family:var(--font-mono)">此關卡無訊息</div>';
+  return filtered.map(m => {
+    const time = m.ts ? new Date(m.ts).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '—';
+    const senderClass = m.type === 'ai' ? 'ai' : (m.role || '').toLowerCase();
+    const senderLabel = m.type === 'ai' ? '局長' : (m.sender || m.role || '—');
+    return `<div class="tl-item">
+      <span class="tl-time">${time}</span>
+      <span class="tl-sender ${senderClass}">${senderLabel}</span>
+      <span class="tl-msg">${(m.text || '').replace(/🔴 局長 > /, '')}</span>
+      <span class="tl-mission">M${m.mission || '—'}</span>
+    </div>`;
+  }).join('');
+}
+
+window.filterMsgs = function(code, mission) {
+  document.querySelectorAll('.m-tab').forEach((t, i) => {
+    t.classList.toggle('active', i === mission);
+  });
+  const tl = document.getElementById('timeline-' + code);
+  if (tl) tl.innerHTML = renderTimeline(window._currentMessages || [], mission);
+};
+
+window.advanceMissionAdmin = function(code) {
+  const room = allRooms[code];
+  const current = room.mission || 1;
+  const next = current + 1;
+  if (confirm(`手動推進到關卡 ${next}？`)) {
+    set(ref(db, `rooms/${code}/mission`), next);
+  }
+};
+
+// ── CSV Export ──
+window.exportRoomCSV = function(code) {
+  const room = allRooms[code];
+  if (!room) return;
+  const messages = room.messages ? Object.values(room.messages) : [];
+  const rows = [['時間', '探員代號', '角色', '訊息類型', '關卡', '內容']];
+  messages.forEach(m => {
+    rows.push([
+      m.ts ? new Date(m.ts).toLocaleString('zh-TW') : '',
+      m.sender || (m.type === 'ai' ? '局長' : ''),
+      m.role || '',
+      m.type || '',
+      m.mission || '',
+      (m.text || '').replace(/\n/g, ' ')
+    ]);
+  });
+  downloadCSV(`room-${code}-messages.csv`, rows);
+
+  // Also export reflections
+  const reflections = room.reflections || {};
+  if (Object.keys(reflections).length) {
+    const rrows = [['探員代號', '角色', 'Q1', 'Q2', 'Q3']];
+    Object.entries(reflections).forEach(([role, r]) => {
+      rrows.push([r.codename, role, r.q1 || '', r.q2 || '', r.q3 || '']);
+    });
+    downloadCSV(`room-${code}-reflections.csv`, rrows);
+  }
+};
+
+window.exportAllCSV = function() {
+  const allMessages = [];
+  const allReflections = [];
+  Object.entries(allRooms).forEach(([code, room]) => {
+    const msgs = room.messages ? Object.values(room.messages) : [];
+    msgs.forEach(m => allMessages.push([code, m.ts ? new Date(m.ts).toLocaleString('zh-TW') : '', m.sender || '', m.role || '', m.type || '', m.mission || '', (m.text || '').replace(/\n/g, ' ')]));
+    const refs = room.reflections || {};
+    Object.entries(refs).forEach(([role, r]) => allReflections.push([code, r.codename, role, r.q1 || '', r.q2 || '', r.q3 || '']));
+  });
+  downloadCSV('all-sessions-messages.csv', [['房間碼','時間','探員代號','角色','訊息類型','關卡','內容'], ...allMessages]);
+  if (allReflections.length) downloadCSV('all-sessions-reflections.csv', [['房間碼','探員代號','角色','Q1','Q2','Q3'], ...allReflections]);
+};
+
+function downloadCSV(filename, rows) {
+  const bom = '\uFEFF';
+  const csv = bom + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+</script>
+</body>
+</html>

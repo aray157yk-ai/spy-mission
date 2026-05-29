@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>特攻任務局 — 機密行動</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e14;
+    --surface: #111720;
+    --surface2: #1a2233;
+    --border: #1e3a5f;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --amber: #ffb700;
+    --green: #00ff88;
+    --red: #ff3b5c;
+    --text: #c8d8e8;
+    --text-dim: #5a7a9a;
+    --font-mono: 'Share Tech Mono', monospace;
+    --font-body: 'Noto Sans TC', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Scanline overlay ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,212,255,0.015) 2px, rgba(0,212,255,0.015) 4px);
+    pointer-events: none; z-index: 9999;
+  }
+
+  /* ── Corner decoration ── */
+  .corner { position: fixed; width: 40px; height: 40px; opacity: .4; pointer-events: none; z-index: 100; }
+  .corner::before, .corner::after { content: ''; position: absolute; background: var(--accent); }
+  .corner-tl { top: 12px; left: 12px; }
+  .corner-tl::before { top: 0; left: 0; width: 2px; height: 20px; }
+  .corner-tl::after  { top: 0; left: 0; width: 20px; height: 2px; }
+  .corner-tr { top: 12px; right: 12px; }
+  .corner-tr::before { top: 0; right: 0; width: 2px; height: 20px; }
+  .corner-tr::after  { top: 0; right: 0; width: 20px; height: 2px; }
+  .corner-bl { bottom: 12px; left: 12px; }
+  .corner-bl::before { bottom: 0; left: 0; width: 2px; height: 20px; }
+  .corner-bl::after  { bottom: 0; left: 0; width: 20px; height: 2px; }
+  .corner-br { bottom: 12px; right: 12px; }
+  .corner-br::before { bottom: 0; right: 0; width: 2px; height: 20px; }
+  .corner-br::after  { bottom: 0; right: 0; width: 20px; height: 2px; }
+
+  /* ── Screens ── */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+
+  /* ── Logo / Header ── */
+  .logo-wrap { text-align: center; margin-bottom: 40px; }
+  .logo-tag { font-family: var(--font-mono); font-size: 11px; color: var(--accent); letter-spacing: .3em; text-transform: uppercase; margin-bottom: 8px; opacity: .7; }
+  .logo-title { font-family: var(--font-mono); font-size: clamp(28px, 5vw, 48px); color: #fff; letter-spacing: .1em; line-height: 1.1; }
+  .logo-title span { color: var(--accent); }
+  .logo-sub { font-size: 13px; color: var(--text-dim); margin-top: 8px; letter-spacing: .1em; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px 32px;
+    width: 100%;
+    max-width: 440px;
+    position: relative;
+  }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+
+  /* ── Form elements ── */
+  .field-label { font-family: var(--font-mono); font-size: 11px; color: var(--accent); letter-spacing: .2em; text-transform: uppercase; margin-bottom: 8px; display: block; }
+  .field-input {
+    width: 100%; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 3px;
+    color: #fff; font-family: var(--font-mono); font-size: 16px;
+    padding: 12px 16px; outline: none; letter-spacing: .05em;
+    transition: border-color .2s;
+  }
+  .field-input:focus { border-color: var(--accent); }
+  .field-input::placeholder { color: var(--text-dim); }
+  .field-group { margin-bottom: 20px; }
+
+  /* ── Buttons ── */
+  .btn {
+    display: block; width: 100%;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font-mono); font-size: 13px;
+    letter-spacing: .2em; text-transform: uppercase;
+    padding: 14px; cursor: pointer;
+    border-radius: 3px;
+    transition: all .2s;
+    position: relative; overflow: hidden;
+  }
+  .btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--accent); opacity: 0;
+    transition: opacity .2s;
+  }
+  .btn:hover::before { opacity: .1; }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { border-color: var(--accent); color: var(--accent); }
+  .btn-danger  { border-color: var(--red); color: var(--red); }
+  .btn + .btn  { margin-top: 10px; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* ── Role selector ── */
+  .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .role-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 16px 12px; cursor: pointer;
+    transition: all .2s; text-align: center;
+  }
+  .role-card:hover { border-color: var(--accent); }
+  .role-card.selected { border-color: var(--accent); background: rgba(0,212,255,.08); }
+  .role-card .role-icon { font-size: 28px; margin-bottom: 8px; }
+  .role-card .role-name { font-family: var(--font-mono); font-size: 13px; color: #fff; letter-spacing: .1em; }
+  .role-card .role-desc { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+  /* ── Status bar ── */
+  .statusbar {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex; align-items: center; gap: 16px;
+    font-family: var(--font-mono); font-size: 11px;
+    flex-shrink: 0;
+  }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .status-item { color: var(--text-dim); }
+  .status-item span { color: var(--text); }
+  .status-sep { color: var(--border); }
+
+  /* ── Game layout ── */
+  #screen-game {
+    display: none; flex-direction: column;
+    height: 100vh; padding: 0;
+  }
+  #screen-game.active { display: flex; align-items: stretch; justify-content: flex-start; }
+
+  .game-body { display: flex; flex: 1; overflow: hidden; }
+
+  /* ── Intel panel (left) ── */
+  .intel-panel {
+    width: 300px; flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+  .panel-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--accent); letter-spacing: .2em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel-header::before { content: '//'; opacity: .5; }
+
+  .mission-progress { padding: 16px; border-bottom: 1px solid var(--border); }
+  .progress-steps { display: flex; gap: 6px; margin-bottom: 12px; }
+  .step-dot {
+    flex: 1; height: 4px; border-radius: 2px;
+    background: var(--surface2); transition: background .4s;
+  }
+  .step-dot.done { background: var(--green); }
+  .step-dot.active { background: var(--accent); animation: blink-bar 1.5s infinite; }
+  @keyframes blink-bar { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+  .mission-title-sm { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+  .mission-name { font-size: 15px; font-weight: 700; color: #fff; }
+
+  /* ── Intel cards ── */
+  .intel-section { padding: 16px; border-bottom: 1px solid var(--border); }
+  .intel-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: .2em; text-transform: uppercase; margin-bottom: 10px; }
+  .intel-item {
+    background: var(--surface2); border-left: 2px solid var(--accent);
+    padding: 8px 12px; margin-bottom: 6px;
+    font-size: 13px; line-height: 1.5; border-radius: 0 3px 3px 0;
+  }
+  .intel-item.partner { border-left-color: var(--amber); }
+
+  .partner-status {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+  .partner-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .partner-dot.offline { background: var(--red); animation: none; }
+  .partner-dot.online { animation: pulse 2s infinite; }
+
+  /* ── Chat area ── */
+  .chat-area {
+    flex: 1; display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .chat-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-dim); letter-spacing: .15em;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .chat-messages {
+    flex: 1; overflow-y: auto;
+    padding: 20px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ── Messages ── */
+  .msg { display: flex; flex-direction: column; gap: 4px; max-width: 80%; }
+  .msg.self { align-self: flex-end; align-items: flex-end; }
+  .msg.partner { align-self: flex-start; }
+  .msg.ai { align-self: center; max-width: 90%; width: 100%; }
+  .msg.system { align-self: center; max-width: 90%; }
+
+  .msg-meta { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: .1em; }
+
+  .msg-bubble {
+    padding: 10px 14px;
+    border-radius: 3px;
+    font-size: 14px; line-height: 1.6;
+    position: relative;
+  }
+  .msg.self .msg-bubble {
+    background: rgba(0,212,255,.12);
+    border: 1px solid rgba(0,212,255,.3);
+    color: #e8f4ff;
+  }
+  .msg.partner .msg-bubble {
+    background: rgba(255,183,0,.1);
+    border: 1px solid rgba(255,183,0,.3);
+    color: #fff8e0;
+  }
+  .msg.ai .msg-bubble {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    color: var(--text);
+    font-size: 13px;
+  }
+  .msg.ai .ai-tag {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--red); letter-spacing: .2em;
+    margin-bottom: 6px; display: block;
+  }
+  .msg.system .msg-bubble {
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--text-dim);
+    font-family: var(--font-mono); font-size: 11px;
+    text-align: center; letter-spacing: .1em;
+    border-radius: 2px;
+  }
+
+  /* ── Typing indicator ── */
+  .typing-wrap { padding: 0 20px 8px; min-height: 24px; }
+  .typing-ind {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--amber); letter-spacing: .1em;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .typing-dots span {
+    display: inline-block; width: 4px; height: 4px;
+    background: var(--amber); border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: .2s; }
+  .typing-dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
+
+  /* ── Input bar ── */
+  .input-bar {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    display: flex; gap: 10px; align-items: flex-end;
+  }
+  .chat-input {
+    flex: 1; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 3px;
+    color: #fff; font-family: var(--font-body); font-size: 14px;
+    padding: 10px 14px; outline: none; resize: none;
+    line-height: 1.5; max-height: 100px;
+    transition: border-color .2s;
+  }
+  .chat-input:focus { border-color: var(--accent); }
+  .send-btn {
+    background: var(--accent); border: none;
+    color: var(--bg); font-family: var(--font-mono);
+    font-size: 12px; letter-spacing: .1em;
+    padding: 10px 18px; cursor: pointer; border-radius: 3px;
+    transition: opacity .2s; white-space: nowrap; align-self: flex-end;
+  }
+  .send-btn:hover { opacity: .85; }
+  .send-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+  /* ── Mission complete overlay ── */
+  .overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(10,14,20,.95);
+    z-index: 1000; align-items: center; justify-content: center;
+    flex-direction: column; text-align: center; padding: 40px;
+  }
+  .overlay.show { display: flex; }
+  .overlay-icon { font-size: 64px; margin-bottom: 20px; }
+  .overlay-title { font-family: var(--font-mono); font-size: 32px; color: var(--accent); letter-spacing: .15em; margin-bottom: 12px; }
+  .overlay-sub { color: var(--text-dim); font-size: 15px; margin-bottom: 32px; line-height: 1.7; }
+
+  /* ── Waiting screen ── */
+  .wait-anim {
+    width: 80px; height: 80px; margin: 0 auto 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Error ── */
+  .error-msg { color: var(--red); font-family: var(--font-mono); font-size: 12px; margin-top: 10px; min-height: 18px; letter-spacing: .05em; }
+
+  /* ── Intro text ── */
+  .intro-text { font-size: 13px; color: var(--text-dim); line-height: 1.7; margin-bottom: 20px; text-align: center; }
+
+  /* ── Notification toast ── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface2); border: 1px solid var(--accent);
+    color: var(--accent); font-family: var(--font-mono); font-size: 12px;
+    padding: 10px 18px; border-radius: 3px; z-index: 9000;
+    transform: translateY(20px); opacity: 0;
+    transition: all .3s; pointer-events: none;
+    letter-spacing: .1em;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── Reflection form ── */
+  .reflect-form { width: 100%; max-width: 560px; }
+  .reflect-q { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 20px; margin-bottom: 16px; }
+  .reflect-q-text { font-size: 14px; color: #fff; margin-bottom: 10px; line-height: 1.6; }
+  .reflect-q-num { font-family: var(--font-mono); font-size: 10px; color: var(--accent); letter-spacing: .2em; margin-bottom: 6px; }
+  textarea.field-input { resize: vertical; min-height: 80px; font-family: var(--font-body); font-size: 13px; }
+
+  @media (max-width: 700px) {
+    .intel-panel { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<!-- ══ SCREEN: LOBBY ══ -->
+<div class="screen active" id="screen-lobby">
+  <div class="logo-wrap">
+    <div class="logo-tag">classified — eyes only</div>
+    <div class="logo-title">特攻<span>任務</span>局</div>
+    <div class="logo-sub">SHADOW PROTOCOL · UNIT 7</div>
+  </div>
+  <div class="card">
+    <div class="field-group">
+      <label class="field-label">探員代號</label>
+      <input class="field-input" id="inp-codename" placeholder="輸入你的代號（如：夜鷹）" maxlength="12">
+    </div>
+    <div class="field-group">
+      <label class="field-label">任務房間碼</label>
+      <input class="field-input" id="inp-room" placeholder="輸入房間碼（如：ALPHA7）" maxlength="8" style="text-transform:uppercase;letter-spacing:.2em">
+    </div>
+    <div class="field-group">
+      <label class="field-label">選擇角色</label>
+      <div class="role-grid">
+        <div class="role-card" id="role-a" onclick="selectRole('A')">
+          <div class="role-icon">🔵</div>
+          <div class="role-name">探員 A</div>
+          <div class="role-desc">掌握技術情報</div>
+        </div>
+        <div class="role-card" id="role-b" onclick="selectRole('B')">
+          <div class="role-icon">🟡</div>
+          <div class="role-name">探員 B</div>
+          <div class="role-desc">掌握現場情報</div>
+        </div>
+      </div>
+    </div>
+    <div class="error-msg" id="lobby-error"></div>
+    <button class="btn btn-primary" onclick="joinRoom()">進入任務 ›</button>
+  </div>
+  <div style="margin-top:20px;font-family:var(--font-mono);font-size:11px;color:var(--text-dim);text-align:center;letter-spacing:.1em">
+    研究專用系統 · 所有對話將被記錄用於學術分析
+  </div>
+</div>
+
+<!-- ══ SCREEN: WAITING ══ -->
+<div class="screen" id="screen-waiting">
+  <div class="wait-anim"></div>
+  <div style="font-family:var(--font-mono);font-size:13px;color:var(--accent);letter-spacing:.2em;text-transform:uppercase;margin-bottom:12px">等待搭檔連線中</div>
+  <div style="font-size:13px;color:var(--text-dim);margin-bottom:24px">房間碼：<span id="wait-room" style="color:#fff"></span></div>
+  <div style="font-size:13px;color:var(--text-dim)">將此房間碼傳給你的搭檔</div>
+</div>
+
+<!-- ══ SCREEN: GAME ══ -->
+<div class="screen" id="screen-game">
+  <!-- Status bar -->
+  <div class="statusbar">
+    <div class="status-dot"></div>
+    <div class="status-item">探員：<span id="hud-codename">—</span></div>
+    <div class="status-sep">|</div>
+    <div class="status-item">角色：<span id="hud-role">—</span></div>
+    <div class="status-sep">|</div>
+    <div class="status-item">任務：<span id="hud-mission">機密行動</span></div>
+    <div class="status-sep">|</div>
+    <div class="status-item">房間：<span id="hud-room">—</span></div>
+  </div>
+
+  <div class="game-body">
+    <!-- Intel panel -->
+    <div class="intel-panel">
+      <div class="panel-header">任務進度</div>
+      <div class="mission-progress">
+        <div class="progress-steps">
+          <div class="step-dot active" id="step-1"></div>
+          <div class="step-dot" id="step-2"></div>
+          <div class="step-dot" id="step-3"></div>
+        </div>
+        <div class="mission-title-sm">目前任務</div>
+        <div class="mission-name" id="panel-mission-name">關卡一：保險箱密碼</div>
+      </div>
+
+      <div class="intel-section">
+        <div class="intel-label">你的機密情報</div>
+        <div id="intel-list">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+      <div class="intel-section" style="border-bottom:none">
+        <div class="intel-label">搭檔狀態</div>
+        <div class="partner-status">
+          <div class="partner-dot online" id="partner-dot"></div>
+          <span id="partner-name-label">等待搭檔...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat -->
+    <div class="chat-area">
+      <div class="chat-header">
+        <span id="chat-title">// 加密頻道 — 機密通訊</span>
+        <span id="mission-phase" style="color:var(--amber)">關卡 1 / 3</span>
+      </div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="typing-wrap">
+        <div class="typing-ind" id="typing-ind" style="display:none">
+          <span id="typing-name">搭檔</span> 正在輸入
+          <div class="typing-dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+      <div class="input-bar">
+        <textarea class="chat-input" id="chat-input" rows="1" placeholder="輸入訊息... (Enter 送出)" maxlength="500"></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">送出</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: REFLECTION ══ -->
+<div class="screen" id="screen-reflect">
+  <div style="text-align:center;margin-bottom:32px">
+    <div class="logo-tag">任務完成 — 任務回顧</div>
+    <div class="logo-title" style="font-size:28px">行動覆盤</div>
+    <div class="logo-sub">DEBRIEF · UNIT 7</div>
+  </div>
+  <div class="reflect-form">
+    <div class="reflect-q">
+      <div class="reflect-q-num">Q1</div>
+      <div class="reflect-q-text">在這次任務中，你們是如何分工合作的？誰先說出線索？</div>
+      <textarea class="field-input" id="ref-q1" placeholder="請描述你們的合作過程..."></textarea>
+    </div>
+    <div class="reflect-q">
+      <div class="reflect-q-num">Q2</div>
+      <div class="reflect-q-text">過程中你有沒有改變過自己的想法？是什麼讓你改變的？</div>
+      <textarea class="field-input" id="ref-q2" placeholder="請描述你的思考過程..."></textarea>
+    </div>
+    <div class="reflect-q">
+      <div class="reflect-q-num">Q3</div>
+      <div class="reflect-q-text">你覺得你們這次合作最好的地方是什麼？最需要改進的是什麼？</div>
+      <textarea class="field-input" id="ref-q3" placeholder="請分享你的觀察..."></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="submitReflection()">提交覆盤報告 ›</button>
+    <div class="error-msg" id="reflect-error"></div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: END ══ -->
+<div class="screen" id="screen-end">
+  <div class="logo-wrap">
+    <div class="logo-tag">任務結束</div>
+    <div class="logo-title" style="font-size:36px">行動<span>完成</span></div>
+  </div>
+  <div class="card" style="text-align:center">
+    <div style="font-size:48px;margin-bottom:16px">🏆</div>
+    <div style="font-family:var(--font-mono);font-size:18px;color:var(--green);margin-bottom:8px;letter-spacing:.1em">任務成功</div>
+    <div style="font-size:13px;color:var(--text-dim);line-height:1.7">感謝參與本次研究！<br>你們的對話紀錄已安全傳送至研究中心。<br><br>局長代號：<span style="color:var(--accent)" id="end-room">—</span></div>
+  </div>
+</div>
+
+<!-- ══ MISSION COMPLETE OVERLAY ══ -->
+<div class="overlay" id="mission-overlay">
+  <div class="overlay-icon" id="overlay-icon">✅</div>
+  <div class="overlay-title" id="overlay-title">關卡完成</div>
+  <div class="overlay-sub" id="overlay-sub">正在進入下一關...</div>
+  <button class="btn" style="max-width:200px" id="overlay-btn" onclick="nextMission()">繼續任務 ›</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, push, onValue, onChildAdded, update, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+// ── CONFIG: replace with your Firebase project ──
+const firebaseConfig = {
+  apiKey: "AIzaSyByP7iO4XUutmb0jnegliG9xwnDR926rdo",
+  authDomain: "spy-mission-research.firebaseapp.com",
+  databaseURL: "https://spy-mission-research-default-rtdb.firebaseio.com",
+  projectId: "spy-mission-research",
+  storageBucket: "spy-mission-research.firebasestorage.app",
+  messagingSenderId: "939101488132",
+  appId: "1:939101488132:web:3fb169f3c1aaf55c94e151"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+// ── State ──
+let state = {
+  room: '', role: '', codename: '',
+  mission: 1, partnerOnline: false, partnerName: '',
+  typingTimeout: null, lastMsgKey: null
+};
+
+// ── Mission data ──
+const MISSIONS = {
+  1: {
+    name: '保險箱密碼',
+    story: '局長離開前將密碼拆成兩半，分別傳給了你們。必須交換情報，推理出完整密碼。',
+    intel: {
+      A: ['密碼為四位數，每位數字均不同','第一位數字是 3','第三位數字比第二位大 3','四個數字的總和是 22'],
+      B: ['密碼為四位數，每位數字均不同','最後一位（第四位）是 6','第二位數字是 奇數','所有數字均不含 0 或 1']
+    },
+    answer: '3586',
+    aiIntro: '🔴 局長 > 探員們，聽好了。這個保險箱裡有你們下一站任務的座標。我把密碼線索一分為二——你們必須互相交換情報，推理出四位數密碼。不能猜、要推理。開始。'
+  },
+  2: {
+    name: '找出臥底間諜',
+    story: '組織內有一名間諜，你們各自取得了不同的機密檔案。必須交換線索，鎖定目標。',
+    intel: {
+      A: ['嫌疑人共4名：陳志明、林雅婷、吳建國、趙宇翔','間諜特徵：左撇子，且戴眼鏡','陳志明：右撇子，戴眼鏡','林雅婷：左撇子，不戴眼鏡','吳建國與趙宇翔的慣用手——你的資料中未記載'],
+      B: ['間諜特徵：當天穿深色衣服，且獨自行動','吳建國：穿深色衣，但有同伴陪同','趙宇翔：穿深色衣，獨自行動，且是左撇子','趙宇翔是否戴眼鏡——你的資料中未記載','其他三人行動資料均不符合']
+    },
+    answer: '趙宇翔',
+    aiIntro: '🔴 局長 > 你們保險箱幹得漂亮。但行動才剛開始——組織內部出現了叛徒。我的情報分兩份，你們各拿一半。把線索湊在一起，告訴我間諜是誰，以及你們的推理過程。'
+  },
+  3: {
+    name: '協商救援順序',
+    story: '災難現場有四組倖存者，救援資源只夠出動兩次。你們各握有不同的現場報告，必須共同決策。',
+    intel: {
+      A: ['A組：8人，含3名重傷者，距基地近','B組：2人，均為醫療專業人員，距基地近','C組：人數不明，位置遠','D組：15人，以孩童為主，位置遠，已失聯'],
+      B: ['若先救出B組醫療人員，可立即折返協助救治A組重傷者','C組共12人，攜有衛星通訊設備，可大幅提升後續救援效率','D組孩童若超過2小時未獲救，生存率將大幅下降','救援車輛僅能出動 兩次，每次可載10人']
+    },
+    answer: null, // open-ended
+    aiIntro: '🔴 局長 > 間諜已被移交。但現在有更緊急的狀況——四個地點都有倖存者，但我們只有兩次出車機會。你們手上的情報都不完整，必須合作做出決定，並且說服我你們的理由。這沒有標準答案，我要看的是你們怎麼協商。'
+  }
+};
+
+// ── Helpers ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function toast(msg, dur = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+function scrollChat() {
+  const c = document.getElementById('chat-messages');
+  c.scrollTop = c.scrollHeight;
+}
+
+// ── Role selection ──
+window.selectRole = function(r) {
+  state.role = r;
+  document.getElementById('role-a').classList.toggle('selected', r === 'A');
+  document.getElementById('role-b').classList.toggle('selected', r === 'B');
+};
+
+// ── Join room ──
+window.joinRoom = async function() {
+  const codename = document.getElementById('inp-codename').value.trim();
+  const room = document.getElementById('inp-room').value.trim().toUpperCase();
+  const err = document.getElementById('lobby-error');
+  err.textContent = '';
+  if (!codename) { err.textContent = '請輸入探員代號'; return; }
+  if (!room) { err.textContent = '請輸入房間碼'; return; }
+  if (!state.role) { err.textContent = '請選擇角色'; return; }
+
+  state.codename = codename;
+  state.room = room;
+
+  const playerRef = ref(db, `rooms/${room}/players/${state.role}`);
+  const snap = await get(playerRef);
+  if (snap.exists() && snap.val().online) {
+    err.textContent = '此角色已有人佔用，請選擇另一個角色或更換房間碼';
+    return;
+  }
+
+  await set(playerRef, { codename, online: true, joinedAt: serverTimestamp() });
+  await set(ref(db, `rooms/${room}/meta`), { createdAt: serverTimestamp(), active: true });
+
+  initGame();
+};
+
+// ── Init game ──
+function initGame() {
+  const { room, role, codename } = state;
+  document.getElementById('hud-codename').textContent = codename;
+  document.getElementById('hud-role').textContent = '探員 ' + role;
+  document.getElementById('hud-room').textContent = room;
+  document.getElementById('wait-room').textContent = room;
+  document.getElementById('end-room').textContent = room;
+
+  showScreen('waiting');
+
+  // Watch partner
+  const partnerRole = role === 'A' ? 'B' : 'A';
+  onValue(ref(db, `rooms/${room}/players/${partnerRole}`), snap => {
+    if (snap.exists() && snap.val().online) {
+      state.partnerOnline = true;
+      state.partnerName = snap.val().codename;
+      document.getElementById('partner-name-label').textContent = snap.val().codename + '（線上）';
+      document.getElementById('partner-dot').className = 'partner-dot online';
+      if (document.getElementById('screen-waiting').classList.contains('active')) {
+        startMission(1);
+      }
+    } else {
+      state.partnerOnline = false;
+      document.getElementById('partner-dot').className = 'partner-dot offline';
+      document.getElementById('partner-name-label').textContent = '搭檔已離線';
+    }
+  });
+
+  // Watch mission changes
+  onValue(ref(db, `rooms/${room}/mission`), snap => {
+    if (!snap.exists()) return;
+    const m = snap.val();
+    if (m > state.mission) advanceMission(m);
+  });
+
+  // Watch messages
+  onChildAdded(ref(db, `rooms/${room}/messages`), snap => {
+    const msg = snap.val();
+    appendMessage(msg);
+  });
+
+  // Watch typing
+  const partnerTypingRef = ref(db, `rooms/${room}/typing/${partnerRole}`);
+  onValue(partnerTypingRef, snap => {
+    const ind = document.getElementById('typing-ind');
+    if (snap.exists() && snap.val()) {
+      document.getElementById('typing-name').textContent = state.partnerName || '搭檔';
+      ind.style.display = 'flex';
+    } else {
+      ind.style.display = 'none';
+    }
+    scrollChat();
+  });
+}
+
+// ── Start mission ──
+function startMission(n) {
+  state.mission = n;
+  const m = MISSIONS[n];
+  showScreen('game');
+
+  // Update HUD
+  document.getElementById('hud-mission').textContent = `關卡 ${n}：${m.name}`;
+  document.getElementById('panel-mission-name').textContent = `關卡 ${n}：${m.name}`;
+  document.getElementById('mission-phase').textContent = `關卡 ${n} / 3`;
+
+  // Progress steps
+  for (let i = 1; i <= 3; i++) {
+    const dot = document.getElementById('step-' + i);
+    dot.className = 'step-dot' + (i < n ? ' done' : i === n ? ' active' : '');
+  }
+
+  // Intel
+  const intel = m.intel[state.role];
+  const list = document.getElementById('intel-list');
+  list.innerHTML = intel.map(t => `<div class="intel-item">${t}</div>`).join('');
+
+  // AI intro (only send once, from role A)
+  if (state.role === 'A') {
+    setTimeout(() => {
+      pushMessage({ type: 'ai', text: m.aiIntro, sender: '局長', ts: Date.now() });
+    }, 800);
+  }
+
+  // Input
+  setupInput();
+}
+
+// ── Setup input ──
+function setupInput() {
+  const input = document.getElementById('chat-input');
+  const btn   = document.getElementById('send-btn');
+  input.disabled = false; btn.disabled = false;
+
+  input.onkeydown = e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    // typing indicator
+    update(ref(db, `rooms/${state.room}/typing/${state.role}`), { value: true });
+    clearTimeout(state.typingTimeout);
+    state.typingTimeout = setTimeout(() => {
+      update(ref(db, `rooms/${state.room}/typing/${state.role}`), { value: false });
+    }, 2000);
+  };
+}
+
+// ── Send message ──
+window.sendMessage = async function() {
+  const input = document.getElementById('chat-input');
+  const text  = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Clear typing
+  update(ref(db, `rooms/${state.room}/typing/${state.role}`), { value: false });
+
+  const msg = {
+    type: state.role === 'A' ? 'a' : 'b',
+    sender: state.codename,
+    role: state.role,
+    text,
+    mission: state.mission,
+    ts: Date.now()
+  };
+  await pushMessage(msg);
+
+  if (text.trim() === "/next") { window.completeMission(); return; }
+  // Check if should trigger AI
+  checkAITrigger(text);
+};
+
+// ── Push message to Firebase ──
+async function pushMessage(msg) {
+  await push(ref(db, `rooms/${state.room}/messages`), msg);
+}
+
+// ── Append message to DOM ──
+function appendMessage(msg) {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+
+  if (msg.type === 'system') {
+    div.className = 'msg system';
+    div.innerHTML = `<div class="msg-bubble">${msg.text}</div>`;
+  } else if (msg.type === 'ai') {
+    div.className = 'msg ai';
+    div.innerHTML = `
+      <div class="msg-bubble">
+        <span class="ai-tag">▲ 局長指令</span>
+        ${msg.text.replace('🔴 局長 > ', '')}
+      </div>`;
+  } else {
+    const isSelf = msg.role === state.role;
+    div.className = 'msg ' + (isSelf ? 'self' : 'partner');
+    div.innerHTML = `
+      <div class="msg-meta">${msg.sender} · 探員${msg.role}</div>
+      <div class="msg-bubble">${escHtml(msg.text)}</div>`;
+  }
+
+  container.appendChild(div);
+  scrollChat();
+}
+
+// ── AI trigger logic ──
+const aiCooldown = {};
+function checkAITrigger(text) {
+  const m = state.mission;
+  const now = Date.now();
+  if (aiCooldown[m] && now - aiCooldown[m] < 30000) return;
+
+  const lower = text.toLowerCase();
+  const responses = {
+    1: [
+      { cond: () => /\d{4}/.test(text) && !lower.includes('推理') && !lower.includes('因為'),
+        msg: '🔴 局長 > 說出答案之前，先說說你們的推理過程——你是怎麼算出來的？' },
+      { cond: () => lower.includes('猜') || lower.includes('隨便'),
+        msg: '🔴 局長 > 這不是猜謎遊戲。把你手上的情報說出來，讓你的搭檔幫你驗算。' },
+      { cond: () => lower.includes('不知道') || lower.includes('不確定'),
+        msg: '🔴 局長 > 你搭檔的情報和你的合在一起，才是完整的線索。試著把你知道的告訴他/她。' }
+    ],
+    2: [
+      { cond: () => /(陳|林|吳|趙)/.test(text) && !lower.includes('因為') && !lower.includes('線索'),
+        msg: '🔴 局長 > 你有幾成把握？說說你的推理依據——你手上的哪條情報指向這個人？' },
+      { cond: () => lower.includes('不確定') || lower.includes('你覺得'),
+        msg: '🔴 局長 > 別問搭檔「你覺得」，把你的情報攤出來，讓事實說話。' }
+    ],
+    3: [
+      { cond: () => /先救[abcdABCD組]/.test(text),
+        msg: '🔴 局長 > 你的搭檔同意嗎？他/她手上有你沒有的資訊，聽聽看。' },
+      { cond: () => lower.includes('我覺得') && lower.includes('同意'),
+        msg: '🔴 局長 > 你們是怎麼達成共識的？說說你有沒有改變過自己的想法。' }
+    ]
+  };
+
+  const triggers = responses[m] || [];
+  for (const t of triggers) {
+    if (t.cond()) {
+      aiCooldown[m] = now;
+      setTimeout(() => {
+        if (state.role === 'A') {
+          pushMessage({ type: 'ai', text: t.msg, sender: '局長', mission: m, ts: Date.now() });
+        }
+      }, 1500);
+      break;
+    }
+  }
+}
+
+// ── Advance mission ──
+function advanceMission(n) {
+  if (n > 3) {
+    showReflection();
+    return;
+  }
+  const overlay = document.getElementById('mission-overlay');
+  document.getElementById('overlay-title').textContent = `關卡 ${state.mission} 完成`;
+  document.getElementById('overlay-sub').textContent = MISSIONS[n] ? `下一關：${MISSIONS[n].name}` : '前往任務覆盤';
+  document.getElementById('overlay-btn').textContent = n <= 3 ? `進入關卡 ${n} ›` : '前往覆盤 ›';
+  overlay.classList.add('show');
+  state.mission = n;
+}
+
+window.nextMission = function() {
+  document.getElementById('mission-overlay').classList.remove('show');
+  if (state.mission <= 3) startMission(state.mission);
+  else showReflection();
+};
+
+// ── Complete mission (call from chat) ──
+window.completeMission = async function() {
+  const next = state.mission + 1;
+  await set(ref(db, `rooms/${state.room}/mission`), next);
+};
+
+// ── Reflection ──
+function showReflection() {
+  showScreen('reflect');
+}
+
+window.submitReflection = async function() {
+  const q1 = document.getElementById('ref-q1').value.trim();
+  const q2 = document.getElementById('ref-q2').value.trim();
+  const q3 = document.getElementById('ref-q3').value.trim();
+  const err = document.getElementById('reflect-error');
+  if (!q1 || !q2 || !q3) { err.textContent = '請回答所有問題'; return; }
+
+  await set(ref(db, `rooms/${state.room}/reflections/${state.role}`), {
+    q1, q2, q3,
+    codename: state.codename,
+    submittedAt: serverTimestamp()
+  });
+
+  showScreen('end');
+  toast('覆盤報告已提交');
+};
+
+// ── Auto-resize textarea ──
+document.getElementById('chat-input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+});
+
+function escHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Expose for button in chat ──
+window.state = state;
+
+// Cleanup on leave
+window.addEventListener('beforeunload', () => {
+  if (state.room && state.role) {
+    set(ref(db, `rooms/${state.room}/players/${state.role}/online`), false);
+  }
+});
+</script>
+</body>
+</html>
