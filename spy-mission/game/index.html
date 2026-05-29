@@ -520,9 +520,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// ── Gemini ──
-const GEMINI_KEY = "AQ.Ab8RN6Kk4PrmV4xiCq9HYrRzxTcm7Sn_Ri-tysa88l2PXmgTsw";
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+// ── Groq ──
+const GROQ_KEY = "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";
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 // ── System Prompts ──
 const SYSTEM_PROMPTS = {
