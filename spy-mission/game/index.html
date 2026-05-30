@@ -312,11 +312,19 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
           </div>
           <div>
             <div class="rc-sh">背景檔案</div>
-            <div class="rc-sb">曾任職某國家級情報機構鑑識部門八年，專精現場重建與視覺細節判讀。因連續偵破數起陳年懸案，三年前被影子局秘密徵召。</div>
+            <div class="rc-sb">曾任職某國家級情報機構鑑識部門八年，專精現場重建與視覺細節判讀。因連續偵破數起陳年懸案，被影子局秘密徵召。她不解釋自己的直覺——結果會說話。</div>
           </div>
           <div>
             <div class="rc-sh">能力評估</div>
-            <div class="rc-sb">對視覺資訊的記憶與解讀能力遠超常人。習慣在開口前觀察完所有細節，不輕易相信口頭陳述，只信自己親眼看到的。</div>
+            <div class="rc-sb">對視覺資訊的記憶與解讀能力遠超常人。習慣在開口前觀察完所有細節，不輕易相信口頭陳述，只信自己親眼看到的。一個腳印的方向、一扇窗的角度、一張照片裡模糊的輪廓——她都不會放過。</div>
+          </div>
+          <div>
+            <div class="rc-sh">任務定位</div>
+            <div class="rc-sb">負責解讀現場畫面與視覺線索。你看到的細節，是搭檔無法取得的第一手資訊。你必須把你看到的說清楚——搭檔才能推理。</div>
+          </div>
+          <div>
+            <div class="rc-sh">搭檔依賴</div>
+            <div class="rc-sb">你的眼睛能讀出畫面，但無法解讀畫面背後的邏輯脈絡。你的搭檔掌握著你看不到的情報分析——沒有他，你的觀察只是片段。</div>
           </div>
           <div class="rc-quote">「她掃過一個房間，能注意到你看了十遍都沒發現的東西。但她需要有人幫她把線索連起來。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
         </div>
@@ -342,11 +350,19 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
           </div>
           <div>
             <div class="rc-sh">背景檔案</div>
-            <div class="rc-sb">曾任職某跨國刑事調查機構資深分析師七年，擅長從大量資訊中找出矛盾與異常模式。任職期間破案率達94%，兩年前因案件性質特殊，轉調影子局。</div>
+            <div class="rc-sb">曾任職某跨國刑事調查機構資深分析師七年，擅長從大量資訊中找出矛盾與異常模式。破案率94%，從不放過任何說不通的地方。兩年前因案件性質特殊，轉調影子局。他相信每一個細節背後，都有人不想讓你知道的事。</div>
           </div>
           <div>
             <div class="rc-sh">能力評估</div>
-            <div class="rc-sb">思維極度縝密，習慣從資訊缺口切入。對任何「巧合」高度懷疑，需要搭檔補足現場直覺與視覺觀察。</div>
+            <div class="rc-sb">思維極度縝密，習慣從資訊缺口切入。對任何「巧合」高度懷疑。一個時間點的偏差、一句陳述裡的漏洞、一個不該出現的名字——他都能找出來。</div>
+          </div>
+          <div>
+            <div class="rc-sh">任務定位</div>
+            <div class="rc-sb">負責分析情報文件與找出邏輯矛盾。你讀到的資料，是搭檔無法取得的關鍵背景。你必須把你的分析說出來——搭檔才能驗證。</div>
+          </div>
+          <div>
+            <div class="rc-sh">搭檔依賴</div>
+            <div class="rc-sb">你的邏輯能拆解資料，但無法親眼看見現場。你的搭檔看到了你永遠無法坐在桌前分析的那一半——沒有她，你的推理缺少地基。</div>
           </div>
           <div class="rc-quote">「給他一份報告，他能找出連撰寫者都沒發現的矛盾。但他需要有人告訴他現場實際長什麼樣。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
         </div>
@@ -736,44 +752,100 @@ function initGame(){
 }
 
 // ── INTRO ──
-const INTRO_A=[
-  "局長 > 林曉晨，夜鷹，你聽著。",
-  "局長 > 你的眼睛是這支隊伍最強的武器。",
-  "局長 > 你能看到別人忽略的細節——現場的每一個痕跡、每一個異常。",
-  "局長 > 但記住，你看到的只有一半的真相。",
-  "局長 > 你的搭檔掌握著另一半你看不到的資訊。",
-  "局長 > 你們必須充分溝通、互相信任，才能還原完整的真相。",
-  "局長 > 合作，是你們唯一的武器。任務開始。"
+const STAGE1_A=[
+  ["局長 > 林曉晨。",60,800],
+  ["局長 > 我觀察你很久了。",45,400],
+  ["局長 > 八個月前，北部發生了一起失蹤案。",35,300],
+  ["局長 > 失蹤的是一名十一歲的女孩。",35,400],
+  ["局長 > 警方查了三週，什麼都沒有。",35,600],
+  ["局長 > 你是第四天進現場的。",45,400],
+  ["局長 > 沒有人知道你注意到了什麼。",40,300],
+  ["局長 > 只知道你在現場待了不到二十分鐘，",35,200],
+  ["局長 > 然後走出來，",55,400],
+  ["局長 > 說出了一個地址。",55,1000],
+  ["局長 > 女孩在那裡。",65,1200],
+  ["局長 > 你沒有解釋你是怎麼知道的。",40,400],
+  ["局長 > 但我一直想知道。",50,600],
+  ["局長 > 所以我找到你了。",50,0],
 ];
-const INTRO_B=[
-  "局長 > 陳宇哲，獵犬，你聽著。",
-  "局長 > 你的推理能力是這支隊伍最鋒利的刀。",
-  "局長 > 你能從矛盾的資料中找出破綻——沒有任何細節能逃過你的眼睛。",
-  "局長 > 但記住，你分析的只有一半的資訊。",
-  "局長 > 你的搭檔看到了你無法取得的現場畫面。",
-  "局長 > 你們必須充分溝通、整合情報，才能找出真相。",
-  "局長 > 合作，是你們唯一的武器。任務開始。"
+const STAGE2_A=[
+  ["局長 > 這個任務，你會看到很多東西。",40,300],
+  ["局長 > 但不是所有東西都說得清楚它意味著什麼。",35,500],
+  ["局長 > 你的搭檔有你沒有的那一塊。",45,400],
+  ["局長 > 就像那次，你看到了地址——",45,200],
+  ["局長 > 但你需要有人告訴你，那條街上發生過什麼。",35,600],
+  ["局長 > 說出你看到的。",55,200],
+  ["局長 > 不要假設對方知道。",45,400],
+  ["局長 > 真相從來不住在一個人腦子裡。",40,600],
+  ["局長 > 記住——合作，是這次任務的核心。",40,400],
+  ["局長 > 任務開始。",65,0],
+];
+const STAGE1_B=[
+  ["局長 > 陳宇哲。",60,800],
+  ["局長 > 我觀察你很久了。",45,400],
+  ["局長 > 五年前，你還在刑事組的時候，",35,300],
+  ["局長 > 有一起案子，所有人都認為已經結案了。",35,300],
+  ["局長 > 嫌疑人認罪，證據齊全，法官簽了字。",35,600],
+  ["局長 > 只有你不信。",65,800],
+  ["局長 > 你花了四個月，",45,200],
+  ["局長 > 在那份沒有人再看第二眼的報告裡，",35,200],
+  ["局長 > 找出了十七個說不通的地方。",40,800],
+  ["局長 > 那個認罪的人，是被冤枉的。",45,400],
+  ["局長 > 真正的人，還在外面。",45,400],
+  ["局長 > 你把他找出來了。",50,1000],
+  ["局長 > 不是因為你運氣好。",45,300],
+  ["局長 > 是因為你相信數字不會說謊。",40,600],
+  ["局長 > 所以我找到你了。",50,0],
+];
+const STAGE2_B=[
+  ["局長 > 這個任務，你會拿到很多資料。",40,300],
+  ["局長 > 但資料永遠只說了一半的故事。",40,500],
+  ["局長 > 你的搭檔看到了你永遠無法坐在桌前分析的那一半——",35,200],
+  ["局長 > 現場本身。",65,800],
+  ["局長 > 就像那次，你找出了矛盾——",45,200],
+  ["局長 > 但你需要有人告訴你，現場的門是往哪個方向開的。",35,600],
+  ["局長 > 問她你看不懂的地方。",45,200],
+  ["局長 > 把你發現的說出來。",45,400],
+  ["局長 > 真相從來不住在一個人腦子裡。",40,600],
+  ["局長 > 記住——合作，是這次任務的核心。",40,400],
+  ["局長 > 任務開始。",65,0],
 ];
 
-async function playIntro(){
-  const lines=S.role==="A"?INTRO_A:INTRO_B;
-  const ov=document.getElementById("intro-ov"),tx=document.getElementById("intro-tx");
-  ov.classList.add("on");tx.innerHTML="";
-  for(const line of lines){await typeText(tx,line);await sleep(500);tx.innerHTML+="\n";}
-  document.getElementById("intro-prompt").style.display="block";
-  await new Promise(r=>{
+async function playLines(lines,el){
+  for(const [text,speed,pause] of lines){
+    await typeText(el,text,speed);
+    el.innerHTML+="\n";
+    if(pause>0)await sleep(pause);
+  }
+}
+
+async function waitKey(){
+  return new Promise(r=>{
     const dismiss=()=>{document.removeEventListener("keydown",dismiss);document.removeEventListener("click",dismiss);r();};
     document.addEventListener("keydown",dismiss);
-    setTimeout(()=>document.addEventListener("click",dismiss),400);
+    setTimeout(()=>document.addEventListener("click",dismiss),500);
   });
+}
+
+async function playIntro(){
+  const s1=S.role==="A"?STAGE1_A:STAGE1_B;
+  const s2=S.role==="A"?STAGE2_A:STAGE2_B;
+  const ov=document.getElementById("intro-ov");
+  const tx=document.getElementById("intro-tx");
+  const prompt=document.getElementById("intro-prompt");
+  ov.classList.add("on");
+  // Stage 1
+  tx.innerHTML="";prompt.style.display="none";
+  await playLines(s1,tx);
+  prompt.style.display="block";
+  await waitKey();
+  // Stage 2
+  tx.innerHTML="";prompt.style.display="none";
+  await playLines(s2,tx);
+  prompt.style.display="block";
+  await waitKey();
   ov.classList.remove("on");
-  // A sends the mission intro message to Firebase
-  if(S.role==="A"){
-    startM(1);
-  } else {
-    // B starts mission, A's intro msg will come via Firebase onChildAdded
-    startM(1);
-  }
+  startM(1);
 }
 
 function typeText(el,text,spd=30){
@@ -782,6 +854,7 @@ function typeText(el,text,spd=30){
     const iv=setInterval(()=>{if(i<text.length){el.insertBefore(document.createTextNode(text[i++]),cur);}else{clearInterval(iv);cur.remove();r();}},spd);
   });
 }
+
 
 // ── MISSION ──
 function startM(n){
