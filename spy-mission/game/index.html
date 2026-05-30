@@ -531,17 +531,22 @@ document.getElementById("btn-create").addEventListener("click",()=>{
   const code=gc();S.room=code;
   document.getElementById("create-code").textContent=code;
   ss("sc");
-  // Wait for partner to join
-  const pr=ref(db,`rooms/${code}/players`);
-  onValue(pr,snap=>{
+  // Host waits for joiner, then both enter simultaneously
+  set(ref(db,`rooms/${code}/host`),{online:true,ts:serverTimestamp()});
+  // Watch for joiner
+  onValue(ref(db,`rooms/${code}/joiner`),snap=>{
     if(!snap.exists())return;
-    const players=snap.val();
-    const roles=Object.keys(players);
-    if(roles.length>=2){
-      // Both players connected - go to role select
-      S.role="";
-      initRoleSelect(code);
-    }
+    document.getElementById("create-status").textContent="搭檔已連線！正在進入...";
+    document.getElementById("create-ring").style.borderTopColor="var(--gn)";
+    // Signal both to proceed
+    setTimeout(()=>{
+      set(ref(db,`rooms/${code}/startRoleSelect`),{ts:Date.now()});
+    },1000);
+  });
+  // Also watch for start signal (in case joiner sends it first)
+  onValue(ref(db,`rooms/${code}/startRoleSelect`),snap=>{
+    if(!snap.exists())return;
+    initRoleSelect(code);
   });
 });
 
@@ -554,10 +559,17 @@ document.getElementById("btn-proceed-j").addEventListener("click",async()=>{
   const err=document.getElementById("join-err");
   err.textContent="";
   if(!code||code.length<4){err.textContent="請輸入有效的任務代碼";return;}
-  // Register as temp player
-  await set(ref(db,`rooms/${code}/players/temp_${Date.now()}`),{joining:true,ts:serverTimestamp()});
   S.room=code;
-  initRoleSelect(code);
+  // Show matching screen
+  ss("sw");
+  document.getElementById("wait-code").textContent=code;
+  // Signal presence
+  await set(ref(db,`rooms/${code}/joiner`),{online:true,ts:serverTimestamp()});
+  // Wait for host to signal start
+  onValue(ref(db,`rooms/${code}/startRoleSelect`),snap=>{
+    if(!snap.exists())return;
+    initRoleSelect(code);
+  });
 });
 
 // ROLE SELECT INIT
