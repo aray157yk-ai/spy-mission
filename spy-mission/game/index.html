@@ -280,6 +280,29 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;text
   </div>
 </div>
 
+
+<!-- NAME INPUT -->
+<div class="screen" id="sname">
+  <div class="logo">
+    <div class="logo-eye">配對成功</div>
+    <div class="logo-t" style="font-size:32px">輸入<em>姓名</em></div>
+    <div class="logo-s">任務代碼：<span id="name-room-code" style="color:var(--ac);font-family:var(--mono);letter-spacing:.2em">------</span></div>
+  </div>
+  <div class="icard" style="max-width:380px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--b1);">
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--gn);animation:pulse 2s infinite;flex-shrink:0;"></div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--tx2);letter-spacing:.1em;">搭檔已連線，輸入你的姓名後等待對方</div>
+    </div>
+    <div class="fg">
+      <label class="fl">玩家姓名</label>
+      <input class="fi" id="name-input" placeholder="輸入你的姓名" maxlength="12" style="font-size:15px;letter-spacing:.05em;text-transform:none;">
+    </div>
+    <div class="err" id="name-err"></div>
+    <button class="btn" id="name-submit-btn">確認姓名，等待搭檔 ›</button>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);text-align:center;margin-top:14px;" id="name-wait-status"></div>
+  </div>
+</div>
+
 <!-- ROLE SELECT -->
 <div class="screen" id="sr">
   <div class="role-screen-wrap">
@@ -529,20 +552,21 @@ function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 // LOBBY
 document.getElementById("btn-create").addEventListener("click",()=>{
   const code=gc();S.room=code;
+  S.isHost=true;
   document.getElementById("create-code").textContent=code;
   ss("sc");
-  // Host waits for joiner
-  set(ref(db,`rooms/${code}/host`),{online:true,ts:serverTimestamp()});
-  let hostEntered=false;
+  set(ref(db,`rooms/${code}/meta`),{created:serverTimestamp()});
+  // Watch for joiner
+  let matched=false;
   onValue(ref(db,`rooms/${code}/joiner`),snap=>{
-    if(!snap.exists()||hostEntered)return;
-    hostEntered=true;
-    document.getElementById("create-status").textContent="搭檔已連線！正在進入...";
+    if(!snap.exists()||matched)return;
+    matched=true;
+    document.getElementById("create-status").textContent="搭檔已連線！";
     document.getElementById("create-ring").style.borderTopColor="var(--gn)";
     setTimeout(()=>{
-      set(ref(db,`rooms/${code}/startRoleSelect`),{ts:Date.now()});
-      initRoleSelect(code);
-    },1200);
+      set(ref(db,`rooms/${code}/startName`),{ts:Date.now()});
+      showNameInput(code,"host");
+    },800);
   });
 });
 
@@ -554,21 +578,61 @@ document.getElementById("btn-proceed-j").addEventListener("click",async()=>{
   const code=document.getElementById("join-code").value.trim();
   const err=document.getElementById("join-err");
   err.textContent="";
-  if(!code||code.length<4){err.textContent="請輸入有效的任務代碼";return;}
-  S.room=code;
-  // Show matching screen briefly
+  if(!code||code.length<6){err.textContent="請輸入6位數字代碼";return;}
+  S.room=code;S.isHost=false;
   ss("sw");
   document.getElementById("wait-code").textContent=code;
-  // Signal presence to host
   await set(ref(db,`rooms/${code}/joiner`),{online:true,ts:serverTimestamp()});
-  // Wait for start signal from host
-  let joinEntered=false;
-  onValue(ref(db,`rooms/${code}/startRoleSelect`),snap=>{
-    if(!snap.exists()||joinEntered)return;
-    joinEntered=true;
-    initRoleSelect(code);
+  // Wait for host to signal name input
+  let nameShown=false;
+  onValue(ref(db,`rooms/${code}/startName`),snap=>{
+    if(!snap.exists()||nameShown)return;
+    nameShown=true;
+    showNameInput(code,"joiner");
   });
 });
+
+// NAME INPUT SCREEN
+function showNameInput(room,playerType){
+  ss("sname");
+  document.getElementById("name-room-code").textContent=room;
+  document.getElementById("name-submit-btn").onclick=async()=>{
+    const name=document.getElementById("name-input").value.trim();
+    const err=document.getElementById("name-err");
+    err.textContent="";
+    if(!name){err.textContent="請輸入姓名";return;}
+    S.name=name;
+    const key=playerType==="host"?"hostName":"joinerName";
+    await set(ref(db,`rooms/${room}/${key}`),{name,ts:serverTimestamp()});
+    document.getElementById("name-submit-btn").disabled=true;
+    document.getElementById("name-submit-btn").textContent="等待對方輸入姓名...";
+    document.getElementById("name-input").disabled=true;
+  };
+  // Watch for both names
+  let roleShown=false;
+  onValue(ref(db,`rooms/${room}/hostName`),()=>checkBothNames(room,playerType,()=>{
+    if(!roleShown){roleShown=true;initRoleSelect(room);}
+  }));
+  onValue(ref(db,`rooms/${room}/joinerName`),()=>checkBothNames(room,playerType,()=>{
+    if(!roleShown){roleShown=true;initRoleSelect(room);}
+  }));
+}
+
+async function checkBothNames(room,playerType,callback){
+  const [hs,js]=await Promise.all([get(ref(db,`rooms/${room}/hostName`)),get(ref(db,`rooms/${room}/joinerName`))]);
+  const statusEl=document.getElementById("name-wait-status");
+  if(hs.exists()&&!js.exists()&&playerType==="host"){
+    if(statusEl)statusEl.textContent="等待搭檔輸入姓名...";
+  }
+  if(js.exists()&&!hs.exists()&&playerType==="joiner"){
+    if(statusEl)statusEl.textContent="等待搭檔輸入姓名...";
+  }
+  if(hs.exists()&&js.exists()){
+    if(statusEl)statusEl.textContent="雙方已就緒，進入選角畫面...";
+    S.playerKey=playerType==="host"?"P1":"P2";
+    callback();
+  }
+}
 
 // ROLE SELECT INIT
 function initRoleSelect(room){
@@ -606,137 +670,128 @@ function updateTimerUI(){
 }
 
 async function randomAssign(room){
-  // Check Firebase for any confirmed roles
-  const snap=await get(ref(db,`rooms/${room}/roleSelect`));
-  const state=snap.val()||{};
-  let assignA=null,assignB=null;
-  if(state.A&&state.A.confirmed){assignA=state.A.name;}
-  if(state.B&&state.B.confirmed){assignB=state.B.name;}
-  // Assign remaining
-  if(!assignA&&!assignB){
-    // random
-    const r=Math.random()<0.5;
-    assignA=r?"随机A":"随机A";
-    assignB="随机B";
-  }
-  await set(ref(db,`rooms/${room}/roleAssigned`),{A:assignA||"随机",B:assignB||"随机",ts:serverTimestamp()});
+  const snap=await get(ref(db,`rooms/${room}/players`));
+  const players=snap.val()||{};
+  const p1=players.P1||{};const p2=players.P2||{};
+  let p1Role=p1.selected||null;let p2Role=p2.selected||null;
+  // If same or unset, randomize
+  if(!p1Role&&!p2Role){p1Role=Math.random()<0.5?"A":"B";p2Role=p1Role==="A"?"B":"A";}
+  else if(p1Role===p2Role||!p2Role){p2Role=p1Role==="A"?"B":"A";}
+  else if(!p1Role){p1Role=p2Role==="A"?"B":"A";}
+  // If one confirmed, honor it
+  if(p1.confirmed&&!p2.confirmed){p2Role=p1Role==="A"?"B":"A";}
+  if(p2.confirmed&&!p1.confirmed){p1Role=p2Role==="A"?"B":"A";}
+  await set(ref(db,`rooms/${room}/roleAssigned`),{P1:p1Role,P2:p2Role,ts:serverTimestamp()});
 }
 
 // Listen to role select state from Firebase
 function listenRoleState(room){
-  onValue(ref(db,`rooms/${room}/roleSelect`),snap=>{
+  onValue(ref(db,`rooms/${room}/players`),snap=>{
     if(!snap.exists())return;
-    const state=snap.val();
-    updateRoleUI(state);
+    const players=snap.val();
+    const p1=players.P1||{};
+    const p2=players.P2||{};
+    const myKey=S.playerKey;
+    const partnerKey=myKey==="P1"?"P2":"P1";
+    const me=players[myKey]||{};
+    const partner=players[partnerKey]||{};
+    updateRoleUI(me,partner);
     // Check if both confirmed different roles
-    const aConf=state.A&&state.A.confirmed;
-    const bConf=state.B&&state.B.confirmed;
-    if(aConf&&bConf&&state.A.role!==state.B.role){
-      // Both confirmed different roles - start 5s countdown
+    if(me.confirmed&&partner.confirmed&&me.selected&&partner.selected&&me.selected!==partner.selected){
       clearInterval(timerInterval);
-      startCountdown(state);
+      startCountdown(p1,p2);
     }
   });
 
   onValue(ref(db,`rooms/${room}/roleAssigned`),snap=>{
     if(!snap.exists())return;
-    // Time's up - use assigned roles
     const assigned=snap.val();
-    const myRole=S.name&&assigned.A===S.name?"A":assigned.B===S.name?"B":Math.random()<0.5?"A":"B";
+    const myRole=assigned[S.playerKey];
     S.role=myRole;
     clearInterval(timerInterval);
     startGameWithRole(myRole,S.name||"探員");
   });
 }
 
-function updateRoleUI(state){
-  const myRole=S.role;
-  const partnerRole=myRole==="A"?"B":myRole==="B"?"A":null;
-
-  // Reset badges
+function updateRoleUI(me,partner){
+  // Reset all cards
   ["a","b"].forEach(r=>{
-    document.getElementById(`badge-${r}-hover`).style.display="none";
-    document.getElementById(`badge-${r}-sel`).style.display="none";
-    document.getElementById(`card-${r}`).className="rc";
+    const card=document.getElementById("card-"+r);
+    card.style.outline="none";
+    card.style.boxShadow="none";
+    card.className="rc";
   });
 
-  // Show A state
-  if(state.A){
-    const cardA=document.getElementById("card-a");
-    const badgeASel=document.getElementById("badge-a-sel");
-    if(state.A.confirmed){
-      cardA.className="rc confirmed-a";
-      badgeASel.className="badge badge-confirm";
-      badgeASel.textContent="✓ 已確認";
-      badgeASel.style.display="block";
-    } else if(state.A.selected){
-      cardA.className="rc sel-a";
-      badgeASel.className="badge badge-sel-a";
-      badgeASel.textContent="已選擇";
-      badgeASel.style.display="block";
-    } else if(state.A.hover){
-      cardA.className="rc hover-a";
-      document.getElementById("badge-a-hover").className="badge badge-hover-a";
-      document.getElementById("badge-a-hover").textContent="查看中";
-      document.getElementById("badge-a-hover").style.display="block";
+  // Helper to apply style to a card for a player
+  function applyStyle(role,player,isSelf){
+    if(!role)return;
+    const card=document.getElementById("card-"+role.toLowerCase());
+    const color=isSelf?"var(--ac)":"var(--am)";
+    const label=isSelf?"我":"搭檔 "+( partner.name||"");
+    if(player.confirmed){
+      card.style.outline=`3px solid ${color}`;
+      card.style.boxShadow=`0 0 20px ${color}40`;
+    } else if(player.selected===role){
+      card.style.outline=`2px ${isSelf?"solid":"dashed"} ${color}`;
+      card.style.boxShadow="none";
+    } else if(player.hover===role){
+      card.style.outline=`1px dashed ${color}80`;
     }
   }
 
-  // Show B state
-  if(state.B){
-    const cardB=document.getElementById("card-b");
-    const badgeBSel=document.getElementById("badge-b-sel");
-    if(state.B.confirmed){
-      cardB.className="rc confirmed-b";
-      badgeBSel.className="badge badge-confirm";
-      badgeBSel.textContent="✓ 已確認";
-      badgeBSel.style.display="block";
-    } else if(state.B.selected){
-      cardB.className="rc sel-b";
-      badgeBSel.className="badge badge-sel-b";
-      badgeBSel.textContent="已選擇";
-      badgeBSel.style.display="block";
-    } else if(state.B.hover){
-      cardB.className="rc hover-b";
-      document.getElementById("badge-b-hover").className="badge badge-hover-b";
-      document.getElementById("badge-b-hover").textContent="查看中";
-      document.getElementById("badge-b-hover").style.display="block";
-    }
+  // Apply partner first (underneath), then self (on top)
+  applyStyle(partner.selected,partner,false);
+  applyStyle(partner.hover,partner,false);
+  applyStyle(me.selected,me,true);
+  applyStyle(me.hover,me,true);
+
+  // Badges
+  ["a","b"].forEach(r=>{
+    document.getElementById("badge-"+r+"-hover").style.display="none";
+    document.getElementById("badge-"+r+"-sel").style.display="none";
+  });
+
+  // My badge
+  if(me.selected){
+    const bid=document.getElementById("badge-"+me.selected.toLowerCase()+"-sel");
+    bid.style.display="block";
+    bid.className="badge badge-sel-a";
+    bid.textContent=me.confirmed?"✓ 我已確認":"我已選擇";
   }
 
-  // Update status text
-  const aConf=state.A&&state.A.confirmed;
-  const bConf=state.B&&state.B.confirmed;
-  const sameRole=state.A&&state.B&&state.A.role===state.B.role&&state.A.selected&&state.B.selected;
+  // Partner badge
+  if(partner.selected){
+    const pid=document.getElementById("badge-"+partner.selected.toLowerCase()+"-hover");
+    pid.style.display="block";
+    pid.className="badge badge-hover-b";
+    pid.textContent=partner.confirmed?`✓ ${partner.name||"搭檔"}已確認`:`${partner.name||"搭檔"}選擇中`;
+  }
+
+  // Status
   const statusEl=document.getElementById("role-status");
-
-  if(aConf&&bConf){statusEl.textContent="雙方均已確認，準備倒數...";}
-  else if(aConf||bConf){statusEl.textContent="等待另一位探員確認...";}
-  else if(sameRole){statusEl.textContent="兩人選擇了同一個角色，請重新選擇";}
-  else if(state.A&&state.A.selected&&state.B&&state.B.selected){statusEl.textContent="雙方已選擇不同角色，請各自確認";}
+  const sameRole=me.selected&&partner.selected&&me.selected===partner.selected;
+  if(me.confirmed&&partner.confirmed&&!sameRole){statusEl.textContent="雙方均已確認，準備倒數...";}
+  else if(me.confirmed){statusEl.textContent="等待 "+(partner.name||"搭檔")+" 確認...";}
+  else if(partner.confirmed){statusEl.textContent=`${partner.name||"搭檔"} 已確認，請你也確認`;}
+  else if(sameRole){statusEl.textContent="⚠ 兩人選了同一個角色，請重新選擇";}
+  else if(me.selected&&partner.selected){statusEl.textContent="雙方已選不同角色，請各自確認";}
   else{statusEl.textContent="請選擇你的探員身份";}
 }
 
-// Role card interactions
-document.getElementById("card-a").addEventListener("mouseenter",()=>{
-  if(!S.room)return;
-  update(ref(db,`rooms/${S.room}/roleSelect/A`),{hover:true});
+// Role card interactions - P1/P2 based (not role based)
+["a","b"].forEach(card=>{
+  const el=document.getElementById("card-"+card);
+  const role=card.toUpperCase();
+  el.addEventListener("mouseenter",()=>{
+    if(!S.room||!S.playerKey)return;
+    update(ref(db,`rooms/${S.room}/players/${S.playerKey}`),{hover:role});
+  });
+  el.addEventListener("mouseleave",()=>{
+    if(!S.room||!S.playerKey)return;
+    update(ref(db,`rooms/${S.room}/players/${S.playerKey}`),{hover:null});
+  });
+  el.addEventListener("click",()=>selectRole(role));
 });
-document.getElementById("card-a").addEventListener("mouseleave",()=>{
-  if(!S.room)return;
-  update(ref(db,`rooms/${S.room}/roleSelect/A`),{hover:false});
-});
-document.getElementById("card-a").addEventListener("click",()=>selectRole("A"));
-
-document.getElementById("card-b").addEventListener("mouseenter",()=>{
-  if(!S.room)return;
-  update(ref(db,`rooms/${S.room}/roleSelect/B`),{hover:true});
-});
-document.getElementById("card-b").addEventListener("mouseleave",()=>{
-  if(!S.room)return;
-  update(ref(db,`rooms/${S.room}/roleSelect/B`),{hover:false});
-});
-document.getElementById("card-b").addEventListener("click",()=>selectRole("B"));
 
 function selectRole(r){
   S.role=r;
@@ -744,26 +799,16 @@ function selectRole(r){
   document.getElementById("btn-confirm-r").disabled=false;
   document.getElementById("btn-confirm-r").textContent=`確認選擇${r==="A"?"林曉晨":"陳宇哲"} ›`;
   document.getElementById("btn-cancel-r").style.display="none";
-  if(!S.room)return;
-  set(ref(db,`rooms/${S.room}/roleSelect/${r}`),{selected:true,confirmed:false,hover:false,name:S.name||"",role:r});
-  // Clear other role if we had it
-  const other=r==="A"?"B":"A";
-  get(ref(db,`rooms/${S.room}/roleSelect/${other}`)).then(snap=>{
-    if(snap.exists()&&snap.val().name===S.name){
-      set(ref(db,`rooms/${S.room}/roleSelect/${other}`),{selected:false,confirmed:false,hover:false,name:"",role:""});
-    }
-  });
+  if(!S.room||!S.playerKey)return;
+  update(ref(db,`rooms/${S.room}/players/${S.playerKey}`),{selected:r,confirmed:false,name:S.name});
 }
 
 document.getElementById("btn-confirm-r").addEventListener("click",()=>{
-  const name=document.getElementById("inp-name").value.trim();
   const err=document.getElementById("role-err");
   err.textContent="";
   if(!S.role){err.textContent="請先選擇角色";return;}
-  if(!name){err.textContent="請輸入玩家姓名";return;}
-  S.name=name;
   myConfirmed=true;
-  set(ref(db,`rooms/${S.room}/roleSelect/${S.role}`),{selected:true,confirmed:true,hover:false,name,role:S.role});
+  update(ref(db,`rooms/${S.room}/players/${S.playerKey}`),{selected:S.role,confirmed:true,name:S.name});
   document.getElementById("btn-confirm-r").disabled=true;
   document.getElementById("btn-confirm-r").textContent="等待搭檔確認...";
   document.getElementById("btn-cancel-r").style.display="block";
@@ -771,19 +816,22 @@ document.getElementById("btn-confirm-r").addEventListener("click",()=>{
 
 document.getElementById("btn-cancel-r").addEventListener("click",()=>{
   myConfirmed=false;
-  set(ref(db,`rooms/${S.room}/roleSelect/${S.role}`),{selected:true,confirmed:false,hover:false,name:S.name,role:S.role});
+  update(ref(db,`rooms/${S.room}/players/${S.playerKey}`),{selected:S.role,confirmed:false,name:S.name});
   document.getElementById("btn-confirm-r").disabled=false;
   document.getElementById("btn-confirm-r").textContent=`確認選擇${S.role==="A"?"林曉晨":"陳宇哲"} ›`;
   document.getElementById("btn-cancel-r").style.display="none";
 });
 
 // 5-second countdown
-function startCountdown(state){
+function startCountdown(p1,p2){
   const ov=document.getElementById("countdown-ov");
   const numEl=document.getElementById("cd-num");
   const infoEl=document.getElementById("cd-info");
   ov.classList.add("on");
-  infoEl.textContent=`${state.A.name} → 林曉晨 ／ ${state.B.name} → 陳宇哲`;
+  // Figure out who gets which role
+  const myPlayer=S.playerKey==="P1"?p1:p2;
+  S.role=myPlayer.selected;
+  infoEl.textContent=`${p1.name||"P1"} → ${p1.selected==="A"?"林曉晨":"陳宇哲"} ／ ${p2.name||"P2"} → ${p2.selected==="A"?"林曉晨":"陳宇哲"}`;
   let sec=5;
   numEl.textContent=sec;
   clearInterval(cdInterval);
