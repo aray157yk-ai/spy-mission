@@ -96,42 +96,45 @@ body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradi
 .timer-label{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.2em;}
 
 /* ROLE CARDS */
-/* Role select - 3 column layout: info | image | info */
-.role-grid{display:grid;grid-template-columns:1fr auto auto 1fr;gap:0;width:100%;margin-bottom:20px;align-items:stretch;}
-.rc-info-panel{background:var(--s1);border:1px solid var(--b1);border-radius:8px 0 0 8px;padding:20px;display:flex;flex-direction:column;gap:12px;}
-.rc-info-panel.right{border-radius:0 8px 8px 0;border-left:none;}
-.rc-img-panel{width:180px;flex-shrink:0;position:relative;cursor:pointer;transition:all .25s;background:var(--s2);border-top:2px solid var(--b1);border-bottom:2px solid var(--b1);}
-.rc-img-panel.left{border-left:2px solid var(--b1);border-radius:0;}
-.rc-img-panel.right{border-right:2px solid var(--b1);border-radius:0;}
-.rc-img-panel:hover{border-color:var(--b2);}
-.rc-img-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;min-height:320px;}
-.rc-img-placeholder{font-size:72px;opacity:.2;}
-.rc-img-panel img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+/* Role select layout */
+.role-screen-wrap{width:100%;max-width:1100px;display:flex;flex-direction:column;align-items:center;}
+.role-header{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:24px;}
+.role-title{font-family:var(--mono);font-size:11px;color:var(--tx2);letter-spacing:.25em;text-transform:uppercase;}
 
-/* Selection borders on image panels */
-.rc-img-panel.sel-self{border-color:var(--ac)!important;box-shadow:0 0 20px rgba(0,200,255,.25);}
-.rc-img-panel.sel-partner{box-shadow:inset 0 0 0 2px var(--am);}
-.rc-img-panel.sel-both{border-color:var(--ac)!important;box-shadow:0 0 20px rgba(0,200,255,.25),inset 0 0 0 3px var(--am);}
-.rc-img-panel.confirmed-self{border-color:var(--ac)!important;box-shadow:0 0 32px rgba(0,200,255,.4);}
+/* Two-card layout with gap between */
+.role-grid{display:grid;grid-template-columns:1fr 24px 1fr;gap:0;width:100%;margin-bottom:20px;align-items:stretch;}
+.role-slot{display:flex;gap:0;border:2px solid var(--b1);border-radius:8px;overflow:hidden;transition:border-color .25s,box-shadow .25s;cursor:pointer;}
+.role-slot:hover{border-color:var(--b2);}
+.role-slot.slot-a.self-sel{border-color:var(--ac);box-shadow:0 0 24px rgba(0,200,255,.25);}
+.role-slot.slot-b.self-sel{border-color:var(--ac);box-shadow:0 0 24px rgba(0,200,255,.25);}
+.role-slot.partner-sel{box-shadow:inset 0 0 0 3px var(--am);}
+.role-slot.both-sel{border-color:var(--ac);box-shadow:0 0 24px rgba(0,200,255,.2),inset 0 0 0 3px var(--am);}
+.role-slot.self-confirmed{border-color:var(--ac);box-shadow:0 0 36px rgba(0,200,255,.4);}
 
-/* Badges */
-.rc-badges{position:absolute;top:8px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;z-index:10;}
-.badge{font-family:var(--mono);font-size:9px;padding:3px 10px;border-radius:99px;letter-spacing:.1em;white-space:nowrap;}
-.badge-self{background:rgba(0,200,255,.25);color:var(--ac);border:1px solid var(--ac);}
-.badge-partner{background:rgba(255,183,0,.2);color:var(--am);border:1px solid rgba(255,183,0,.5);}
-.badge-confirm{background:rgba(0,232,122,.2);color:var(--gn);border:1px solid var(--gn);}
+/* Image side */
+.slot-img{width:180px;flex-shrink:0;background:var(--s2);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:360px;}
+.slot-img-ph{font-size:80px;opacity:.18;}
+.slot-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.slot-badges{position:absolute;top:10px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:5px;pointer-events:none;}
+.badge{font-family:var(--mono);font-size:9px;padding:4px 12px;border-radius:99px;letter-spacing:.1em;white-space:nowrap;}
+.badge-self{background:rgba(0,200,255,.3);color:var(--ac);border:1px solid var(--ac);}
+.badge-partner{background:rgba(255,183,0,.25);color:var(--am);border:1px solid rgba(255,183,0,.6);}
+.badge-confirm{background:rgba(0,232,122,.25);color:var(--gn);border:1px solid var(--gn);}
+.slot-img-label{font-family:var(--mono);font-size:10px;color:var(--tx3);letter-spacing:.15em;}
 
-/* Info panel content */
+/* Info side */
+.slot-info{flex:1;background:var(--s1);padding:20px;display:flex;flex-direction:column;gap:10px;border-left:1px solid var(--b1);}
+.slot-info.right{border-left:none;border-right:1px solid var(--b1);}
 .rc-code{font-family:var(--mono);font-size:10px;letter-spacing:.15em;margin-bottom:2px;}
 .rc-code.a{color:var(--ac);}.rc-code.b{color:var(--am);}
-.rc-iq{font-family:var(--mono);font-size:9px;color:var(--tx3);margin-bottom:6px;}
-.rc-name{font-size:18px;font-weight:700;color:#fff;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--b1);}
+.rc-iq{font-family:var(--mono);font-size:9px;color:var(--tx3);margin-bottom:4px;}
+.rc-name{font-size:18px;font-weight:700;color:#fff;padding-bottom:8px;border-bottom:1px solid var(--b1);}
 .rc-section-title{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.15em;margin-bottom:4px;}
-.rc-section-body{font-size:11px;color:var(--tx2);line-height:1.7;margin-bottom:10px;}
+.rc-section-body{font-size:11px;color:var(--tx2);line-height:1.7;}
 .rc-quote{font-size:11px;color:var(--tx2);line-height:1.7;font-style:italic;border-left:2px solid var(--b2);padding-left:10px;margin-top:auto;}
 
-/* Ready glow */
-.rc-ready-glow{position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,232,122,.08),transparent);pointer-events:none;opacity:0;transition:opacity .3s;}
+/* Divider between cards */
+.role-divider{width:24px;}
 
 /* Name input row */
 .name-row{display:flex;gap:12px;width:100%;align-items:flex-end;margin-bottom:16px;}
@@ -316,76 +319,67 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;text
     </div>
 
     <div class="role-grid">
-      <!-- AGENT A LEFT INFO -->
-      <div class="rc-info-panel">
-        <div>
-          <div class="rc-code a">// 代號：夜鷹 · NIGHTHAWK</div>
-          <div class="rc-iq">IQ 143　心理暨犯罪行為分析專家</div>
-          <div class="rc-name">林曉晨</div>
+      <!-- AGENT A: image left, info right -->
+      <div class="role-slot slot-a" id="card-a">
+        <div class="slot-img" id="slot-img-a">
+          <div class="slot-img-ph">👤</div>
+          <div class="slot-img-label">AGENT · A</div>
+          <div class="slot-badges">
+            <div id="badge-a-self" style="display:none"></div>
+            <div id="badge-a-partner" style="display:none"></div>
+          </div>
         </div>
-        <div>
-          <div class="rc-section-title">背景檔案</div>
-          <div class="rc-section-body">曾任職某國家級情報機構鑑識部門八年，專精現場重建與視覺細節判讀。因連續偵破數起陳年懸案，三年前被影子局秘密徵召。</div>
-        </div>
-        <div>
-          <div class="rc-section-title">能力評估</div>
-          <div class="rc-section-body">對視覺資訊的記憶與解讀能力遠超常人。習慣在開口前觀察完所有細節。不輕易相信口頭陳述，只信自己親眼看到的。</div>
-        </div>
-        <div class="rc-quote">「她掃過一個房間，能注意到你看了十遍都沒發現的東西。但她需要有人幫她把線索連起來。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
-      </div>
-
-      <!-- AGENT A IMAGE -->
-      <div class="rc-img-panel left" id="card-a">
-        <div class="rc-ready-glow"></div>
-        <div class="rc-img-inner">
-          <div class="rc-img-placeholder">👤</div>
-          <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);">AGENT · A</div>
-        </div>
-        <div class="rc-badges">
-          <div id="badge-a-self" style="display:none"></div>
-          <div id="badge-a-partner" style="display:none"></div>
+        <div class="slot-info">
+          <div>
+            <div class="rc-code a">// 代號：夜鷹 · NIGHTHAWK</div>
+            <div class="rc-iq">IQ 143 · 心理暨犯罪行為分析專家</div>
+            <div class="rc-name">林曉晨</div>
+          </div>
+          <div>
+            <div class="rc-section-title">背景檔案</div>
+            <div class="rc-section-body">曾任職某國家級情報機構鑑識部門八年，專精現場重建與視覺細節判讀。因連續偵破數起陳年懸案，三年前被影子局秘密徵召。</div>
+          </div>
+          <div>
+            <div class="rc-section-title">能力評估</div>
+            <div class="rc-section-body">對視覺資訊的記憶與解讀能力遠超常人。習慣在開口前觀察完所有細節，不輕易相信口頭陳述，只信自己親眼看到的。</div>
+          </div>
+          <div class="rc-quote">「她掃過一個房間，能注意到你看了十遍都沒發現的東西。但她需要有人幫她把線索連起來。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
         </div>
       </div>
 
-      <!-- AGENT B IMAGE -->
-      <div class="rc-img-panel right" id="card-b">
-        <div class="rc-ready-glow"></div>
-        <div class="rc-img-inner">
-          <div class="rc-img-placeholder">👤</div>
-          <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);">AGENT · B</div>
-        </div>
-        <div class="rc-badges">
-          <div id="badge-b-self" style="display:none"></div>
-          <div id="badge-b-partner" style="display:none"></div>
-        </div>
-      </div>
+      <div class="role-divider"></div>
 
-      <!-- AGENT B RIGHT INFO -->
-      <div class="rc-info-panel right">
-        <div>
-          <div class="rc-code b">// 代號：獵犬 · BLOODHOUND</div>
-          <div class="rc-iq">IQ 151　邏輯推理暨行為模式分析專家</div>
-          <div class="rc-name">陳宇哲</div>
+      <!-- AGENT B: info left, image right -->
+      <div class="role-slot slot-b" id="card-b">
+        <div class="slot-info right">
+          <div>
+            <div class="rc-code b">// 代號：獵犬 · BLOODHOUND</div>
+            <div class="rc-iq">IQ 151 · 邏輯推理暨行為模式分析專家</div>
+            <div class="rc-name">陳宇哲</div>
+          </div>
+          <div>
+            <div class="rc-section-title">背景檔案</div>
+            <div class="rc-section-body">曾任職某跨國刑事調查機構資深分析師七年，擅長從大量資訊中找出矛盾與異常模式。任職期間破案率達94%，兩年前因案件性質特殊，轉調影子局。</div>
+          </div>
+          <div>
+            <div class="rc-section-title">能力評估</div>
+            <div class="rc-section-body">思維極度縝密，習慣從資訊缺口切入。對任何「巧合」高度懷疑，需要搭檔補足現場直覺與視覺觀察。</div>
+          </div>
+          <div class="rc-quote">「給他一份報告，他能找出連撰寫者都沒發現的矛盾。但他需要有人告訴他現場實際長什麼樣。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
         </div>
-        <div>
-          <div class="rc-section-title">背景檔案</div>
-          <div class="rc-section-body">曾任職某跨國刑事調查機構資深分析師七年，擅長從大量資訊中找出矛盾與異常模式。任職期間破案率達94%，兩年前因案件性質特殊，轉調影子局。</div>
+        <div class="slot-img" id="slot-img-b">
+          <div class="slot-img-ph">👤</div>
+          <div class="slot-img-label">AGENT · B</div>
+          <div class="slot-badges">
+            <div id="badge-b-self" style="display:none"></div>
+            <div id="badge-b-partner" style="display:none"></div>
+          </div>
         </div>
-        <div>
-          <div class="rc-section-title">能力評估</div>
-          <div class="rc-section-body">思維極度縝密，習慣從資訊缺口切入。對任何「巧合」高度懷疑。需要搭檔補足現場直覺與視覺觀察。</div>
-        </div>
-        <div class="rc-quote">「給他一份報告，他能找出連撰寫者都沒發現的矛盾。但他需要有人告訴他現場實際長什麼樣。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
       </div>
     </div>
 
-    <!-- NAME + ACTIONS -->
-    <div class="name-row">
-      <div class="fg">
-        <label class="fl">玩家姓名</label>
-        <input class="fi fi-name" id="inp-name" placeholder="輸入你的姓名" maxlength="12">
-      </div>
-    </div>
+div>
+
     <div class="err" id="role-err"></div>
     <div class="action-row">
       <button class="btn" id="btn-confirm-r" disabled>選擇角色後確認 ›</button>
@@ -757,33 +751,34 @@ function updateRoleUI(me,partner){
     document.getElementById("badge-"+r+"-sel").style.display="none";
   });
 
-  // Reset all badges
+  // Reset all cards and badges
   ["a","b"].forEach(r=>{
+    const card=document.getElementById("card-"+r);
+    if(card)card.className="role-slot slot-"+r;
     ["self","partner"].forEach(t=>{
       const b=document.getElementById("badge-"+r+"-"+t);
       if(b)b.style.display="none";
     });
-    // Reset card style
-    const card=document.getElementById("card-"+r);
-    if(card)card.className="rc-img-panel "+(r==="a"?"left":"right");
   });
 
-  // Self badge + card style
+  // Apply self selection
   if(me.selected){
     const r=me.selected.toLowerCase();
     const card=document.getElementById("card-"+r);
-    if(card)card.className="rc-img-panel "+(r==="a"?"left":"right")+(me.confirmed?" confirmed-self":" sel-self");
+    if(card)card.className="role-slot slot-"+r+(me.confirmed?" self-confirmed":" self-sel");
     const b=document.getElementById("badge-"+r+"-self");
-    if(b){b.style.display="block";b.className="badge badge-self";b.textContent=me.confirmed?"✓ 我已確認":"▶ 我選擇";}
+    if(b){b.style.display="block";b.className="badge badge-self";b.textContent=me.confirmed?"✓ 我已確認":"▶ 我的選擇";}
   }
 
-  // Partner badge + card style
+  // Apply partner selection
   if(partner.selected){
     const r=partner.selected.toLowerCase();
     const card=document.getElementById("card-"+r);
     if(card){
-      const isBoth=me.selected&&me.selected===partner.selected;
-      card.className="rc-img-panel "+(r==="a"?"left":"right")+(me.confirmed&&me.selected===partner.selected?" sel-self sel-both":me.selected===partner.selected?" sel-both":" sel-partner");
+      const same=me.selected===partner.selected;
+      const base="role-slot slot-"+r;
+      if(same&&me.selected){card.className=base+(me.confirmed?" self-confirmed both-sel":" self-sel both-sel");}
+      else{card.className=base+" partner-sel";}
     }
     const b=document.getElementById("badge-"+r+"-partner");
     if(b){b.style.display="block";b.className="badge badge-partner";b.textContent=partner.confirmed?`✓ ${partner.name||"搭檔"}已確認`:`${partner.name||"搭檔"}查看中`;}
@@ -800,7 +795,7 @@ function updateRoleUI(me,partner){
   else{statusEl.textContent="請選擇你的探員身份";}
 }
 
-// Role card interactions - image panels are clickable
+// Role card interactions
 ["a","b"].forEach(card=>{
   const el=document.getElementById("card-"+card);
   if(!el)return;
@@ -904,10 +899,12 @@ function initGame(){
     if(m!==S.mission){if(m>3)showReflect();else showMOv(m);}
   });
 
-  if(!window._msgListenerActive){
-    window._msgListenerActive=true;
-    onChildAdded(ref(db,`rooms/${room}/messages`),snap=>addMsg(snap.val()));
-  }
+  window._shownMsgKeys=new Set();
+  onChildAdded(ref(db,`rooms/${room}/messages`),snap=>{
+    if(window._shownMsgKeys.has(snap.key))return;
+    window._shownMsgKeys.add(snap.key);
+    addMsg(snap.val());
+  });
 
   onValue(ref(db,`rooms/${room}/typing/${pr}`),snap=>{
     const ti=document.getElementById("typi");
@@ -942,7 +939,7 @@ function typeText(el,text,spd=30){
 }
 
 function startM(n){
-  S.mission=n;rMsgs=[];aiCD={};cntA=0;cntB=0;S.introSent=false;
+  S.mission=n;rMsgs=[];aiCD={};cntA=0;cntB=0;
   const info=MI[n];ss("sg");
   document.getElementById("hud-m").textContent=`關卡${n}：${info.name}`;
   document.getElementById("pl").textContent=`關卡 ${n}/3`;
@@ -954,7 +951,15 @@ function startM(n){
   document.getElementById("sc-cont").innerHTML=SCENES[n][S.role];
   document.getElementById("sc-badge").textContent=S.role==="A"?"現場畫面":"情報文件";
   document.getElementById("intel-list").innerHTML=info.intel[S.role].map(t=>`<div class="ii">${t}</div>`).join("");
-  if(S.role==="A"&&!S.introSent){S.introSent=true;setTimeout(()=>pushMsg({type:"ai",text:info.intro,sender:"局長",mission:n,ts:Date.now()}),800);}
+  if(S.role==="A"){
+    // Check if intro already sent for this mission
+    get(ref(db,`rooms/${S.room}/introSent/m${n}`)).then(snap=>{
+      if(!snap.exists()){
+        set(ref(db,`rooms/${S.room}/introSent/m${n}`),true);
+        setTimeout(()=>pushMsg({type:"ai",text:info.intro,sender:"局長",mission:n,ts:Date.now()}),800);
+      }
+    });
+  }
   document.getElementById("ci").disabled=false;
   document.getElementById("sb").disabled=false;
 }
