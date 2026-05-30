@@ -3,115 +3,195 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>影子局 v3</title>
+<title>影子局 — 機密行動</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#080c12;--s1:#0f1520;--s2:#162030;--s3:#1e2d42;--b1:#1a3050;--b2:#254070;--ac:#00c8ff;--am:#ffb700;--gn:#00e87a;--rd:#ff3355;--tx:#b8cce0;--tx2:#7090b0;--tx3:#405870;--mono:"Share Tech Mono",monospace;--body:"Noto Sans TC",sans-serif;}
+:root{
+  --bg:#080c12;--s1:#0f1520;--s2:#162030;--s3:#1e2d42;
+  --b1:#1a3050;--b2:#254070;
+  --ac:#00c8ff;--am:#ffb700;--gn:#00e87a;--rd:#ff3355;--pu:#a855f7;
+  --tx:#b8cce0;--tx2:#7090b0;--tx3:#405870;
+  --mono:"Share Tech Mono",monospace;--body:"Noto Sans TC",sans-serif;
+}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--tx);font-family:var(--body);min-height:100vh;}
-::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+body{background:var(--bg);color:var(--tx);font-family:var(--body);min-height:100vh;overflow-x:hidden;}
+body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,200,255,.006) 3px,rgba(0,200,255,.006) 4px);pointer-events:none;z-index:9999;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+
 .screen{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
 .screen.active{display:flex;}
 #sg{display:none;flex-direction:column;height:100vh;padding:0;}
 #sg.active{display:flex;align-items:stretch;}
 
-/* logo */
+/* LOGO */
 .logo{text-align:center;margin-bottom:40px;}
 .logo-eye{font-family:var(--mono);font-size:11px;color:var(--ac);letter-spacing:.4em;margin-bottom:8px;opacity:.7;}
 .logo-t{font-family:var(--mono);font-size:clamp(32px,6vw,52px);color:#fff;letter-spacing:.08em;}
 .logo-t em{color:var(--ac);font-style:normal;}
 .logo-s{font-size:12px;color:var(--tx2);margin-top:8px;letter-spacing:.15em;}
 
-/* cards */
+/* BACK BUTTON */
+.back-btn{display:inline-flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b2);color:var(--tx);font-family:var(--mono);font-size:12px;letter-spacing:.15em;padding:10px 18px;border-radius:4px;cursor:pointer;margin-bottom:24px;transition:all .2s;}
+.back-btn:hover{border-color:var(--ac);color:var(--ac);}
+.back-btn::before{content:"←";}
+
+/* CARDS */
 .lobby-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:540px;}
-.lc{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:28px;cursor:pointer;transition:all .2s;text-align:center;}
+.lc{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:28px;cursor:pointer;transition:all .2s;text-align:center;position:relative;overflow:hidden;}
+.lc::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--ac),transparent);opacity:0;transition:opacity .2s;}
 .lc:hover{border-color:var(--ac);transform:translateY(-2px);}
+.lc:hover::before{opacity:1;}
 .lc-icon{font-size:36px;margin-bottom:12px;}
 .lc-title{font-family:var(--mono);font-size:14px;color:#fff;letter-spacing:.1em;margin-bottom:6px;}
 .lc-desc{font-size:12px;color:var(--tx2);line-height:1.6;}
 
-/* input card */
-.icard{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:28px 32px;width:100%;max-width:400px;}
+/* INPUT CARD */
+.icard{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:28px 32px;width:100%;max-width:400px;position:relative;}
+.icard::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--ac),transparent);}
 .fl{font-family:var(--mono);font-size:10px;color:var(--ac);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;display:block;}
-.fi{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:4px;color:#fff;font-family:var(--mono);font-size:18px;padding:12px 16px;outline:none;letter-spacing:.2em;transition:border-color .2s;text-transform:uppercase;}
+.fi{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:4px;color:#fff;font-family:var(--mono);font-size:16px;padding:12px 16px;outline:none;letter-spacing:.15em;transition:border-color .2s;text-transform:uppercase;}
 .fi:focus{border-color:var(--ac);}
-.fi::placeholder{color:var(--tx3);font-size:13px;letter-spacing:.05em;}
+.fi::placeholder{color:var(--tx3);font-size:13px;letter-spacing:.05em;text-transform:none;}
 .fg{margin-bottom:18px;}
+.fi-name{text-transform:none;letter-spacing:.05em;}
 
-/* room code */
-.rcode-wrap{background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:28px 32px;text-align:center;width:100%;max-width:360px;}
+/* ROOM CODE */
+.rcode-wrap{background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:28px 32px;text-align:center;width:100%;max-width:360px;position:relative;}
+.rcode-wrap::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--am),transparent);}
 .rcode-label{font-family:var(--mono);font-size:10px;color:var(--tx2);letter-spacing:.25em;margin-bottom:12px;}
-.rcode-val{font-family:var(--mono);font-size:40px;color:var(--ac);letter-spacing:.3em;margin-bottom:16px;}
-.rcode-hint{font-size:12px;color:var(--tx2);margin-bottom:20px;}
+.rcode-val{font-family:var(--mono);font-size:42px;color:var(--ac);letter-spacing:.3em;margin-bottom:16px;text-shadow:0 0 20px rgba(0,200,255,.3);}
+.rcode-hint{font-size:12px;color:var(--tx2);margin-bottom:20px;line-height:1.6;}
 
-/* role select */
-.role-wrap{width:100%;max-width:660px;}
-.role-head{font-family:var(--mono);font-size:11px;color:var(--tx2);letter-spacing:.25em;text-align:center;margin-bottom:22px;}
-.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;}
-.rc{background:var(--s1);border:2px solid var(--b1);border-radius:8px;cursor:pointer;transition:all .25s;overflow:hidden;}
-.rc:hover{border-color:var(--b2);}
-.rc.sel-a{border-color:var(--ac);box-shadow:0 0 20px rgba(0,200,255,.15);}
-.rc.sel-b{border-color:var(--am);box-shadow:0 0 20px rgba(255,183,0,.15);}
-.rc-img{width:100%;aspect-ratio:3/4;background:var(--s2);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;}
-.rc-img span{font-size:48px;opacity:.3;}
-.rc-img small{font-family:var(--mono);font-size:10px;color:var(--tx3);}
-.rc-info{padding:14px 16px;}
-.rc-code{font-family:var(--mono);font-size:10px;letter-spacing:.2em;margin-bottom:4px;}
-.rc-code.a{color:var(--ac);} .rc-code.b{color:var(--am);}
-.rc-name{font-size:16px;font-weight:700;color:#fff;margin-bottom:8px;}
-.rc-desc{font-size:12px;color:var(--tx2);line-height:1.7;}
-
-/* buttons */
-.btn{display:block;width:100%;background:transparent;border:1px solid var(--ac);color:var(--ac);font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;padding:13px;cursor:pointer;border-radius:4px;transition:all .2s;}
+/* BUTTONS */
+.btn{display:block;width:100%;background:transparent;border:1px solid var(--ac);color:var(--ac);font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;padding:13px;cursor:pointer;border-radius:4px;transition:all .2s;position:relative;overflow:hidden;}
 .btn:hover{background:rgba(0,200,255,.08);}
 .btn.am{border-color:var(--am);color:var(--am);}
 .btn.am:hover{background:rgba(255,183,0,.08);}
+.btn.gn{border-color:var(--gn);color:var(--gn);}
+.btn.gn:hover{background:rgba(0,232,122,.08);}
+.btn.rd{border-color:var(--rd);color:var(--rd);}
+.btn.rd:hover{background:rgba(255,51,85,.08);}
+.btn:disabled{opacity:.3;cursor:not-allowed;}
 .btn+.btn{margin-top:10px;}
-.back{background:none;border:none;color:var(--tx2);font-family:var(--mono);font-size:11px;cursor:pointer;padding:8px 0;margin-bottom:18px;letter-spacing:.1em;}
-.back:hover{color:var(--tx);}
 .err{color:var(--rd);font-family:var(--mono);font-size:11px;margin-top:8px;min-height:16px;}
 
-/* waiting */
+/* WAITING */
 .ring{width:72px;height:72px;margin:0 auto 20px;border:2px solid var(--b2);border-top-color:var(--ac);border-radius:50%;animation:spin 1s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* intro */
-.intro-ov{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;flex-direction:column;align-items:center;justify-content:center;padding:40px;}
+/* ROLE SELECT */
+.role-screen-wrap{width:100%;max-width:900px;display:flex;flex-direction:column;align-items:center;}
+.role-header{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:20px;}
+.role-title{font-family:var(--mono);font-size:11px;color:var(--tx2);letter-spacing:.25em;text-transform:uppercase;}
+
+/* TIMER */
+.timer-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.timer-bar-bg{width:200px;height:6px;background:var(--s3);border-radius:3px;overflow:hidden;}
+.timer-bar{height:100%;border-radius:3px;background:var(--ac);transition:width .5s linear,background .5s;}
+.timer-bar.warn{background:var(--am);}
+.timer-bar.danger{background:var(--rd);}
+.timer-num{font-family:var(--mono);font-size:22px;color:var(--ac);letter-spacing:.1em;transition:color .5s;}
+.timer-num.warn{color:var(--am);}
+.timer-num.danger{color:var(--rd);}
+.timer-label{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.2em;}
+
+/* ROLE CARDS */
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%;margin-bottom:20px;}
+.rc{background:var(--s1);border:2px solid var(--b1);border-radius:8px;cursor:pointer;transition:all .25s;overflow:hidden;position:relative;}
+.rc:hover{border-color:var(--b2);}
+.rc.hover-a{border-color:rgba(0,200,255,.4);}
+.rc.hover-b{border-color:rgba(255,183,0,.4);}
+.rc.sel-a{border-color:var(--ac);box-shadow:0 0 24px rgba(0,200,255,.2);}
+.rc.sel-b{border-color:var(--am);box-shadow:0 0 24px rgba(255,183,0,.2);}
+.rc.confirmed-a{border-color:var(--ac);box-shadow:0 0 32px rgba(0,200,255,.35);}
+.rc.confirmed-b{border-color:var(--am);box-shadow:0 0 32px rgba(255,183,0,.35);}
+.rc.disabled{opacity:.4;cursor:not-allowed;pointer-events:none;}
+
+/* Role card image */
+.rc-img{width:100%;aspect-ratio:2/3;background:var(--s2);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;position:relative;overflow:hidden;}
+.rc-img-placeholder{font-size:64px;opacity:.25;}
+.rc-img img{width:100%;height:100%;object-fit:cover;}
+
+/* Status badges on card */
+.rc-status{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:10px 12px;pointer-events:none;}
+.badge{font-family:var(--mono);font-size:9px;padding:3px 10px;border-radius:99px;letter-spacing:.1em;}
+.badge-hover-a{background:rgba(0,200,255,.2);color:var(--ac);border:1px solid rgba(0,200,255,.4);}
+.badge-hover-b{background:rgba(255,183,0,.2);color:var(--am);border:1px solid rgba(255,183,0,.4);}
+.badge-sel-a{background:rgba(0,200,255,.25);color:var(--ac);border:1px solid var(--ac);}
+.badge-sel-b{background:rgba(255,183,0,.25);color:var(--am);border:1px solid var(--am);}
+.badge-confirm{background:rgba(0,232,122,.2);color:var(--gn);border:1px solid var(--gn);}
+
+/* Role info */
+.rc-info{padding:16px;}
+.rc-file-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--b1);}
+.rc-code{font-family:var(--mono);font-size:10px;letter-spacing:.2em;}
+.rc-code.a{color:var(--ac);}.rc-code.b{color:var(--am);}
+.rc-iq{font-family:var(--mono);font-size:9px;color:var(--tx3);}
+.rc-name{font-size:17px;font-weight:700;color:#fff;margin-bottom:12px;}
+.rc-section{margin-bottom:10px;}
+.rc-section-title{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.2em;margin-bottom:5px;}
+.rc-section-body{font-size:12px;color:var(--tx2);line-height:1.7;}
+.rc-quote{font-size:11px;color:var(--tx2);line-height:1.7;font-style:italic;border-left:2px solid var(--b2);padding-left:10px;margin-top:8px;}
+
+/* Name input row */
+.name-row{display:flex;gap:12px;width:100%;align-items:flex-end;margin-bottom:16px;}
+.name-row .fg{flex:1;margin-bottom:0;}
+.name-row .fi{font-size:14px;}
+
+/* Confirm/action row */
+.action-row{display:flex;gap:12px;width:100%;}
+.action-row .btn{flex:1;}
+
+/* Ready state overlay on cards */
+.rc-ready-glow{position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,232,122,.08),transparent);pointer-events:none;opacity:0;transition:opacity .3s;}
+.rc.confirmed-a .rc-ready-glow,.rc.confirmed-b .rc-ready-glow{opacity:1;}
+
+/* 5-second countdown overlay */
+.countdown-overlay{display:none;position:fixed;inset:0;background:rgba(8,12,18,.92);z-index:2000;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.countdown-overlay.on{display:flex;}
+.cd-num{font-family:var(--mono);font-size:120px;color:var(--ac);line-height:1;text-shadow:0 0 40px rgba(0,200,255,.5);animation:cd-pulse 1s infinite;}
+@keyframes cd-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(.95)}}
+.cd-label{font-family:var(--mono);font-size:14px;color:var(--tx2);letter-spacing:.3em;margin-top:16px;}
+.cd-info{font-size:12px;color:var(--tx3);margin-top:10px;}
+
+/* INTRO */
+.intro-ov{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;flex-direction:column;align-items:center;justify-content:center;padding:48px;}
 .intro-ov.on{display:flex;}
-.intro-tx{font-family:var(--mono);font-size:14px;color:var(--tx);line-height:2.2;max-width:580px;white-space:pre-wrap;}
+.intro-tx{font-family:var(--mono);font-size:14px;color:var(--tx);line-height:2.4;max-width:600px;white-space:pre-wrap;}
 .cur{display:inline-block;width:9px;height:15px;background:var(--ac);animation:blink .7s infinite;vertical-align:middle;margin-left:2px;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
-/* game */
-.game-body{display:flex;flex:1;overflow:hidden;}
+/* GAME */
 .statusbar{background:var(--s1);border-bottom:1px solid var(--b1);padding:9px 20px;display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:10px;flex-shrink:0;}
 .sdot{width:5px;height:5px;border-radius:50%;background:var(--gn);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.si{color:var(--tx2);} .si span{color:var(--tx);} .sep{color:var(--b2);}
+.si{color:var(--tx2);}.si span{color:var(--tx);}.sep{color:var(--b2);}
+.game-body{display:flex;flex:1;overflow:hidden;}
 
-/* left panel */
+/* LEFT PANEL */
 .lp{width:40%;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;}
 .scene-area{flex:1;position:relative;overflow:hidden;background:var(--bg);min-height:0;}
-.scene-badge{position:absolute;top:10px;left:10px;background:rgba(8,12,18,.85);border:1px solid var(--b2);border-radius:3px;padding:3px 10px;font-family:var(--mono);font-size:9px;color:var(--ac);letter-spacing:.2em;z-index:10;}
-.scene-cap{position:absolute;bottom:0;left:0;right:0;padding:10px 14px;background:linear-gradient(transparent,rgba(8,12,18,.9));font-family:var(--mono);font-size:9px;color:var(--tx2);letter-spacing:.1em;}
+.sc-badge{position:absolute;top:10px;left:10px;background:rgba(8,12,18,.85);border:1px solid var(--b2);border-radius:3px;padding:3px 10px;font-family:var(--mono);font-size:9px;color:var(--ac);letter-spacing:.2em;z-index:10;}
+.sc-cap{position:absolute;bottom:0;left:0;right:0;padding:10px 14px;background:linear-gradient(transparent,rgba(8,12,18,.9));font-family:var(--mono);font-size:9px;color:var(--tx2);letter-spacing:.1em;}
 .agent-row{flex-shrink:0;border-top:1px solid var(--b1);padding:12px 14px;display:flex;align-items:center;gap:10px;}
-.av{width:42px;height:42px;border-radius:4px;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:18px;opacity:.5;flex-shrink:0;}
+.av{width:44px;height:44px;border-radius:4px;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:20px;opacity:.5;flex-shrink:0;overflow:hidden;}
+.av img{width:100%;height:100%;object-fit:cover;opacity:1;}
 .ag-code{font-family:var(--mono);font-size:9px;letter-spacing:.15em;margin-bottom:2px;}
-.ag-code.a{color:var(--ac);} .ag-code.b{color:var(--am);}
+.ag-code.a{color:var(--ac);}.ag-code.b{color:var(--am);}
 .ag-name{font-size:14px;font-weight:700;color:#fff;}
-.intel-sec{flex-shrink:0;border-top:1px solid var(--b1);padding:10px 14px;max-height:160px;overflow-y:auto;}
+.intel-sec{flex-shrink:0;border-top:1px solid var(--b1);padding:10px 14px;max-height:165px;overflow-y:auto;}
 .il{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.15em;margin-bottom:7px;}
 .ii{font-size:12px;color:var(--tx);line-height:1.6;padding:5px 10px;background:var(--s2);border-left:2px solid var(--ac);border-radius:0 3px 3px 0;margin-bottom:4px;}
 .prog-row{flex-shrink:0;border-top:1px solid var(--b1);padding:8px 14px;display:flex;gap:5px;align-items:center;}
 .ps{flex:1;height:3px;border-radius:2px;background:var(--s3);}
-.ps.done{background:var(--gn);} .ps.active{background:var(--ac);animation:blink .7s infinite;}
+.ps.done{background:var(--gn);}.ps.active{background:var(--ac);animation:blink 1.5s infinite;}
 .pl{font-family:var(--mono);font-size:9px;color:var(--tx2);white-space:nowrap;}
 .bot-row{flex-shrink:0;border-top:1px solid var(--b1);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;}
 .prow{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);}
-.pd{width:7px;height:7px;border-radius:50%;background:var(--gn);} .pd.off{background:var(--rd);}
-.skip{font-family:var(--mono);font-size:9px;color:var(--tx3);} .skip span{color:var(--am);}
+.pd{width:7px;height:7px;border-radius:50%;background:var(--gn);}.pd.off{background:var(--rd);}
+.skip{font-family:var(--mono);font-size:9px;color:var(--tx3);}.skip span{color:var(--am);}
 
-/* right panel */
+/* RIGHT PANEL */
 .rp{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .msgs{flex:1;overflow-y:auto;padding:16px 18px 8px;display:flex;flex-direction:column;gap:10px;}
 .msg{display:flex;flex-direction:column;gap:3px;max-width:76%;}
@@ -120,7 +200,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--body);min-height:100
 .msg.ai{align-self:stretch;max-width:100%;}
 .msg.sys{align-self:center;max-width:100%;}
 .mm{font-family:var(--mono);font-size:9px;color:var(--tx3);}
-.mb{padding:9px 13px;border-radius:4px;font-size:13px;line-height:1.65;}
+.mb{padding:10px 14px;border-radius:4px;font-size:13px;line-height:1.65;}
 .msg.me .mb{background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.25);color:#ddeeff;border-radius:12px 4px 4px 12px;}
 .msg.them .mb{background:rgba(255,183,0,.08);border:1px solid rgba(255,183,0,.22);color:#fff5d0;border-radius:4px 12px 12px 4px;}
 .msg.ai .mb{background:var(--s2);border:1px solid var(--b1);border-left:3px solid var(--rd);color:var(--tx);border-radius:0 4px 4px 0;}
@@ -129,7 +209,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--body);min-height:100
 .typew{padding:0 18px 5px;min-height:20px;}
 .typi{font-family:var(--mono);font-size:10px;color:var(--am);display:flex;align-items:center;gap:5px;}
 .tyd span{display:inline-block;width:3px;height:3px;background:var(--am);border-radius:50%;animation:tdot 1.2s infinite;}
-.tyd span:nth-child(2){animation-delay:.2s;} .tyd span:nth-child(3){animation-delay:.4s;}
+.tyd span:nth-child(2){animation-delay:.2s;}.tyd span:nth-child(3){animation-delay:.4s;}
 @keyframes tdot{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}}
 .ibar{padding:12px 18px;border-top:1px solid var(--b1);background:var(--s1);display:flex;gap:10px;align-items:flex-end;flex-shrink:0;}
 .ci{flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:4px;color:#fff;font-family:var(--body);font-size:13px;padding:9px 13px;outline:none;resize:none;line-height:1.5;max-height:90px;transition:border-color .2s;}
@@ -138,7 +218,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--body);min-height:100
 .sb{background:var(--ac);border:none;color:var(--bg);font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:9px 16px;cursor:pointer;border-radius:4px;white-space:nowrap;align-self:flex-end;font-weight:700;}
 .sb:hover{opacity:.85;}
 
-/* overlay */
+/* OVERLAY */
 .ov{display:none;position:fixed;inset:0;background:rgba(8,12,18,.95);z-index:1000;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px;}
 .ov.on{display:flex;}
 .ov-icon{font-size:52px;margin-bottom:14px;}
@@ -147,14 +227,14 @@ body{background:var(--bg);color:var(--tx);font-family:var(--body);min-height:100
 .ov-ans{background:var(--s1);border:1px solid var(--am);border-radius:6px;padding:14px 18px;margin-bottom:18px;font-size:12px;color:var(--tx);line-height:1.8;max-width:460px;text-align:left;}
 .ov-al{font-family:var(--mono);font-size:9px;color:var(--am);letter-spacing:.2em;margin-bottom:7px;}
 
-/* reflect */
+/* REFLECT */
 .rfw{width:100%;max-width:560px;}
 .rq{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:18px;margin-bottom:12px;}
 .rqn{font-family:var(--mono);font-size:9px;color:var(--ac);letter-spacing:.2em;margin-bottom:5px;}
 .rqt{font-size:13px;color:#fff;margin-bottom:9px;line-height:1.6;}
-textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
+textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;text-transform:none;}
 
-/* toast */
+/* TOAST */
 .toast{position:fixed;bottom:20px;right:20px;background:var(--s2);border:1px solid var(--ac);color:var(--ac);font-family:var(--mono);font-size:11px;padding:9px 16px;border-radius:4px;z-index:9000;transform:translateY(14px);opacity:0;transition:all .3s;pointer-events:none;}
 .toast.on{transform:translateY(0);opacity:1;}
 </style>
@@ -169,34 +249,27 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
     <div class="logo-s">SHADOW BUREAU · OPERATION UNIT 7</div>
   </div>
   <div class="lobby-grid">
-    <div class="lc" id="btn-create">
-      <div class="lc-icon">📡</div>
-      <div class="lc-title">開啟任務</div>
-      <div class="lc-desc">建立新的任務房間，取得專屬代碼，邀請搭檔加入</div>
-    </div>
-    <div class="lc" id="btn-join">
-      <div class="lc-icon">🔐</div>
-      <div class="lc-title">加入任務</div>
-      <div class="lc-desc">輸入搭檔給你的任務代碼，進入已開啟的房間</div>
-    </div>
+    <div class="lc" id="btn-create"><div class="lc-icon">📡</div><div class="lc-title">開啟任務</div><div class="lc-desc">建立新的任務房間，取得專屬代碼，邀請搭檔加入</div></div>
+    <div class="lc" id="btn-join"><div class="lc-icon">🔐</div><div class="lc-title">加入任務</div><div class="lc-desc">輸入搭檔給你的任務代碼，進入已開啟的房間</div></div>
   </div>
   <div style="margin-top:22px;font-family:var(--mono);font-size:10px;color:var(--tx3);text-align:center;letter-spacing:.12em">研究專用系統 · 所有對話將被記錄用於學術研究</div>
 </div>
 
 <!-- CREATE -->
 <div class="screen" id="sc">
-  <button class="back" id="btn-back-c">← 返回</button>
+  <button class="back-btn" id="btn-back-c">返回大廳</button>
   <div class="rcode-wrap">
     <div class="rcode-label">你的任務代碼</div>
     <div class="rcode-val" id="create-code">------</div>
-    <div class="rcode-hint">將此代碼傳給你的搭檔</div>
-    <button class="btn" id="btn-proceed-c">選擇探員身份 ›</button>
+    <div class="rcode-hint">將此代碼傳給你的搭檔<br>等待搭檔加入後將同時進入選角畫面</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--tx2);margin-top:12px;" id="create-status">等待搭檔連線中...</div>
+    <div class="ring" id="create-ring" style="margin-top:16px;"></div>
   </div>
 </div>
 
 <!-- JOIN -->
 <div class="screen" id="sj">
-  <button class="back" id="btn-back-j">← 返回</button>
+  <button class="back-btn" id="btn-back-j">返回大廳</button>
   <div class="icard">
     <div class="fg">
       <label class="fl">任務代碼</label>
@@ -209,45 +282,105 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
 
 <!-- ROLE SELECT -->
 <div class="screen" id="sr">
-  <button class="back" id="btn-back-r">← 返回</button>
-  <div class="role-wrap">
-    <div class="role-head">選擇你的探員身份</div>
+  <div class="role-screen-wrap">
+    <div class="role-header">
+      <div class="role-title">選擇探員身份</div>
+      <div class="timer-wrap">
+        <div class="timer-num" id="timer-num">60</div>
+        <div class="timer-bar-bg"><div class="timer-bar" id="timer-bar" style="width:100%"></div></div>
+        <div class="timer-label" id="timer-label">秒後隨機分配</div>
+      </div>
+    </div>
+
     <div class="role-grid">
+      <!-- AGENT A -->
       <div class="rc" id="card-a">
-        <div class="rc-img"><span>👤</span><small>AGENT · A</small></div>
+        <div class="rc-ready-glow"></div>
+        <div class="rc-img">
+          <div class="rc-img-placeholder">👤</div>
+          <div class="rc-status">
+            <div id="badge-a-hover" style="display:none"></div>
+            <div id="badge-a-sel" style="display:none"></div>
+          </div>
+        </div>
         <div class="rc-info">
-          <div class="rc-code a">// 代號：夜鷹</div>
+          <div class="rc-file-header">
+            <div class="rc-code a">// 代號：夜鷹 · NIGHTHAWK</div>
+            <div class="rc-iq">IQ 143</div>
+          </div>
           <div class="rc-name">林曉晨</div>
-          <div class="rc-desc">「從小在街頭長大，靠眼睛吃飯。她看過太多謊言，所以她只相信自己親眼看到的。沉默寡言，但她說的每一句話都有份量。」</div>
+          <div class="rc-section">
+            <div class="rc-section-title">背景檔案</div>
+            <div class="rc-section-body">心理學與犯罪行為分析專家。曾任職某國家級情報機構鑑識部門八年，專精現場重建與視覺細節判讀。因連續偵破數起陳年懸案，三年前被影子局秘密徵召。</div>
+          </div>
+          <div class="rc-section">
+            <div class="rc-section-title">能力評估</div>
+            <div class="rc-section-body">對視覺資訊的記憶與解讀能力遠超常人。習慣在開口前觀察完所有細節。不輕易相信口頭陳述，只信自己親眼看到的。</div>
+          </div>
+          <div class="rc-quote">「她掃過一個房間，能注意到你看了十遍都沒發現的東西。但她需要有人幫她把線索連起來。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
         </div>
       </div>
+
+      <!-- AGENT B -->
       <div class="rc" id="card-b">
-        <div class="rc-img"><span>👤</span><small>AGENT · B</small></div>
+        <div class="rc-ready-glow"></div>
+        <div class="rc-img">
+          <div class="rc-img-placeholder">👤</div>
+          <div class="rc-status">
+            <div id="badge-b-hover" style="display:none"></div>
+            <div id="badge-b-sel" style="display:none"></div>
+          </div>
+        </div>
         <div class="rc-info">
-          <div class="rc-code b">// 代號：獵犬</div>
+          <div class="rc-file-header">
+            <div class="rc-code b">// 代號：獵犬 · BLOODHOUND</div>
+            <div class="rc-iq">IQ 151</div>
+          </div>
           <div class="rc-name">陳宇哲</div>
-          <div class="rc-desc">「前刑警，在隊上破了17個懸案後選擇離開。他不相信巧合，也不相信運氣。每一個細節背後，都藏著某個人不想讓你知道的事。」</div>
+          <div class="rc-section">
+            <div class="rc-section-title">背景檔案</div>
+            <div class="rc-section-body">邏輯推理與行為模式分析專家。曾任職某跨國刑事調查機構資深分析師七年，擅長從大量資訊中找出矛盾與異常模式。任職期間破案率達94%，兩年前因案件性質特殊，轉調影子局。</div>
+          </div>
+          <div class="rc-section">
+            <div class="rc-section-title">能力評估</div>
+            <div class="rc-section-body">思維極度縝密，習慣從資訊缺口切入。對任何「巧合」高度懷疑。需要搭檔補足現場直覺與視覺觀察。</div>
+          </div>
+          <div class="rc-quote">「給他一份報告，他能找出連撰寫者都沒發現的矛盾。但他需要有人告訴他現場實際長什麼樣。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
         </div>
       </div>
     </div>
-    <div class="fg">
-      <label class="fl">你的呼號</label>
-      <input class="fi" id="inp-name" placeholder="輸入你的呼號" maxlength="12" style="font-size:15px;letter-spacing:.1em;text-transform:none;">
+
+    <!-- NAME + ACTIONS -->
+    <div class="name-row">
+      <div class="fg">
+        <label class="fl">玩家姓名</label>
+        <input class="fi fi-name" id="inp-name" placeholder="輸入你的姓名" maxlength="12">
+      </div>
     </div>
     <div class="err" id="role-err"></div>
-    <button class="btn" id="btn-confirm-r">確認身份，進入任務 ›</button>
+    <div class="action-row">
+      <button class="btn" id="btn-confirm-r" disabled>選擇角色後確認 ›</button>
+      <button class="btn rd" id="btn-cancel-r" style="display:none;flex:0 0 auto;width:auto;padding:13px 20px;">取消確認</button>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);text-align:center;margin-top:12px;" id="role-status">請選擇你的探員身份</div>
   </div>
 </div>
 
-<!-- WAITING -->
+<!-- COUNTDOWN -->
+<div class="countdown-overlay" id="countdown-ov">
+  <div class="cd-num" id="cd-num">5</div>
+  <div class="cd-label">任務即將開始</div>
+  <div class="cd-info" id="cd-info"></div>
+</div>
+
+<!-- WAITING (fallback) -->
 <div class="screen" id="sw">
   <div class="ring"></div>
   <div style="font-family:var(--mono);font-size:12px;color:var(--ac);letter-spacing:.2em;margin-bottom:10px">等待搭檔連線</div>
-  <div style="font-size:12px;color:var(--tx2);margin-bottom:6px">任務代碼：<span id="wait-code" style="color:#fff;font-family:var(--mono);font-size:18px;letter-spacing:.2em"></span></div>
-  <div style="font-size:11px;color:var(--tx3)">將代碼傳給你的搭檔</div>
+  <div style="font-size:12px;color:var(--tx2);">任務代碼：<span id="wait-code" style="color:#fff;font-family:var(--mono);font-size:18px;letter-spacing:.2em"></span></div>
 </div>
 
-<!-- INTRO OVERLAY -->
+<!-- INTRO -->
 <div class="intro-ov" id="intro-ov">
   <div class="intro-tx" id="intro-tx"></div>
 </div>
@@ -264,9 +397,9 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
   <div class="game-body">
     <div class="lp">
       <div class="scene-area">
-        <div class="scene-badge" id="sc-badge">現場畫面</div>
+        <div class="sc-badge" id="sc-badge">現場畫面</div>
         <div id="sc-cont" style="width:100%;height:100%;"></div>
-        <div class="scene-cap" id="sc-cap">仔細觀察，與搭檔討論你看到的細節</div>
+        <div class="sc-cap" id="sc-cap">仔細觀察，與搭檔討論你看到的細節</div>
       </div>
       <div class="agent-row">
         <div class="av" id="ag-av">👤</div>
@@ -340,10 +473,23 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
 
 <!-- SCENES -->
 <script>
-var SCENES={1:{A:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="0" y="380" width="400" height="120" fill="#0c1520"/><line x1="0" y1="380" x2="400" y2="380" stroke="#1a3050" stroke-width="1"/><rect x="40" y="300" width="320" height="12" fill="#162030" stroke="#1a3050" stroke-width="1"/><rect x="40" y="80" width="70" height="85" fill="#0f1828" stroke="#00c8ff" stroke-width="1" opacity="0.8"/><rect x="40" y="80" width="70" height="18" fill="#162030"/><text x="75" y="93" text-anchor="middle" fill="#00c8ff" font-size="9" font-family="monospace" opacity="0.7">日曆</text><text x="75" y="142" text-anchor="middle" fill="#405870" font-size="22" font-family="monospace">?</text><rect x="160" y="65" width="90" height="110" fill="#0f1828" stroke="#ffb700" stroke-width="1.5" opacity="0.9"/><rect x="168" y="73" width="74" height="80" fill="#0a1218"/><text x="205" y="118" text-anchor="middle" fill="#162535" font-size="30">👤</text><text x="205" y="148" text-anchor="middle" fill="#405870" font-size="8" font-family="monospace">照片-人物模糊</text><rect x="290" y="55" width="90" height="130" fill="#0a1828" stroke="#1a3050" stroke-width="1"/><text x="335" y="125" text-anchor="middle" fill="#3a6a9a" font-size="8" font-family="monospace">傍晚天色</text><ellipse cx="100" cy="420" rx="8" ry="12" fill="#1a3050" stroke="#00c8ff" stroke-width="0.8" opacity="0.7" transform="rotate(-15 100 420)"/><ellipse cx="130" cy="408" rx="7" ry="11" fill="#1a3050" stroke="#00c8ff" stroke-width="0.8" opacity="0.6" transform="rotate(10 130 408)"/><ellipse cx="158" cy="418" rx="8" ry="12" fill="#1a3050" stroke="#00c8ff" stroke-width="0.8" opacity="0.5"/><text x="130" y="450" text-anchor="middle" fill="#254070" font-size="9" font-family="monospace">腳印方向 →</text><rect x="270" y="248" width="80" height="55" fill="#0f1828" stroke="#ff3355" stroke-width="1.5" rx="2"/><text x="310" y="280" text-anchor="middle" fill="#ff3355" font-size="9" font-family="monospace">保險箱</text><text x="200" y="490" text-anchor="middle" fill="#1a3050" font-size="8" font-family="monospace">仔細觀察 與搭檔討論你看到的細節</text></svg>',B:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="20" y="20" width="360" height="460" fill="#0c1520" stroke="#1a3050" stroke-width="1" rx="4"/><rect x="20" y="20" width="360" height="36" fill="#0f1f30" rx="4"/><text x="200" y="43" text-anchor="middle" fill="#ffb700" font-size="11" font-family="monospace">失蹤通報 · 機密等級3</text><text x="40" y="80" fill="#405870" font-size="9" font-family="monospace">目標：陳博士　職稱：首席研究員</text><rect x="40" y="100" width="320" height="220" fill="#080e18" rx="3" stroke="#1a3050" stroke-width="0.5"/><text x="55" y="128" fill="#8aaccc" font-size="10" font-family="monospace">「如果你們找到這個，</text><text x="55" y="148" fill="#8aaccc" font-size="10" font-family="monospace"> 我已經去了那個地方--</text><text x="55" y="168" fill="#8aaccc" font-size="10" font-family="monospace"> 就是我們第一次討論計畫的地方。</text><text x="55" y="188" fill="#8aaccc" font-size="10" font-family="monospace"> 那天是星期三，傍晚，</text><text x="55" y="208" fill="#8aaccc" font-size="10" font-family="monospace"> 我記得窗外的夕陽。</text><text x="55" y="235" fill="#ff6b6b" font-size="10" font-family="monospace"> 現在是...危險的。</text><text x="55" y="255" fill="#ff6b6b" font-size="10" font-family="monospace"> 往反方向走。」</text><text x="40" y="360" fill="#ff3355" font-size="9" font-family="monospace">「反方向」含義不明</text><text x="40" y="380" fill="#405870" font-size="9" font-family="monospace">需與搭檔比對現場畫面</text></svg>'},2:{A:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="15" y="15" width="370" height="380" fill="#060c14" stroke="#1a3050" stroke-width="1"/><text x="200" y="38" text-anchor="middle" fill="#1a3050" font-size="9" font-family="monospace">監視畫面截圖 · 15:00:32</text><rect x="35" y="50" width="330" height="280" fill="#040a10"/><text x="200" y="180" text-anchor="middle" fill="#162535" font-size="60">🕴</text><text x="130" y="290" fill="#ff3355" font-size="8" font-family="monospace">手臂方向?</text><text x="35" y="355" fill="#00c8ff" font-size="9" font-family="monospace">REC 15:00:32</text><text x="280" y="355" fill="#ff3355" font-size="9" font-family="monospace">畫面模糊</text><text x="200" y="420" text-anchor="middle" fill="#405070" font-size="8" font-family="monospace">深色衣物 · 慣用手不確定 · 眼鏡反光?</text><text x="200" y="440" text-anchor="middle" fill="#254070" font-size="8" font-family="monospace">與搭檔比對，討論慣用手的判斷</text></svg>',B:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="15" y="15" width="200" height="250" fill="#060c14" stroke="#1a3050" stroke-width="1"/><text x="115" y="38" text-anchor="middle" fill="#1a3050" font-size="8" font-family="monospace">側角度</text><rect x="30" y="195" width="170" height="5" fill="#0f1828"/><rect x="73" y="165" width="24" height="20" fill="#162030" stroke="#ffb700" stroke-width="1.5"/><ellipse cx="85" cy="192" rx="12" ry="7" fill="#162030" stroke="#ffb700" stroke-width="1.5"/><text x="85" y="225" text-anchor="middle" fill="#ffb700" font-size="8" font-family="monospace">咖啡杯</text><text x="85" y="238" text-anchor="middle" fill="#ffb700" font-size="8" font-family="monospace">左手邊?</text><rect x="225" y="15" width="160" height="470" fill="#0c1520" stroke="#1a3050" stroke-width="1" rx="2"/><text x="305" y="38" text-anchor="middle" fill="#7090b0" font-size="9" font-family="monospace">訪談紀錄</text><text x="235" y="65" fill="#405870" font-size="8" font-family="monospace">趙宇翔：</text><text x="235" y="82" fill="#8aaccc" font-size="8" font-family="monospace">「我3點在開會」</text><text x="235" y="110" fill="#405870" font-size="8" font-family="monospace">同事說：</text><text x="235" y="127" fill="#ff6b6b" font-size="8" font-family="monospace">「趙根本沒來」</text><text x="235" y="155" fill="#8aaccc" font-size="8" font-family="monospace">趙：左撇子</text><text x="235" y="172" fill="#405870" font-size="8" font-family="monospace">眼鏡? 不明</text><text x="235" y="200" fill="#ff3355" font-size="9" font-family="monospace">訪談矛盾!</text></svg>'},3:{A:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><text x="200" y="28" text-anchor="middle" fill="#ff3355" font-size="10" font-family="monospace">災難現場地圖</text><rect x="155" y="390" width="90" height="36" fill="#0a2015" stroke="#00e87a" stroke-width="1.5" rx="3"/><text x="200" y="413" text-anchor="middle" fill="#00e87a" font-size="10" font-family="monospace">基地</text><rect x="45" y="230" width="70" height="52" fill="#0f1828" stroke="#ff3355" stroke-width="2" rx="2"/><text x="80" y="254" text-anchor="middle" fill="#ff3355" font-size="11" font-family="monospace">A棟</text><text x="80" y="270" text-anchor="middle" fill="#b8cce0" font-size="8" font-family="monospace">8人/重傷</text><rect x="285" y="230" width="70" height="52" fill="#0f1828" stroke="#ffb700" stroke-width="2" rx="2"/><text x="320" y="254" text-anchor="middle" fill="#ffb700" font-size="11" font-family="monospace">B棟</text><text x="320" y="270" text-anchor="middle" fill="#b8cce0" font-size="8" font-family="monospace">2名醫生</text><rect x="145" y="50" width="110" height="52" fill="#0f1828" stroke="#00c8ff" stroke-width="1.5" rx="2"/><text x="200" y="74" text-anchor="middle" fill="#00c8ff" font-size="11" font-family="monospace">D棟</text><text x="200" y="90" text-anchor="middle" fill="#b8cce0" font-size="8" font-family="monospace">15名孩童 · 遠</text><line x1="200" y1="390" x2="100" y2="282" stroke="#254070" stroke-width="0.8" stroke-dasharray="4,3"/><line x1="200" y1="390" x2="300" y2="282" stroke="#254070" stroke-width="0.8" stroke-dasharray="4,3"/><line x1="200" y1="390" x2="200" y2="102" stroke="#254070" stroke-width="0.8" stroke-dasharray="4,3"/><text x="200" y="460" text-anchor="middle" fill="#ff3355" font-size="9" font-family="monospace">C棟位置不明 向搭檔確認</text></svg>',B:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="15" y="15" width="370" height="470" fill="#110808" stroke="#ff3355" stroke-width="0.8" rx="4"/><rect x="15" y="15" width="370" height="44" fill="#1a0808" rx="4"/><text x="200" y="43" text-anchor="middle" fill="#ff3355" font-size="13" font-family="monospace">緊急情報</text><text x="200" y="85" text-anchor="middle" fill="#ff3355" font-size="24" font-family="monospace">120:00</text><text x="200" y="102" text-anchor="middle" fill="#ff6b6b" font-size="9" font-family="monospace">距爆炸倒數</text><text x="40" y="135" fill="#00e87a" font-size="10" font-family="monospace">B棟醫生獲救可救A棟重傷者</text><text x="40" y="160" fill="#00c8ff" font-size="10" font-family="monospace">C棟12人 有衛星通訊設備</text><text x="40" y="185" fill="#ffb700" font-size="10" font-family="monospace">C棟位置：郊區（遠）</text><text x="40" y="215" fill="#ff3355" font-size="10" font-family="monospace">D棟超過2小時生存率15%</text><text x="40" y="245" fill="#405870" font-size="9" font-family="monospace">救援車最多2次 每次10人</text><text x="200" y="420" text-anchor="middle" fill="#ffb700" font-size="10" font-family="monospace">先救B+D 或 B+C？與搭檔討論</text></svg>'}};
+var SCENES={
+  1:{
+    A:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="0" y="380" width="400" height="120" fill="#0c1520"/><line x1="0" y1="380" x2="400" y2="380" stroke="#1a3050" stroke-width="1"/><rect x="40" y="300" width="320" height="12" fill="#162030" stroke="#1a3050" stroke-width="1"/><rect x="40" y="80" width="70" height="85" fill="#0f1828" stroke="#00c8ff" stroke-width="1" opacity="0.8"/><rect x="40" y="80" width="70" height="18" fill="#162030"/><text x="75" y="93" text-anchor="middle" fill="#00c8ff" font-size="9" font-family="monospace" opacity="0.7">日曆</text><text x="75" y="142" text-anchor="middle" fill="#405870" font-size="22" font-family="monospace">?</text><text x="75" y="158" text-anchor="middle" fill="#254070" font-size="7" font-family="monospace">日期模糊</text><rect x="160" y="65" width="90" height="110" fill="#0f1828" stroke="#ffb700" stroke-width="1.5" opacity="0.9"/><rect x="168" y="73" width="74" height="80" fill="#0a1218"/><text x="205" y="120" text-anchor="middle" fill="#162535" font-size="36">👤</text><text x="205" y="153" text-anchor="middle" fill="#405870" font-size="7" font-family="monospace">照片·人物模糊</text><rect x="290" y="55" width="90" height="130" fill="#0a1828" stroke="#1a3050" stroke-width="1"/><line x1="335" y1="55" x2="335" y2="185" stroke="#1a3050" stroke-width="0.5"/><line x1="290" y1="120" x2="380" y2="120" stroke="#1a3050" stroke-width="0.5"/><text x="335" y="155" text-anchor="middle" fill="#3a6a9a" font-size="8" font-family="monospace">傍晚天色</text><ellipse cx="95" cy="418" rx="8" ry="12" fill="#1a3050" stroke="#00c8ff" stroke-width="0.8" opacity="0.7" transform="rotate(-15 95 418)"/><ellipse cx="122" cy="406" rx="7" ry="11" fill="#1a3050" stroke="#00c8ff" stroke-width="0.8" opacity="0.6" transform="rotate(10 122 406)"/><ellipse cx="148" cy="416" rx="8" ry="12" fill="#1a3050" stroke="#00c8ff" stroke-width="0.8" opacity="0.5" transform="rotate(-8 148 416)"/><ellipse cx="174" cy="405" rx="7" ry="11" fill="#1a3050" stroke="#00c8ff" stroke-width="0.8" opacity="0.4" transform="rotate(12 174 405)"/><text x="135" y="450" text-anchor="middle" fill="#254070" font-size="9" font-family="monospace">腳印方向 →</text><rect x="268" y="245" width="82" height="58" fill="#0f1828" stroke="#ff3355" stroke-width="1.5" rx="2"/><circle cx="309" cy="265" r="8" fill="#0a1220" stroke="#ff3355" stroke-width="1"/><text x="309" y="315" text-anchor="middle" fill="#ff3355" font-size="8" font-family="monospace">保險箱</text><text x="200" y="490" text-anchor="middle" fill="#1a3050" font-size="8" font-family="monospace">細節模糊 · 與搭檔討論你看到的</text></svg>',
+    B:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="20" y="20" width="360" height="460" fill="#0c1520" stroke="#1a3050" stroke-width="1" rx="4"/><rect x="20" y="20" width="360" height="36" fill="#0f1f30" rx="4"/><text x="200" y="43" text-anchor="middle" fill="#ffb700" font-size="11" font-family="monospace">失蹤通報 · 機密等級3</text><line x1="20" y1="56" x2="380" y2="56" stroke="#1a3050" stroke-width="0.5"/><text x="40" y="76" fill="#405870" font-size="9" font-family="monospace">目標：陳博士　職稱：首席研究員</text><text x="40" y="91" fill="#405870" font-size="9" font-family="monospace">失蹤時間：不明　最後目擊：辦公室</text><line x1="40" y1="103" x2="360" y2="103" stroke="#1a3050" stroke-width="0.5"/><text x="40" y="122" fill="#7090b0" font-size="10" font-family="monospace">語音紀錄摘要：</text><rect x="40" y="132" width="320" height="220" fill="#080e18" rx="3" stroke="#1a3050" stroke-width="0.5"/><text x="55" y="158" fill="#8aaccc" font-size="10" font-family="monospace">「如果你們找到這個，</text><text x="55" y="178" fill="#8aaccc" font-size="10" font-family="monospace"> 我已經去了那個地方——</text><text x="55" y="198" fill="#8aaccc" font-size="10" font-family="monospace"> 就是我們第一次討論計畫的地方。</text><text x="55" y="218" fill="#8aaccc" font-size="10" font-family="monospace"> 那天是星期三，傍晚，</text><text x="55" y="238" fill="#8aaccc" font-size="10" font-family="monospace"> 我記得窗外的夕陽。</text><text x="55" y="265" fill="#ff6b6b" font-size="10" font-family="monospace"> 現在是......危險的。</text><text x="55" y="285" fill="#ff6b6b" font-size="10" font-family="monospace"> 往反方向走。」</text><line x1="40" y1="364" x2="360" y2="364" stroke="#1a3050" stroke-width="0.5"/><text x="40" y="384" fill="#ff3355" font-size="9" font-family="monospace">「反方向」含義不明</text><text x="40" y="402" fill="#405870" font-size="9" font-family="monospace">需與搭檔比對現場畫面</text><text x="40" y="420" fill="#405870" font-size="9" font-family="monospace">語音品質：中等，有雜訊干擾</text></svg>'
+  },
+  2:{
+    A:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="15" y="15" width="370" height="400" fill="#060c14" stroke="#1a3050" stroke-width="1"/><text x="200" y="38" text-anchor="middle" fill="#1a3050" font-size="9" font-family="monospace">監視畫面截圖 · 15:00:32</text><rect x="30" y="48" width="340" height="300" fill="#040a10"/><rect x="40" y="295" width="320" height="6" fill="#0f1828"/><ellipse cx="200" cy="200" rx="22" ry="26" fill="#162535" stroke="#254070" stroke-width="0.5" opacity="0.8"/><ellipse cx="192" cy="192" rx="7" ry="4" fill="none" stroke="#00c8ff" stroke-width="0.8" opacity="0.5"/><ellipse cx="208" cy="192" rx="7" ry="4" fill="none" stroke="#00c8ff" stroke-width="0.8" opacity="0.5"/><path d="M185 226 Q160 252 145 275" stroke="#254070" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.7"/><text x="128" y="290" fill="#ff3355" font-size="8" font-family="monospace" opacity="0.8">手臂方向?</text><rect x="172" y="226" width="56" height="42" fill="#101820" stroke="#1a3050" stroke-width="0.5" rx="3" opacity="0.8"/><text x="30" y="372" fill="#00c8ff" font-size="9" font-family="monospace">REC 15:00:32</text><text x="290" y="372" fill="#ff3355" font-size="9" font-family="monospace">畫面模糊</text><text x="200" y="430" text-anchor="middle" fill="#405070" font-size="8" font-family="monospace">深色衣物確認 · 慣用手不確定 · 眼鏡反光?</text><text x="200" y="450" text-anchor="middle" fill="#254070" font-size="8" font-family="monospace">與搭檔比對，討論慣用手的判斷方式</text></svg>',
+    B:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="15" y="15" width="200" height="255" fill="#060c14" stroke="#1a3050" stroke-width="1"/><text x="115" y="37" text-anchor="middle" fill="#1a3050" font-size="8" font-family="monospace">側角度畫面</text><rect x="30" y="200" width="170" height="5" fill="#0f1828"/><rect x="73" y="170" width="24" height="20" fill="#162030" stroke="#ffb700" stroke-width="1.5"/><ellipse cx="85" cy="196" rx="12" ry="7" fill="#162030" stroke="#ffb700" stroke-width="1.5"/><text x="85" y="225" text-anchor="middle" fill="#ffb700" font-size="8" font-family="monospace">咖啡杯</text><text x="85" y="238" text-anchor="middle" fill="#ffb700" font-size="8" font-family="monospace">左手邊?</text><text x="150" y="130" fill="#00c8ff" font-size="7" font-family="monospace">眼鏡反光</text><rect x="225" y="15" width="160" height="470" fill="#0c1520" stroke="#1a3050" stroke-width="1" rx="2"/><text x="305" y="38" text-anchor="middle" fill="#7090b0" font-size="9" font-family="monospace">訪談紀錄</text><line x1="235" y1="46" x2="375" y2="46" stroke="#1a3050" stroke-width="0.5"/><text x="240" y="65" fill="#405870" font-size="8" font-family="monospace">趙宇翔陳述：</text><text x="240" y="80" fill="#8aaccc" font-size="8" font-family="monospace">「我3點在開會」</text><line x1="240" y1="92" x2="375" y2="92" stroke="#1a3050" stroke-width="0.3"/><text x="240" y="110" fill="#405870" font-size="8" font-family="monospace">同事陳述：</text><text x="240" y="125" fill="#ff6b6b" font-size="8" font-family="monospace">「趙根本沒來」</text><line x1="240" y1="138" x2="375" y2="138" stroke="#1a3050" stroke-width="0.3"/><text x="240" y="158" fill="#8aaccc" font-size="8" font-family="monospace">行為紀錄：</text><text x="240" y="173" fill="#8aaccc" font-size="8" font-family="monospace">趙：左撇子</text><text x="240" y="188" fill="#405870" font-size="8" font-family="monospace">眼鏡：不明</text><line x1="240" y1="200" x2="375" y2="200" stroke="#1a3050" stroke-width="0.3"/><text x="240" y="220" fill="#ff3355" font-size="9" font-family="monospace">訪談矛盾!</text><text x="240" y="415" fill="#254070" font-size="7" font-family="monospace">咖啡杯位置</text><text x="240" y="428" fill="#254070" font-size="7" font-family="monospace">= 左撇子證據?</text><text x="240" y="441" fill="#254070" font-size="7" font-family="monospace">與A討論</text></svg>'
+  },
+  3:{
+    A:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><text x="200" y="28" text-anchor="middle" fill="#ff3355" font-size="10" font-family="monospace">災難現場地圖</text><line x1="30" y1="40" x2="370" y2="40" stroke="#1a3050" stroke-width="0.3"/><line x1="30" y1="120" x2="370" y2="120" stroke="#1a3050" stroke-width="0.3"/><line x1="30" y1="200" x2="370" y2="200" stroke="#1a3050" stroke-width="0.3"/><line x1="30" y1="280" x2="370" y2="280" stroke="#1a3050" stroke-width="0.3"/><line x1="30" y1="40" x2="30" y2="380" stroke="#1a3050" stroke-width="0.3"/><line x1="130" y1="40" x2="130" y2="380" stroke="#1a3050" stroke-width="0.3"/><line x1="230" y1="40" x2="230" y2="380" stroke="#1a3050" stroke-width="0.3"/><line x1="330" y1="40" x2="330" y2="380" stroke="#1a3050" stroke-width="0.3"/><rect x="155" y="395" width="90" height="36" fill="#0a2015" stroke="#00e87a" stroke-width="1.5" rx="3"/><text x="200" y="418" text-anchor="middle" fill="#00e87a" font-size="10" font-family="monospace">基地</text><rect x="42" y="228" width="72" height="54" fill="#0f1828" stroke="#ff3355" stroke-width="2" rx="2"/><text x="78" y="252" text-anchor="middle" fill="#ff3355" font-size="11" font-family="monospace">A棟</text><text x="78" y="268" text-anchor="middle" fill="#b8cce0" font-size="8" font-family="monospace">8人/重傷</text><rect x="283" y="228" width="72" height="54" fill="#0f1828" stroke="#ffb700" stroke-width="2" rx="2"/><text x="319" y="252" text-anchor="middle" fill="#ffb700" font-size="11" font-family="monospace">B棟</text><text x="319" y="268" text-anchor="middle" fill="#b8cce0" font-size="8" font-family="monospace">2名醫生</text><rect x="143" y="48" width="114" height="54" fill="#0f1828" stroke="#00c8ff" stroke-width="1.5" rx="2"/><text x="200" y="72" text-anchor="middle" fill="#00c8ff" font-size="11" font-family="monospace">D棟</text><text x="200" y="88" text-anchor="middle" fill="#b8cce0" font-size="8" font-family="monospace">15名孩童</text><text x="200" y="100" text-anchor="middle" fill="#405870" font-size="7" font-family="monospace">遠·已失聯</text><line x1="200" y1="395" x2="98" y2="282" stroke="#254070" stroke-width="0.8" stroke-dasharray="4,3"/><line x1="200" y1="395" x2="302" y2="282" stroke="#254070" stroke-width="0.8" stroke-dasharray="4,3"/><line x1="200" y1="395" x2="200" y2="102" stroke="#254070" stroke-width="0.8" stroke-dasharray="4,3"/><text x="112" y="360" fill="#254070" font-size="8" font-family="monospace">近</text><text x="278" y="360" fill="#254070" font-size="8" font-family="monospace">近</text><text x="212" y="240" fill="#254070" font-size="8" font-family="monospace">遠</text><text x="200" y="462" text-anchor="middle" fill="#ff3355" font-size="9" font-family="monospace">C棟位置不明 向搭檔確認</text><text x="200" y="480" text-anchor="middle" fill="#254070" font-size="8" font-family="monospace">救援車僅2次機會</text></svg>',
+    B:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="15" y="15" width="370" height="470" fill="#110808" stroke="#ff3355" stroke-width="0.8" rx="4"/><rect x="15" y="15" width="370" height="44" fill="#1a0808" rx="4"/><text x="200" y="35" text-anchor="middle" fill="#ff3355" font-size="12" font-family="monospace">緊急情報</text><text x="200" y="51" text-anchor="middle" fill="#ff6b6b" font-size="9" font-family="monospace">距離爆炸倒數中</text><line x1="25" y1="59" x2="375" y2="59" stroke="#3a1520" stroke-width="0.5"/><rect x="118" y="70" width="164" height="52" fill="#0a0808" rx="4" stroke="#ff3355" stroke-width="1"/><text x="200" y="106" text-anchor="middle" fill="#ff3355" font-size="30" font-family="monospace" font-weight="bold">120:00</text><line x1="25" y1="136" x2="375" y2="136" stroke="#3a1520" stroke-width="0.5"/><rect x="25" y="148" width="350" height="36" fill="#0a1a0a" rx="3"/><text x="40" y="171" fill="#00e87a" font-size="10" font-family="monospace">B棟醫生獲救 可立即救治A棟重傷者</text><rect x="25" y="192" width="350" height="36" fill="#0a0a1a" rx="3"/><text x="40" y="215" fill="#00c8ff" font-size="10" font-family="monospace">C棟共12人，攜有衛星通訊設備</text><rect x="25" y="236" width="350" height="36" fill="#1a0a0a" rx="3"/><text x="40" y="252" fill="#ffb700" font-size="10" font-family="monospace">C棟位置：郊區（距基地遠）</text><rect x="25" y="280" width="350" height="50" fill="#1a0808" rx="3" stroke="#ff3355" stroke-width="0.5"/><text x="40" y="300" fill="#ff3355" font-size="10" font-family="monospace">D棟孩童：超過2小時</text><text x="40" y="318" fill="#ff6b6b" font-size="10" font-family="monospace">生存率從70%降至15%</text><line x1="25" y1="342" x2="375" y2="342" stroke="#3a1520" stroke-width="0.5"/><text x="40" y="364" fill="#405870" font-size="9" font-family="monospace">救援車：最多出動2次，每次可載10人</text><rect x="25" y="400" width="350" height="36" fill="#0f0a00" rx="3" stroke="#ffb700" stroke-width="0.5"/><text x="200" y="423" text-anchor="middle" fill="#ffb700" font-size="10" font-family="monospace">先救 B+D 或 B+C？與搭檔討論</text><text x="200" y="465" text-anchor="middle" fill="#254070" font-size="8" font-family="monospace">搭檔有現場地圖，整合資訊再決定</text></svg>'
+  }
+};
 </script>
 
-<!-- FIREBASE + GAME LOGIC -->
+<!-- MAIN SCRIPT -->
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getDatabase,ref,set,get,push,onValue,onChildAdded,update,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -351,33 +497,27 @@ import{getDatabase,ref,set,get,push,onValue,onChildAdded,update,serverTimestamp}
 const FC={apiKey:"AIzaSyByP7iO4XUutmb0jnegliG9xwnDR926rdo",authDomain:"spy-mission-research.firebaseapp.com",databaseURL:"https://spy-mission-research-default-rtdb.firebaseio.com",projectId:"spy-mission-research",storageBucket:"spy-mission-research.firebasestorage.app",messagingSenderId:"939101488132",appId:"1:939101488132:web:3fb169f3c1aaf55c94e151"};
 const app=initializeApp(FC);
 const db=getDatabase(app);
-
 const GK="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";
 const GU="https://api.groq.com/openai/v1/chat/completions";
 
 const SP={
-1:"你是「局長」，影子局指揮官，不是AI，是故事裡真實存在的角色。你在監控兩名探員查陳博士失蹤案。探員A看到辦公室場景（腳印朝右、傍晚天色、模糊照片）。探員B看到語音摘要（往反方向走、很危險）。答案：陳博士往左走（反方向=腳印朝右的反向）。規則：1.冷靜有壓迫感，像真實指揮官 2.你不知道答案，在等他們報告 3.討論停滯時施壓「時間不多了」4.一人沉默就點名另一人 5.絕對不說任何線索內容 6.推理充分達成結論說【任務完成】7.繁體中文2句內，開頭「局長 > 」",
-2:"你是「局長」，影子局指揮官，不是AI。你在監控兩名探員追查間諜。答案是趙宇翔（訪談矛盾+左撇子+深色衣獨自行動）。A看監視畫面（姿勢模糊、深色衣、眼鏡反光不確定）。B看側角度畫面和訪談（趙說在開會但同事說沒來、趙是左撇子、咖啡杯在左邊）。規則：1.語氣像在審訊 2.說出嫌疑人但沒排除其他人就問「能排除另外三個嗎？」3.咖啡杯爭議時問「這算證據嗎？」4.一人主導就點名另一人 5.推理完整說出趙宇翔說【任務完成】6.繁體中文2句內，開頭「局長 > 」",
-3:"你是「局長」，影子局現場指揮官，不是AI。你在等兩名探員做救援決定，沒有標準答案。A知道：A棟8人含重傷者近、B棟2名醫生近、D棟15孩童遠。B知道：救B棟醫生可救A棟重傷者、D棟超2小時生存率降至15%、C棟12人有衛星設備在郊區。規則：1.製造緊迫感 2.一人主導就問另一人「你同意嗎？」3.快達成共識時說「剛收到情報：A棟重傷者中有外科醫生，這改變你們決定嗎？」4.兩人都說出觀點轉變後說【任務完成】5.繁體中文2句內，開頭「局長 > 」"
+  1:"你是「局長」，影子局指揮官，不是AI，是故事裡真實存在的角色。你在監控兩名探員查陳博士失蹤案。探員A看到辦公室場景（腳印朝右、傍晚天色、模糊照片）。探員B看到語音摘要（往反方向走、很危險）。答案：陳博士往左走（反方向=腳印朝右的反向）。規則：1.冷靜有壓迫感，像真實指揮官 2.你不知道答案，在等他們報告 3.討論停滯時施壓 4.一人沉默就點名另一人 5.絕對不說任何線索內容 6.推理充分達成結論說【任務完成】7.繁體中文2句內，開頭「局長 > 」",
+  2:"你是「局長」，影子局指揮官，不是AI。你在監控兩名探員追查間諜。答案是趙宇翔（訪談矛盾+左撇子+深色衣獨自行動）。A看監視畫面（姿勢模糊、深色衣、眼鏡反光不確定）。B看側角度和訪談（趙說在開會但同事說沒來、趙是左撇子、咖啡杯在左邊）。規則：1.語氣像在審訊 2.說出嫌疑人但沒排除其他人就問「能排除另外三個嗎？」3.咖啡杯爭議時問「這算證據嗎？」4.一人主導就點名另一人 5.推理完整說出趙宇翔說【任務完成】6.繁體中文2句內，開頭「局長 > 」",
+  3:"你是「局長」，影子局現場指揮官，不是AI。你在等兩名探員做救援決定，沒有標準答案。A知道：A棟8人含重傷者近、B棟2名醫生近、D棟15孩童遠。B知道：救B棟醫生可救A棟重傷者、D棟超2小時生存率降至15%、C棟12人有衛星設備在郊區。規則：1.製造緊迫感 2.一人主導就問另一人同意嗎 3.快達成共識時說「剛收到情報：A棟重傷者中有外科醫生，這改變你們決定嗎？」4.兩人都說出觀點轉變後說【任務完成】5.繁體中文2句內，開頭「局長 > 」"
 };
 
 const MI={
-1:{name:"消失的研究員",intel:{A:["場景圖顯示辦公室現場（左側）","注意：日曆、照片、窗外天色","地板上有腳印，觀察方向","細節模糊，需與搭檔討論"],B:["失蹤語音摘要文件（左側）","「去了第一次討論計畫的地方」","關鍵：「往反方向走」是什麼意思？","需與搭檔比對現場畫面"]},skip:"陳博士往左走。語音說「往反方向走」，指腳印方向（朝右）的反向，所以是往左。腳印可能是值班人員的，不是陳博士的。",intro:"局長 > 兩位探員，陳博士失蹤已超過六小時。他留下的線索一分為二，你們各持一半。立刻交換情報，找出他在哪裡。"},
-2:{name:"組織內的叛徒",intel:{A:["監視畫面截圖（左側）","下午3點，人影操作電腦","注意：姿勢方向、衣物顏色、眼鏡","畫面模糊，解讀需要討論"],B:["側角度畫面＋訪談紀錄（左側）","注意咖啡杯的位置","趙宇翔的訪談有明顯矛盾","與搭檔整合觀察"]},skip:"間諜是趙宇翔。訪談矛盾（說在開會但同事說沒來）+ 左撇子 + 深色衣獨自行動。咖啡杯位置是輔助線索，訪談矛盾才是關鍵。",intro:"局長 > 晶片資料已被複製，叛徒就在你們小隊內部。監視資料一分為二。告訴我是誰——但我要完整推理，不只是名字。"},
-3:{name:"生死抉擇",intel:{A:["災難現場地圖（左側）","A棟：8人含重傷者，位置近","B棟：2名醫療人員，位置近","D棟：15名孩童，位置遠已失聯"],B:["緊急情報（左側）","B棟醫生獲救後可救治A棟重傷者","D棟孩童超2小時生存率驟降至15%","C棟12人有衛星設備，位置遠"]},skip:"沒有標準答案。常見選擇：B+D（醫生+孩童）或B+C（醫生+通訊）。重點是協商過程與理由。",intro:"局長 > 緊急狀況。爆炸倒數120分鐘，四個地點都有人被困，救援車只有兩次機會。你們手上的情報不完整，合起來才能決定。我要你們的共同答案，現在。"}
+  1:{name:"消失的研究員",intel:{A:["場景圖：辦公室現場（左側）","注意：日曆、照片、窗外天色","地板有腳印，觀察方向","細節模糊，需與搭檔討論"],B:["失蹤語音摘要文件（左側）","「去了第一次討論計畫的地方」","關鍵：「往反方向走」是什麼意思？","需與搭檔比對現場畫面"]},skip:"陳博士往左走。語音說「往反方向走」，指腳印方向（朝右）的反向，所以是往左。腳印可能是值班人員的，不是陳博士的。",intro:"局長 > 兩位探員，陳博士失蹤已超過六小時。他留下的線索一分為二，你們各持一半。立刻交換情報，找出他在哪裡。"},
+  2:{name:"組織內的叛徒",intel:{A:["監視畫面截圖（左側）","下午3點，人影操作電腦","注意：姿勢方向、衣物、眼鏡","畫面模糊，解讀需討論"],B:["側角度畫面和訪談紀錄（左側）","注意咖啡杯的位置","趙宇翔的訪談有明顯矛盾","與搭檔整合觀察"]},skip:"間諜是趙宇翔。訪談矛盾（說在開會但同事說沒來）+ 左撇子 + 深色衣獨自行動。",intro:"局長 > 晶片資料已被複製，叛徒就在你們小隊內部。監視資料一分為二。告訴我是誰——但我要完整推理，不只是名字。"},
+  3:{name:"生死抉擇",intel:{A:["災難現場地圖（左側）","A棟：8人含重傷者，位置近","B棟：2名醫療人員，位置近","D棟：15名孩童，位置遠已失聯"],B:["緊急情報（左側）","B棟醫生獲救後可救治A棟重傷者","D棟孩童超2小時生存率降至15%","C棟12人有衛星設備，位置遠"]},skip:"沒有標準答案。常見選擇：B+D（醫生+孩童）或B+C（醫生+通訊）。重點是協商過程與理由。",intro:"局長 > 緊急狀況。爆炸倒數120分鐘，四個地點都有人被困，救援車只有兩次機會。你們手上的情報不完整，合起來才能決定。"}
 };
 
-const INTRO=[
-"局長 > 通訊已加密。",
-"局長 > 你們是影子局新進探員，今天是第一次正式任務。",
-"局長 > 我是你們的指揮官。任務期間我會即時監控你們的通訊。",
-"局長 > 記住——你們手上的情報都是片段的。",
-"局長 > 只有互相溝通，才能還原真相。",
-"局長 > 任務資料載入中..."
-];
+const INTRO_LINES=["局長 > 通訊已加密。","局長 > 你們是影子局新進探員，今天是第一次正式任務。","局長 > 我是你們的指揮官。任務期間我會即時監控你們的通訊。","局長 > 記住——你們手上的情報都是片段的。","局長 > 只有互相溝通，才能還原真相。","局長 > 任務資料載入中..."];
 
 let S={room:"",role:"",name:"",mission:1,partnerName:"",tyTO:null};
 let rMsgs=[],aiCD={},cntA=0,cntB=0;
+let timerInterval=null,timerSec=60,cdInterval=null;
+let myConfirmed=false,partnerConfirmed=false;
 
 function ss(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");}
 function toast(m,d=2400){const t=document.getElementById("toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),d);}
@@ -391,55 +531,278 @@ document.getElementById("btn-create").addEventListener("click",()=>{
   const code=gc();S.room=code;
   document.getElementById("create-code").textContent=code;
   ss("sc");
+  // Wait for partner to join
+  const pr=ref(db,`rooms/${code}/players`);
+  onValue(pr,snap=>{
+    if(!snap.exists())return;
+    const players=snap.val();
+    const roles=Object.keys(players);
+    if(roles.length>=2){
+      // Both players connected - go to role select
+      S.role="";
+      initRoleSelect(code);
+    }
+  });
 });
+
 document.getElementById("btn-join").addEventListener("click",()=>ss("sj"));
 document.getElementById("btn-back-c").addEventListener("click",()=>ss("sl"));
 document.getElementById("btn-back-j").addEventListener("click",()=>ss("sl"));
-document.getElementById("btn-back-r").addEventListener("click",()=>ss("sl"));
 
-document.getElementById("btn-proceed-c").addEventListener("click",()=>ss("sr"));
-
-document.getElementById("btn-proceed-j").addEventListener("click",()=>{
+document.getElementById("btn-proceed-j").addEventListener("click",async()=>{
   const code=document.getElementById("join-code").value.trim().toUpperCase();
   const err=document.getElementById("join-err");
   err.textContent="";
   if(!code||code.length<4){err.textContent="請輸入有效的任務代碼";return;}
-  S.room=code;ss("sr");
+  // Register as temp player
+  await set(ref(db,`rooms/${code}/players/temp_${Date.now()}`),{joining:true,ts:serverTimestamp()});
+  S.room=code;
+  initRoleSelect(code);
 });
 
-document.getElementById("card-a").addEventListener("click",()=>{
-  S.role="A";
-  document.getElementById("card-a").className="rc sel-a";
-  document.getElementById("card-b").className="rc";
-});
-document.getElementById("card-b").addEventListener("click",()=>{
-  S.role="B";
-  document.getElementById("card-a").className="rc";
-  document.getElementById("card-b").className="rc sel-b";
-});
+// ROLE SELECT INIT
+function initRoleSelect(room){
+  ss("sr");
+  myConfirmed=false;partnerConfirmed=false;
+  timerSec=60;
+  updateTimerUI();
+  startTimer(room);
+  listenRoleState(room);
+}
 
-document.getElementById("btn-confirm-r").addEventListener("click",async()=>{
+function startTimer(room){
+  clearInterval(timerInterval);
+  timerInterval=setInterval(async()=>{
+    timerSec--;
+    updateTimerUI();
+    if(timerSec<=0){
+      clearInterval(timerInterval);
+      // Time up - random assign
+      await randomAssign(room);
+    }
+  },1000);
+}
+
+function updateTimerUI(){
+  const pct=(timerSec/60)*100;
+  const n=document.getElementById("timer-num");
+  const b=document.getElementById("timer-bar");
+  const l=document.getElementById("timer-label");
+  n.textContent=timerSec;
+  b.style.width=pct+"%";
+  if(timerSec>20){n.className="timer-num";b.className="timer-bar";l.textContent="秒後隨機分配";}
+  else if(timerSec>10){n.className="timer-num warn";b.className="timer-bar warn";l.textContent="秒後隨機分配";}
+  else{n.className="timer-num danger";b.className="timer-bar danger";l.textContent="秒後隨機分配！";}
+}
+
+async function randomAssign(room){
+  // Check Firebase for any confirmed roles
+  const snap=await get(ref(db,`rooms/${room}/roleSelect`));
+  const state=snap.val()||{};
+  let assignA=null,assignB=null;
+  if(state.A&&state.A.confirmed){assignA=state.A.name;}
+  if(state.B&&state.B.confirmed){assignB=state.B.name;}
+  // Assign remaining
+  if(!assignA&&!assignB){
+    // random
+    const r=Math.random()<0.5;
+    assignA=r?"随机A":"随机A";
+    assignB="随机B";
+  }
+  await set(ref(db,`rooms/${room}/roleAssigned`),{A:assignA||"随机",B:assignB||"随机",ts:serverTimestamp()});
+}
+
+// Listen to role select state from Firebase
+function listenRoleState(room){
+  onValue(ref(db,`rooms/${room}/roleSelect`),snap=>{
+    if(!snap.exists())return;
+    const state=snap.val();
+    updateRoleUI(state);
+    // Check if both confirmed different roles
+    const aConf=state.A&&state.A.confirmed;
+    const bConf=state.B&&state.B.confirmed;
+    if(aConf&&bConf&&state.A.role!==state.B.role){
+      // Both confirmed different roles - start 5s countdown
+      clearInterval(timerInterval);
+      startCountdown(state);
+    }
+  });
+
+  onValue(ref(db,`rooms/${room}/roleAssigned`),snap=>{
+    if(!snap.exists())return;
+    // Time's up - use assigned roles
+    const assigned=snap.val();
+    const myRole=S.name&&assigned.A===S.name?"A":assigned.B===S.name?"B":Math.random()<0.5?"A":"B";
+    S.role=myRole;
+    clearInterval(timerInterval);
+    startGameWithRole(myRole,S.name||"探員");
+  });
+}
+
+function updateRoleUI(state){
+  const myRole=S.role;
+  const partnerRole=myRole==="A"?"B":myRole==="B"?"A":null;
+
+  // Reset badges
+  ["a","b"].forEach(r=>{
+    document.getElementById(`badge-${r}-hover`).style.display="none";
+    document.getElementById(`badge-${r}-sel`).style.display="none";
+    document.getElementById(`card-${r}`).className="rc";
+  });
+
+  // Show A state
+  if(state.A){
+    const cardA=document.getElementById("card-a");
+    const badgeASel=document.getElementById("badge-a-sel");
+    if(state.A.confirmed){
+      cardA.className="rc confirmed-a";
+      badgeASel.className="badge badge-confirm";
+      badgeASel.textContent="✓ 已確認";
+      badgeASel.style.display="block";
+    } else if(state.A.selected){
+      cardA.className="rc sel-a";
+      badgeASel.className="badge badge-sel-a";
+      badgeASel.textContent="已選擇";
+      badgeASel.style.display="block";
+    } else if(state.A.hover){
+      cardA.className="rc hover-a";
+      document.getElementById("badge-a-hover").className="badge badge-hover-a";
+      document.getElementById("badge-a-hover").textContent="查看中";
+      document.getElementById("badge-a-hover").style.display="block";
+    }
+  }
+
+  // Show B state
+  if(state.B){
+    const cardB=document.getElementById("card-b");
+    const badgeBSel=document.getElementById("badge-b-sel");
+    if(state.B.confirmed){
+      cardB.className="rc confirmed-b";
+      badgeBSel.className="badge badge-confirm";
+      badgeBSel.textContent="✓ 已確認";
+      badgeBSel.style.display="block";
+    } else if(state.B.selected){
+      cardB.className="rc sel-b";
+      badgeBSel.className="badge badge-sel-b";
+      badgeBSel.textContent="已選擇";
+      badgeBSel.style.display="block";
+    } else if(state.B.hover){
+      cardB.className="rc hover-b";
+      document.getElementById("badge-b-hover").className="badge badge-hover-b";
+      document.getElementById("badge-b-hover").textContent="查看中";
+      document.getElementById("badge-b-hover").style.display="block";
+    }
+  }
+
+  // Update status text
+  const aConf=state.A&&state.A.confirmed;
+  const bConf=state.B&&state.B.confirmed;
+  const sameRole=state.A&&state.B&&state.A.role===state.B.role&&state.A.selected&&state.B.selected;
+  const statusEl=document.getElementById("role-status");
+
+  if(aConf&&bConf){statusEl.textContent="雙方均已確認，準備倒數...";}
+  else if(aConf||bConf){statusEl.textContent="等待另一位探員確認...";}
+  else if(sameRole){statusEl.textContent="兩人選擇了同一個角色，請重新選擇";}
+  else if(state.A&&state.A.selected&&state.B&&state.B.selected){statusEl.textContent="雙方已選擇不同角色，請各自確認";}
+  else{statusEl.textContent="請選擇你的探員身份";}
+}
+
+// Role card interactions
+document.getElementById("card-a").addEventListener("mouseenter",()=>{
+  if(!S.room)return;
+  update(ref(db,`rooms/${S.room}/roleSelect/A`),{hover:true});
+});
+document.getElementById("card-a").addEventListener("mouseleave",()=>{
+  if(!S.room)return;
+  update(ref(db,`rooms/${S.room}/roleSelect/A`),{hover:false});
+});
+document.getElementById("card-a").addEventListener("click",()=>selectRole("A"));
+
+document.getElementById("card-b").addEventListener("mouseenter",()=>{
+  if(!S.room)return;
+  update(ref(db,`rooms/${S.room}/roleSelect/B`),{hover:true});
+});
+document.getElementById("card-b").addEventListener("mouseleave",()=>{
+  if(!S.room)return;
+  update(ref(db,`rooms/${S.room}/roleSelect/B`),{hover:false});
+});
+document.getElementById("card-b").addEventListener("click",()=>selectRole("B"));
+
+function selectRole(r){
+  S.role=r;
+  myConfirmed=false;
+  document.getElementById("btn-confirm-r").disabled=false;
+  document.getElementById("btn-confirm-r").textContent=`確認選擇${r==="A"?"林曉晨":"陳宇哲"} ›`;
+  document.getElementById("btn-cancel-r").style.display="none";
+  if(!S.room)return;
+  set(ref(db,`rooms/${S.room}/roleSelect/${r}`),{selected:true,confirmed:false,hover:false,name:S.name||"",role:r});
+  // Clear other role if we had it
+  const other=r==="A"?"B":"A";
+  get(ref(db,`rooms/${S.room}/roleSelect/${other}`)).then(snap=>{
+    if(snap.exists()&&snap.val().name===S.name){
+      set(ref(db,`rooms/${S.room}/roleSelect/${other}`),{selected:false,confirmed:false,hover:false,name:"",role:""});
+    }
+  });
+}
+
+document.getElementById("btn-confirm-r").addEventListener("click",()=>{
   const name=document.getElementById("inp-name").value.trim();
   const err=document.getElementById("role-err");
   err.textContent="";
-  if(!S.role){err.textContent="請選擇探員身份";return;}
-  if(!name){err.textContent="請輸入你的呼號";return;}
+  if(!S.role){err.textContent="請先選擇角色";return;}
+  if(!name){err.textContent="請輸入玩家姓名";return;}
   S.name=name;
-  const snap=await get(ref(db,`rooms/${S.room}/players/${S.role}`));
-  if(snap.exists()&&snap.val().online){err.textContent="此身份已被佔用";return;}
-  await set(ref(db,`rooms/${S.room}/players/${S.role}`),{name,online:true,joinedAt:serverTimestamp()});
-  initGame();
+  myConfirmed=true;
+  set(ref(db,`rooms/${S.room}/roleSelect/${S.role}`),{selected:true,confirmed:true,hover:false,name,role:S.role});
+  document.getElementById("btn-confirm-r").disabled=true;
+  document.getElementById("btn-confirm-r").textContent="等待搭檔確認...";
+  document.getElementById("btn-cancel-r").style.display="block";
 });
+
+document.getElementById("btn-cancel-r").addEventListener("click",()=>{
+  myConfirmed=false;
+  set(ref(db,`rooms/${S.room}/roleSelect/${S.role}`),{selected:true,confirmed:false,hover:false,name:S.name,role:S.role});
+  document.getElementById("btn-confirm-r").disabled=false;
+  document.getElementById("btn-confirm-r").textContent=`確認選擇${S.role==="A"?"林曉晨":"陳宇哲"} ›`;
+  document.getElementById("btn-cancel-r").style.display="none";
+});
+
+// 5-second countdown
+function startCountdown(state){
+  const ov=document.getElementById("countdown-ov");
+  const numEl=document.getElementById("cd-num");
+  const infoEl=document.getElementById("cd-info");
+  ov.classList.add("on");
+  infoEl.textContent=`${state.A.name} → 林曉晨 ／ ${state.B.name} → 陳宇哲`;
+  let sec=5;
+  numEl.textContent=sec;
+  clearInterval(cdInterval);
+  cdInterval=setInterval(()=>{
+    sec--;
+    numEl.textContent=sec;
+    if(sec<=0){
+      clearInterval(cdInterval);
+      ov.classList.remove("on");
+      startGameWithRole(S.role,S.name);
+    }
+  },1000);
+}
+
+function startGameWithRole(role,name){
+  S.role=role;S.name=name;
+  clearInterval(timerInterval);
+  // Register player properly
+  set(ref(db,`rooms/${S.room}/players/${role}`),{name,online:true,joinedAt:serverTimestamp()});
+  initGame();
+}
 
 // GAME INIT
 function initGame(){
   const{room,role,name}=S;
   document.getElementById("hud-n").textContent=name;
-  document.getElementById("hud-r").textContent=role==="A"?"林曉晨·夜鷹":"陳宇哲·獵犬";
+  document.getElementById("hud-r").textContent=role==="A"?"林曉晨 · 夜鷹":"陳宇哲 · 獵犬";
   document.getElementById("hud-c").textContent=room;
-  document.getElementById("wait-code").textContent=room;
   document.getElementById("end-code").textContent=room;
-  ss("sw");
 
   const pr=role==="A"?"B":"A";
   onValue(ref(db,`rooms/${room}/players/${pr}`),snap=>{
@@ -447,7 +810,6 @@ function initGame(){
       S.partnerName=snap.val().name;
       document.getElementById("plabel").textContent=snap.val().name+"（線上）";
       document.getElementById("pdot").className="pd";
-      if(document.getElementById("sw").classList.contains("active"))playIntro();
     }else{
       document.getElementById("pdot").className="pd off";
       document.getElementById("plabel").textContent="搭檔已離線";
@@ -468,25 +830,32 @@ function initGame(){
     else ti.style.display="none";
     sc();
   });
+
+  // Play intro then start mission
+  playIntro();
 }
 
-// INTRO
 async function playIntro(){
-  if(S.role!=="A")return;
+  if(S.role!=="A"){
+    // Wait a bit then start
+    await sleep(1500);
+    startM(1);
+    return;
+  }
   const ov=document.getElementById("intro-ov"),tx=document.getElementById("intro-tx");
   ov.classList.add("on");tx.innerHTML="";
-  for(const line of INTRO){await typeText(tx,line);await sleep(500);tx.innerHTML+="\n";}
+  for(const line of INTRO_LINES){await typeText(tx,line);await sleep(500);tx.innerHTML+="\n";}
   await sleep(800);ov.classList.remove("on");
   startM(1);
 }
-function typeText(el,text,spd=32){
+
+function typeText(el,text,spd=30){
   return new Promise(r=>{
     let i=0;const cur=document.createElement("span");cur.className="cur";el.appendChild(cur);
     const iv=setInterval(()=>{if(i<text.length){el.insertBefore(document.createTextNode(text[i++]),cur);}else{clearInterval(iv);cur.remove();r();}},spd);
   });
 }
 
-// MISSION
 function startM(n){
   S.mission=n;rMsgs=[];aiCD={};cntA=0;cntB=0;
   const info=MI[n];ss("sg");
@@ -505,7 +874,6 @@ function startM(n){
   document.getElementById("sb").disabled=false;
 }
 
-// SEND
 document.getElementById("sb").addEventListener("click",sendMsg);
 document.getElementById("ci").addEventListener("keydown",e=>{
   if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMsg();}
@@ -547,7 +915,6 @@ function addMsg(msg){
   c.appendChild(d);sc();
 }
 
-// AI
 async function triggerAI(msgObj){
   if(cntA===0||cntB===0)return;
   const m=S.mission,now=Date.now();
@@ -556,15 +923,14 @@ async function triggerAI(msgObj){
   const hist=rMsgs.slice(-8).map(x=>`${x.sender}(探員${x.role}): ${x.text}`).join("\n");
   const prompt=`對話記錄：\n${hist}\n\n最新：${msgObj.sender}(探員${msgObj.role}): ${msgObj.text}\n\n以局長身份回應：`;
   try{
-    const res=await fetch(GU,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+GK},body:JSON.stringify({model:"llama-3.3-70b-versatile",messages:[{role:"system",content:SP[m]},{role:"user",content:prompt}],max_tokens:120,temperature:0.75})});
+    
     const data=await res.json();
-    console.log("Groq:",res.status,JSON.stringify(data).substring(0,150));
-    if(!res.ok)return;
+    if(!res.ok){console.error("Groq:",data?.error?.message);return;}
     const reply=data?.choices?.[0]?.message?.content?.trim();
     if(!reply)return;
     await pushMsg({type:"ai",text:reply,sender:"局長",mission:m,ts:Date.now()});
     if(reply.includes("【任務完成】"))setTimeout(()=>completeMission(),2500);
-  }catch(e){console.error("AI err:",e);}
+  }catch(e){console.error("AI:",e);}
 }
 
 function completeMission(){set(ref(db,`rooms/${S.room}/mission`),S.mission+1);}
@@ -579,6 +945,7 @@ function showMOv(n){
   document.getElementById("mov").classList.add("on");
   S.mission=n;
 }
+
 document.getElementById("btn-next-m").addEventListener("click",()=>{
   document.getElementById("mov").classList.remove("on");
   if(S.mission<=3)startM(S.mission);else showReflect();
@@ -593,8 +960,10 @@ document.getElementById("btn-submit-rf").addEventListener("click",async()=>{
   ss("se");toast("覆盤報告已提交");
 });
 
-window.addEventListener("beforeunload",()=>{if(S.room&&S.role)set(ref(db,`rooms/${S.room}/players/${S.role}/online`),false);});
-console.log("Game module loaded OK");
+window.addEventListener("beforeunload",()=>{
+  if(S.room&&S.role)set(ref(db,`rooms/${S.room}/players/${S.role}/online`),false);
+});
+console.log("Shadow Bureau v4 loaded OK");
 </script>
 </body>
 </html>
