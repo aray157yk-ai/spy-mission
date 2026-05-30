@@ -85,13 +85,13 @@ body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradi
 .name-conn-txt{font-family:var(--mono);font-size:11px;color:var(--tx2);letter-spacing:.1em;}
 
 /* TIMER */
-.timer-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
-.timer-bar-bg{width:180px;height:5px;background:var(--s3);border-radius:3px;overflow:hidden;}
-.timer-bar{height:100%;border-radius:3px;background:var(--ac);transition:width .5s linear,background .5s;}
-.timer-bar.warn{background:var(--am);}.timer-bar.danger{background:var(--rd);}
-.timer-num{font-family:var(--mono);font-size:20px;color:var(--ac);letter-spacing:.1em;transition:color .5s;}
-.timer-num.warn{color:var(--am);}.timer-num.danger{color:var(--rd);}
-.timer-lbl{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.15em;}
+
+
+
+
+
+
+
 
 /* ROLE SELECT */
 .role-screen-wrap{width:100%;max-width:1100px;display:flex;flex-direction:column;align-items:center;}
@@ -291,11 +291,6 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
   <div class="role-screen-wrap">
     <div class="role-header">
       <div class="role-title">選擇探員身份</div>
-      <div class="timer-wrap">
-        <div class="timer-num" id="timer-num">60</div>
-        <div class="timer-bar-bg"><div class="timer-bar" id="timer-bar" style="width:100%"></div></div>
-        <div class="timer-lbl" id="timer-lbl">秒後隨機分配</div>
-      </div>
     </div>
 
     <div class="role-grid">
@@ -498,11 +493,11 @@ const MI={
   3:{name:"生死抉擇",intel:{A:["災難現場地圖（左側）","A棟：8人含重傷者，位置近","B棟：2名醫療人員，位置近","D棟：15名孩童，位置遠已失聯"],B:["緊急情報（左側）","B棟醫生獲救後可救治A棟重傷者","D棟孩童超2小時生存率降至15%","C棟12人有衛星設備，位置遠"]},skip:"沒有標準答案。常見選擇：B+D或B+C。重點是協商過程與理由。",intro:"局長 > 緊急狀況。爆炸倒數120分鐘，四個地點都有人被困，救援車只有兩次機會。合起來才能決定。"}
 };
 
-const INTRO_LINES=["局長 > 通訊已加密。","局長 > 你們是影子局新進探員，今天是第一次正式任務。","局長 > 我是你們的指揮官。任務期間我會即時監控你們的通訊。","局長 > 記住——你們手上的情報都是片段的。","局長 > 只有互相溝通，才能還原真相。","局長 > 任務資料載入中..."];
+// Intro lines moved to playIntro function
 
 let S={room:"",role:"",name:"",playerKey:"",mission:1,partnerName:"",tyTO:null};
 let rMsgs=[],aiCD={},cntA=0,cntB=0;
-let timerInterval=null,timerSec=60;
+
 let myConfirmed=false;
 
 function ss(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");}
@@ -587,13 +582,7 @@ function showNameInput(room,playerType){
 // ── ROLE SELECT ──
 function initRoleSelect(room){
   ss("sr");
-  myConfirmed=false;timerSec=60;
-  updateTimerUI();
-  clearInterval(timerInterval);
-  timerInterval=setInterval(async()=>{
-    timerSec--;updateTimerUI();
-    if(timerSec<=0){clearInterval(timerInterval);await randomAssign(room);}
-  },1000);
+  myConfirmed=false;
 
   // Watch player states
   onValue(ref(db,`rooms/${room}/players`),snap=>{
@@ -615,44 +604,14 @@ function initRoleSelect(room){
     }
   });
 
-  // Watch for random assign
-  onValue(ref(db,`rooms/${room}/roleAssigned`),snap=>{
-    if(!snap.exists())return;
-    const assigned=snap.val();
-    if(assigned[S.playerKey]&&!window._roleEntered){
-      window._roleEntered=true;
-      clearInterval(timerInterval);
-      S.role=assigned[S.playerKey];
-      startGameWithRole(S.role,S.name);
-    }
-  });
+
 
   window._roleEntered=false;
 }
 
-function updateTimerUI(){
-  const pct=(timerSec/60)*100;
-  const n=document.getElementById("timer-num");
-  const b=document.getElementById("timer-bar");
-  n.textContent=timerSec;
-  b.style.width=pct+"%";
-  if(timerSec>20){n.className="timer-num";b.className="timer-bar";}
-  else if(timerSec>10){n.className="timer-num warn";b.className="timer-bar warn";}
-  else{n.className="timer-num danger";b.className="timer-bar danger";}
-}
 
-async function randomAssign(room){
-  const snap=await get(ref(db,`rooms/${room}/players`));
-  const players=snap.val()||{};
-  const p1=players.P1||{};const p2=players.P2||{};
-  let r1=p1.selected||null;let r2=p2.selected||null;
-  if(!r1&&!r2){r1=Math.random()<0.5?"A":"B";r2=r1==="A"?"B":"A";}
-  else if(!r1||(r1===r2)){r1=r2==="A"?"B":"A";}
-  else if(!r2||(r1===r2)){r2=r1==="A"?"B":"A";}
-  if(p1.confirmed&&!p2.confirmed){r2=r1==="A"?"B":"A";}
-  if(p2.confirmed&&!p1.confirmed){r1=r2==="A"?"B":"A";}
-  await set(ref(db,`rooms/${room}/roleAssigned`),{P1:r1,P2:r2,ts:serverTimestamp()});
-}
+
+
 
 // Role card interactions - click whole card
 ["a","b"].forEach(c=>{
@@ -735,7 +694,6 @@ function updateRoleUI(me,partner){
 // ── START GAME ──
 function startGameWithRole(role,name){
   S.role=role;S.name=name;
-  clearInterval(timerInterval);
   set(ref(db,`rooms/${S.room}/players/${role}`),{name,online:true,joinedAt:serverTimestamp()});
   initGame();
 }
@@ -783,23 +741,44 @@ function initGame(){
 }
 
 // ── INTRO ──
+const INTRO_A=[
+  "局長 > 林曉晨，夜鷹，你聽著。",
+  "局長 > 你的眼睛是這支隊伍最強的武器。",
+  "局長 > 你能看到別人忽略的細節——現場的每一個痕跡、每一個異常。",
+  "局長 > 但記住，你看到的只有一半的真相。",
+  "局長 > 你的搭檔掌握著另一半你看不到的資訊。",
+  "局長 > 你們必須充分溝通、互相信任，才能還原完整的真相。",
+  "局長 > 合作，是你們唯一的武器。任務開始。"
+];
+const INTRO_B=[
+  "局長 > 陳宇哲，獵犬，你聽著。",
+  "局長 > 你的推理能力是這支隊伍最鋒利的刀。",
+  "局長 > 你能從矛盾的資料中找出破綻——沒有任何細節能逃過你的眼睛。",
+  "局長 > 但記住，你分析的只有一半的資訊。",
+  "局長 > 你的搭檔看到了你無法取得的現場畫面。",
+  "局長 > 你們必須充分溝通、整合情報，才能找出真相。",
+  "局長 > 合作，是你們唯一的武器。任務開始。"
+];
+
 async function playIntro(){
-  if(S.role!=="A"){
-    await sleep(2500);
-    startM(1);
-    return;
-  }
+  const lines=S.role==="A"?INTRO_A:INTRO_B;
   const ov=document.getElementById("intro-ov"),tx=document.getElementById("intro-tx");
   ov.classList.add("on");tx.innerHTML="";
-  for(const line of INTRO_LINES){await typeText(tx,line);await sleep(480);tx.innerHTML+="\n";}
+  for(const line of lines){await typeText(tx,line);await sleep(500);tx.innerHTML+="\n";}
   document.getElementById("intro-prompt").style.display="block";
   await new Promise(r=>{
     const dismiss=()=>{document.removeEventListener("keydown",dismiss);document.removeEventListener("click",dismiss);r();};
     document.addEventListener("keydown",dismiss);
-    setTimeout(()=>document.addEventListener("click",dismiss),300);
+    setTimeout(()=>document.addEventListener("click",dismiss),400);
   });
   ov.classList.remove("on");
-  startM(1);
+  // A sends the mission intro message to Firebase
+  if(S.role==="A"){
+    startM(1);
+  } else {
+    // B starts mission, A's intro msg will come via Firebase onChildAdded
+    startM(1);
+  }
 }
 
 function typeText(el,text,spd=30){
