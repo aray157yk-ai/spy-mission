@@ -102,7 +102,7 @@ body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradi
 .role-title{font-family:var(--mono);font-size:11px;color:var(--tx2);letter-spacing:.25em;text-transform:uppercase;}
 
 /* Two-card layout with gap between */
-.role-grid{display:grid;grid-template-columns:1fr 24px 1fr;gap:0;width:100%;margin-bottom:20px;align-items:stretch;}
+.role-grid{display:grid;grid-template-columns:1fr 24px 1fr;gap:0;width:100%;margin-bottom:20px;align-items:start;}
 .role-slot{display:flex;gap:0;border:2px solid var(--b1);border-radius:8px;overflow:hidden;transition:border-color .25s,box-shadow .25s;cursor:pointer;}
 .role-slot:hover{border-color:var(--b2);}
 .role-slot.slot-a.self-sel{border-color:var(--ac);box-shadow:0 0 24px rgba(0,200,255,.25);}
@@ -112,7 +112,7 @@ body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradi
 .role-slot.self-confirmed{border-color:var(--ac);box-shadow:0 0 36px rgba(0,200,255,.4);}
 
 /* Image side */
-.slot-img{width:180px;flex-shrink:0;background:var(--s2);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:360px;}
+.slot-img{width:160px;flex-shrink:0;background:var(--s2);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;aspect-ratio:1/1.6;}
 .slot-img-ph{font-size:80px;opacity:.18;}
 .slot-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .slot-badges{position:absolute;top:10px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:5px;pointer-events:none;}
@@ -378,7 +378,6 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;text
       </div>
     </div>
 
-div>
 
     <div class="err" id="role-err"></div>
     <div class="action-row">
@@ -406,6 +405,7 @@ div>
 <!-- INTRO -->
 <div class="intro-ov" id="intro-ov">
   <div class="intro-tx" id="intro-tx"></div>
+  <div id="intro-prompt" style="display:none;margin-top:32px;font-family:var(--mono);font-size:11px;color:var(--tx3);letter-spacing:.2em;animation:blink .7s infinite;">按任意鍵或點擊繼續</div>
 </div>
 
 <!-- GAME -->
@@ -638,6 +638,7 @@ async function checkBothNames(room,playerType,callback){
 function initRoleSelect(room){
   ss("sr");
   myConfirmed=false;partnerConfirmed=false;
+  window._countdownStarted=false;
   timerSec=60;
   updateTimerUI();
   startTimer(room);
@@ -684,6 +685,14 @@ async function randomAssign(room){
   await set(ref(db,`rooms/${room}/roleAssigned`),{P1:p1Role,P2:p2Role,ts:serverTimestamp()});
 }
 
+document.getElementById("btn-cancel-r").addEventListener("click",()=>{
+  myConfirmed=false;
+  update(ref(db,`rooms/${S.room}/players/${S.playerKey}`),{selected:S.role,confirmed:false,name:S.name});
+  document.getElementById("btn-confirm-r").disabled=false;
+  document.getElementById("btn-confirm-r").textContent=`確認選擇${S.role==="A"?"林曉晨":"陳宇哲"} ›`;
+  document.getElementById("btn-cancel-r").style.display="none";
+});
+
 // Listen to role select state from Firebase
 function listenRoleState(room){
   onValue(ref(db,`rooms/${room}/players`),snap=>{
@@ -699,7 +708,10 @@ function listenRoleState(room){
     // Check if both confirmed different roles
     if(me.confirmed&&partner.confirmed&&me.selected&&partner.selected&&me.selected!==partner.selected){
       clearInterval(timerInterval);
-      startCountdown(p1,p2);
+      if(!window._countdownStarted){
+        window._countdownStarted=true;
+        startCountdown(players.P1||{},players.P2||{});
+      }
     }
   });
 
@@ -714,132 +726,50 @@ function listenRoleState(room){
 }
 
 function updateRoleUI(me,partner){
-  // Reset all cards
-  ["a","b"].forEach(r=>{
-    const card=document.getElementById("card-"+r);
-    card.style.outline="none";
-    card.style.boxShadow="none";
-    card.className="rc";
-  });
-
-  // Helper to apply style to a card for a player
-  function applyStyle(role,player,isSelf){
-    if(!role)return;
-    const card=document.getElementById("card-"+role.toLowerCase());
-    const color=isSelf?"var(--ac)":"var(--am)";
-    const label=isSelf?"我":"搭檔 "+( partner.name||"");
-    if(player.confirmed){
-      card.style.outline=`3px solid ${color}`;
-      card.style.boxShadow=`0 0 20px ${color}40`;
-    } else if(player.selected===role){
-      card.style.outline=`2px ${isSelf?"solid":"dashed"} ${color}`;
-      card.style.boxShadow="none";
-    } else if(player.hover===role){
-      card.style.outline=`1px dashed ${color}80`;
-    }
-  }
-
-  // Apply partner first (underneath), then self (on top)
-  applyStyle(partner.selected,partner,false);
-  applyStyle(partner.hover,partner,false);
-  applyStyle(me.selected,me,true);
-  applyStyle(me.hover,me,true);
-
-  // Badges
-  ["a","b"].forEach(r=>{
-    document.getElementById("badge-"+r+"-hover").style.display="none";
-    document.getElementById("badge-"+r+"-sel").style.display="none";
-  });
-
   // Reset all cards and badges
   ["a","b"].forEach(r=>{
     const card=document.getElementById("card-"+r);
-    if(card)card.className="role-slot slot-"+r;
+    if(card){card.className="role-slot slot-"+r;card.style.borderColor="";}
     ["self","partner"].forEach(t=>{
       const b=document.getElementById("badge-"+r+"-"+t);
       if(b)b.style.display="none";
     });
   });
 
-  // Apply self selection
-  if(me.selected){
-    const r=me.selected.toLowerCase();
-    const card=document.getElementById("card-"+r);
-    if(card)card.className="role-slot slot-"+r+(me.confirmed?" self-confirmed":" self-sel");
-    const b=document.getElementById("badge-"+r+"-self");
-    if(b){b.style.display="block";b.className="badge badge-self";b.textContent=me.confirmed?"✓ 我已確認":"▶ 我的選擇";}
-  }
-
-  // Apply partner selection
+  // Apply partner FIRST (lower priority)
   if(partner.selected){
     const r=partner.selected.toLowerCase();
     const card=document.getElementById("card-"+r);
-    if(card){
-      const same=me.selected===partner.selected;
-      const base="role-slot slot-"+r;
-      if(same&&me.selected){card.className=base+(me.confirmed?" self-confirmed both-sel":" self-sel both-sel");}
-      else{card.className=base+" partner-sel";}
-    }
+    if(card)card.className="role-slot slot-"+r+" partner-sel";
     const b=document.getElementById("badge-"+r+"-partner");
-    if(b){b.style.display="block";b.className="badge badge-partner";b.textContent=partner.confirmed?`✓ ${partner.name||"搭檔"}已確認`:`${partner.name||"搭檔"}查看中`;}
+    if(b){b.style.display="block";b.className="badge badge-partner";
+      b.textContent=partner.confirmed?`✓ ${partner.name||"搭檔"}已確認`:`${partner.name||"搭檔"}已選擇`;}
+  } else if(partner.hover){
+    const r=partner.hover.toLowerCase();
+    const card=document.getElementById("card-"+r);
+    if(card)card.style.borderColor="rgba(255,183,0,.4)";
   }
 
-  // Status
-  const statusEl=document.getElementById("role-status");
-  const sameRole=me.selected&&partner.selected&&me.selected===partner.selected;
-  if(me.confirmed&&partner.confirmed&&!sameRole){statusEl.textContent="雙方均已確認，準備倒數...";}
-  else if(me.confirmed){statusEl.textContent="等待 "+(partner.name||"搭檔")+" 確認...";}
-  else if(partner.confirmed){statusEl.textContent=`${partner.name||"搭檔"} 已確認，請你也確認`;}
-  else if(sameRole){statusEl.textContent="⚠ 兩人選了同一個角色，請重新選擇";}
-  else if(me.selected&&partner.selected){statusEl.textContent="雙方已選不同角色，請各自確認";}
-  else{statusEl.textContent="請選擇你的探員身份";}
+  // Apply self SECOND (higher priority, always wins)
+  if(me.selected){
+    const r=me.selected.toLowerCase();
+    const card=document.getElementById("card-"+r);
+    const same=partner.selected===me.selected;
+    if(card){
+      if(me.confirmed) card.className="role-slot slot-"+r+(same?" self-confirmed both-sel":" self-confirmed");
+      else card.className="role-slot slot-"+r+(same?" self-sel both-sel":" self-sel");
+      card.style.borderColor="";
+    }
+    const b=document.getElementById("badge-"+r+"-self");
+    if(b){b.style.display="block";b.className="badge badge-self";b.textContent=me.confirmed?"✓ 我已確認":"▶ 我的選擇";}
+  } else if(me.hover){
+    const r=me.hover.toLowerCase();
+    const card=document.getElementById("card-"+r);
+    if(card&&!card.className.includes("partner-"))card.style.borderColor="rgba(0,200,255,.4)";
+  }
+
+
 }
-
-// Role card interactions
-["a","b"].forEach(card=>{
-  const el=document.getElementById("card-"+card);
-  if(!el)return;
-  const role=card.toUpperCase();
-  el.addEventListener("mouseenter",()=>{
-    if(!S.room||!S.playerKey)return;
-    update(ref(db,`rooms/${S.room}/players/${S.playerKey}`),{hover:role});
-  });
-  el.addEventListener("mouseleave",()=>{
-    if(!S.room||!S.playerKey)return;
-    update(ref(db,`rooms/${S.room}/players/${S.playerKey}`),{hover:null});
-  });
-  el.addEventListener("click",()=>selectRole(role));
-});
-
-function selectRole(r){
-  S.role=r;
-  myConfirmed=false;
-  document.getElementById("btn-confirm-r").disabled=false;
-  document.getElementById("btn-confirm-r").textContent=`確認選擇${r==="A"?"林曉晨":"陳宇哲"} ›`;
-  document.getElementById("btn-cancel-r").style.display="none";
-  if(!S.room||!S.playerKey)return;
-  update(ref(db,`rooms/${S.room}/players/${S.playerKey}`),{selected:r,confirmed:false,name:S.name});
-}
-
-document.getElementById("btn-confirm-r").addEventListener("click",()=>{
-  const err=document.getElementById("role-err");
-  err.textContent="";
-  if(!S.role){err.textContent="請先選擇角色";return;}
-  myConfirmed=true;
-  update(ref(db,`rooms/${S.room}/players/${S.playerKey}`),{selected:S.role,confirmed:true,name:S.name});
-  document.getElementById("btn-confirm-r").disabled=true;
-  document.getElementById("btn-confirm-r").textContent="等待搭檔確認...";
-  document.getElementById("btn-cancel-r").style.display="block";
-});
-
-document.getElementById("btn-cancel-r").addEventListener("click",()=>{
-  myConfirmed=false;
-  update(ref(db,`rooms/${S.room}/players/${S.playerKey}`),{selected:S.role,confirmed:false,name:S.name});
-  document.getElementById("btn-confirm-r").disabled=false;
-  document.getElementById("btn-confirm-r").textContent=`確認選擇${S.role==="A"?"林曉晨":"陳宇哲"} ›`;
-  document.getElementById("btn-cancel-r").style.display="none";
-});
-
 // 5-second countdown
 function startCountdown(p1,p2){
   const ov=document.getElementById("countdown-ov");
@@ -919,15 +849,22 @@ function initGame(){
 
 async function playIntro(){
   if(S.role!=="A"){
-    // Wait a bit then start
-    await sleep(1500);
+    // B waits longer to let A send the intro first
+    await sleep(2000);
     startM(1);
     return;
   }
   const ov=document.getElementById("intro-ov"),tx=document.getElementById("intro-tx");
   ov.classList.add("on");tx.innerHTML="";
   for(const line of INTRO_LINES){await typeText(tx,line);await sleep(500);tx.innerHTML+="\n";}
-  await sleep(800);ov.classList.remove("on");
+  // Wait for keypress or click to dismiss
+  document.getElementById("intro-prompt").style.display="block";
+  await new Promise(r=>{
+    const dismiss=()=>{r();document.removeEventListener("keydown",dismiss);document.removeEventListener("click",dismiss);};
+    document.addEventListener("keydown",dismiss);
+    document.addEventListener("click",dismiss);
+  });
+  ov.classList.remove("on");
   startM(1);
 }
 
@@ -1056,4 +993,6 @@ window.addEventListener("beforeunload",()=>{
 console.log("Shadow Bureau v4 loaded OK");
 </script>
 </body>
-</html>
+</html
+}
+>
