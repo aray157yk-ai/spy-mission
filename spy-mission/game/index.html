@@ -48,7 +48,7 @@ body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradi
 /* INPUT CARD */
 .icard{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:28px 32px;width:100%;max-width:400px;position:relative;}
 .icard::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--ac),transparent);}
-.fl{font-family:var(--mono);font-size:10px;color:var(--ac);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;display:block;}
+.fl{font-family:var(--mono);font-size:10px;color:var(--ac);letter-spacing:.2em;text-transform:none;margin-bottom:8px;display:block;}
 .fi{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:4px;color:#fff;font-family:var(--mono);font-size:16px;padding:12px 16px;outline:none;letter-spacing:.15em;transition:border-color .2s;text-transform:uppercase;}
 .fi:focus{border-color:var(--ac);}
 .fi::placeholder{color:var(--tx3);font-size:13px;letter-spacing:.05em;text-transform:none;}
@@ -273,7 +273,7 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;text
   <div class="icard">
     <div class="fg">
       <label class="fl">任務代碼</label>
-      <input class="fi" id="join-code" placeholder="輸入代碼" maxlength="6">
+      <input class="fi" id="join-code" placeholder="輸入6位數字" maxlength="6" inputmode="numeric" pattern="[0-9]*">
     </div>
     <div class="err" id="join-err"></div>
     <button class="btn am" id="btn-proceed-j">加入任務 ›</button>
@@ -523,7 +523,7 @@ function ss(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remo
 function toast(m,d=2400){const t=document.getElementById("toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),d);}
 function sc(){const c=document.getElementById("msgs");c.scrollTop=c.scrollHeight;}
 function esc(t){return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-function gc(){return Math.random().toString(36).substring(2,8).toUpperCase();}
+function gc(){return String(Math.floor(100000+Math.random()*900000));}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
 // LOBBY
@@ -531,22 +531,18 @@ document.getElementById("btn-create").addEventListener("click",()=>{
   const code=gc();S.room=code;
   document.getElementById("create-code").textContent=code;
   ss("sc");
-  // Host waits for joiner, then both enter simultaneously
+  // Host waits for joiner
   set(ref(db,`rooms/${code}/host`),{online:true,ts:serverTimestamp()});
-  // Watch for joiner
+  let hostEntered=false;
   onValue(ref(db,`rooms/${code}/joiner`),snap=>{
-    if(!snap.exists())return;
+    if(!snap.exists()||hostEntered)return;
+    hostEntered=true;
     document.getElementById("create-status").textContent="搭檔已連線！正在進入...";
     document.getElementById("create-ring").style.borderTopColor="var(--gn)";
-    // Signal both to proceed
     setTimeout(()=>{
       set(ref(db,`rooms/${code}/startRoleSelect`),{ts:Date.now()});
-    },1000);
-  });
-  // Also watch for start signal (in case joiner sends it first)
-  onValue(ref(db,`rooms/${code}/startRoleSelect`),snap=>{
-    if(!snap.exists())return;
-    initRoleSelect(code);
+      initRoleSelect(code);
+    },1200);
   });
 });
 
@@ -555,19 +551,21 @@ document.getElementById("btn-back-c").addEventListener("click",()=>ss("sl"));
 document.getElementById("btn-back-j").addEventListener("click",()=>ss("sl"));
 
 document.getElementById("btn-proceed-j").addEventListener("click",async()=>{
-  const code=document.getElementById("join-code").value.trim().toUpperCase();
+  const code=document.getElementById("join-code").value.trim();
   const err=document.getElementById("join-err");
   err.textContent="";
   if(!code||code.length<4){err.textContent="請輸入有效的任務代碼";return;}
   S.room=code;
-  // Show matching screen
+  // Show matching screen briefly
   ss("sw");
   document.getElementById("wait-code").textContent=code;
-  // Signal presence
+  // Signal presence to host
   await set(ref(db,`rooms/${code}/joiner`),{online:true,ts:serverTimestamp()});
-  // Wait for host to signal start
+  // Wait for start signal from host
+  let joinEntered=false;
   onValue(ref(db,`rooms/${code}/startRoleSelect`),snap=>{
-    if(!snap.exists())return;
+    if(!snap.exists()||joinEntered)return;
+    joinEntered=true;
     initRoleSelect(code);
   });
 });
