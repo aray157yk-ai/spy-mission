@@ -94,7 +94,7 @@ body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradi
 
 
 /* ROLE SELECT */
-.role-screen-wrap{width:100%;max-width:1100px;display:flex;flex-direction:column;align-items:center;}
+.role-screen-wrap{width:100%;max-width:1300px;display:flex;flex-direction:column;align-items:center;}
 .role-header{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:24px;}
 .role-title{font-family:var(--mono);font-size:11px;color:var(--tx2);letter-spacing:.25em;text-transform:uppercase;}
 
@@ -104,7 +104,7 @@ body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradi
 /* Role card: image | info */
 .role-slot{display:flex;border:1px solid var(--b1);border-radius:8px;overflow:hidden;
   cursor:pointer;transition:transform .3s ease,filter .3s ease,border-color .3s ease;
-  filter:brightness(.55);min-height:380px;}
+  filter:brightness(.55);min-height:520px;}
 .role-slot:hover{filter:brightness(.8);transform:scale(1.015);}
 .role-slot.me-sel{filter:brightness(1);transform:scale(1.02);border-color:var(--ac);}
 .role-slot.p-sel{filter:brightness(.75);border-color:var(--am);}
@@ -114,7 +114,7 @@ body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradi
   box-shadow:0 0 24px rgba(0,232,122,.25);}
 
 /* Image col */
-.slot-img{width:190px;flex-shrink:0;background:var(--s2);
+.slot-img{width:260px;flex-shrink:0;background:var(--s2);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:10px;position:relative;overflow:hidden;}
 .slot-img-ph{font-size:72px;opacity:.18;}
@@ -127,14 +127,14 @@ body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradi
 .badge-conf{background:rgba(0,232,122,.9);color:#000;}
 
 /* Info col */
-.slot-info{flex:1;background:var(--s1);padding:20px 18px;display:flex;flex-direction:column;gap:10px;min-width:0;overflow:hidden;}
+.slot-info{flex:1;background:var(--s1);padding:24px 22px;display:flex;flex-direction:column;gap:12px;min-width:0;overflow:hidden;}
 .rc-code{font-family:var(--mono);font-size:10px;letter-spacing:.12em;}
 .rc-code.a{color:var(--ac);}.rc-code.b{color:var(--am);}
 .rc-iq{font-family:var(--mono);font-size:9px;color:var(--tx3);margin-top:1px;}
-.rc-name{font-size:18px;font-weight:700;color:#fff;padding-bottom:10px;border-bottom:1px solid var(--b1);margin-bottom:2px;}
-.rc-sh{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.15em;margin-bottom:4px;}
-.rc-sb{font-size:11.5px;color:var(--tx2);line-height:1.75;}
-.rc-quote{font-size:11px;color:var(--tx2);line-height:1.75;font-style:italic;border-left:2px solid var(--b2);padding-left:10px;margin-top:auto;}
+.rc-name{font-size:20px;font-weight:700;color:#fff;padding-bottom:10px;border-bottom:1px solid var(--b1);margin-bottom:2px;}
+.rc-sh{font-family:var(--mono);font-size:10px;color:var(--tx3);letter-spacing:.15em;margin-bottom:4px;}
+.rc-sb{font-size:12.5px;color:var(--tx2);line-height:1.8;}
+.rc-quote{font-size:12px;color:var(--tx2);line-height:1.75;font-style:italic;border-left:2px solid var(--b2);padding-left:10px;margin-top:auto;}
 
 /* Action row */
 .action-row{display:flex;gap:10px;width:100%;}
@@ -244,7 +244,7 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
   <button class="back-btn" id="btn-back-c">返回大廳</button>
   <div class="rcode-wrap">
     <div class="rcode-label">你的任務代碼</div>
-    <div class="rcode-val" id="create-code">------</div>
+    <div class="rcode-val" id="create-code">----</div>
     <div class="rcode-hint">將此代碼傳給搭檔<br>搭檔加入後將同時進入下一步</div>
     <div style="font-family:var(--mono);font-size:11px;color:var(--tx2);margin-top:10px;" id="create-status">等待搭檔連線中...</div>
     <div class="ring" id="create-ring" style="margin-top:14px;width:50px;height:50px;"></div>
@@ -257,7 +257,7 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
   <div class="icard">
     <div class="fg">
       <label class="fl">任務代碼</label>
-      <input class="fi" id="join-code" placeholder="輸入6位數字" maxlength="6" inputmode="numeric">
+      <input class="fi" id="join-code" placeholder="輸入6位數字" maxlength="4" inputmode="numeric">
     </div>
     <div class="err" id="join-err"></div>
     <button class="btn am" id="btn-proceed-j">加入任務 ›</button>
@@ -504,7 +504,7 @@ function ss(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remo
 function toast(m,d=2400){const t=document.getElementById("toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),d);}
 function sc(){const c=document.getElementById("msgs");c.scrollTop=c.scrollHeight;}
 function esc(t){return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-function gc(){return String(Math.floor(100000+Math.random()*900000));}
+function gc(){return String(Math.floor(1000+Math.random()*9000));}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
 // ── LOBBY ──
@@ -534,7 +534,7 @@ document.getElementById("btn-proceed-j").addEventListener("click",async()=>{
   const code=document.getElementById("join-code").value.trim();
   const err=document.getElementById("join-err");
   err.textContent="";
-  if(!code||code.length<6){err.textContent="請輸入6位數字代碼";return;}
+  if(!code||code.length<4){err.textContent="請輸入6位數字代碼";return;}
   S.room=code;S.isHost=false;
   ss("sw");
   document.getElementById("wait-code").textContent=code;
@@ -582,6 +582,7 @@ function showNameInput(room,playerType){
 // ── ROLE SELECT ──
 function initRoleSelect(room){
   ss("sr");
+  window._roleEntered=false;
   myConfirmed=false;
 
   // Watch player states
@@ -593,25 +594,19 @@ function initRoleSelect(room){
     const partner=players[partnerKey]||{};
     updateRoleUI(me,partner);
     // Both confirmed different roles -> start game
+    console.log("Role state - me:",JSON.stringify(me),"partner:",JSON.stringify(partner));
     if(me.confirmed&&partner.confirmed&&me.selected&&partner.selected&&me.selected!==partner.selected){
-      clearInterval(timerInterval);
-      if(!window._roleEntered){window._roleEntered=true;
-        setTimeout(()=>{
-          S.role=me.selected;
-          startGameWithRole(me.selected,S.name);
-        },500);
+      if(!window._roleEntered){
+        window._roleEntered=true;
+        S.role=me.selected;
+        console.log("Entering game as:",S.role);
+        startGameWithRole(me.selected,S.name);
       }
     }
   });
 
 
-
-  window._roleEntered=false;
 }
-
-
-
-
 
 // Role card interactions - click whole card
 ["a","b"].forEach(c=>{
