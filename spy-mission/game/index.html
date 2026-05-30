@@ -104,8 +104,8 @@ body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradi
 /* Role card: image | info */
 .role-slot{display:flex;border:1px solid var(--b1);border-radius:8px;overflow:hidden;
   cursor:pointer;transition:transform .3s ease,filter .3s ease,border-color .3s ease;
-  filter:brightness(.55);min-height:520px;}
-.role-slot:hover{filter:brightness(.8);transform:scale(1.015);}
+  filter:brightness(.8);min-height:520px;}
+.role-slot:hover{filter:brightness(.95);transform:scale(1.015);}
 .role-slot.me-sel{filter:brightness(1);transform:scale(1.02);border-color:var(--ac);}
 .role-slot.p-sel{filter:brightness(.75);border-color:var(--am);}
 .role-slot.both-sel{filter:brightness(1);transform:scale(1.02);border-color:var(--ac);
@@ -257,7 +257,7 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
   <div class="icard">
     <div class="fg">
       <label class="fl">任務代碼</label>
-      <input class="fi" id="join-code" placeholder="輸入6位數字" maxlength="4" inputmode="numeric">
+      <input class="fi" id="join-code" placeholder="輸入4位數字" maxlength="4" inputmode="numeric" style="letter-spacing:.3em;font-size:24px;text-align:center;">
     </div>
     <div class="err" id="join-err"></div>
     <button class="btn am" id="btn-proceed-j">加入任務 ›</button>
@@ -322,10 +322,6 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
             <div class="rc-sh">任務定位</div>
             <div class="rc-sb">負責解讀現場畫面與視覺線索。你看到的細節，是搭檔無法取得的第一手資訊。你必須把你看到的說清楚——搭檔才能推理。</div>
           </div>
-          <div>
-            <div class="rc-sh">搭檔依賴</div>
-            <div class="rc-sb">你的眼睛能讀出畫面，但無法解讀畫面背後的邏輯脈絡。你的搭檔掌握著你看不到的情報分析——沒有他，你的觀察只是片段。</div>
-          </div>
           <div class="rc-quote">「她掃過一個房間，能注意到你看了十遍都沒發現的東西。但她需要有人幫她把線索連起來。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
         </div>
       </div>
@@ -359,10 +355,6 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
           <div>
             <div class="rc-sh">任務定位</div>
             <div class="rc-sb">負責分析情報文件與找出邏輯矛盾。你讀到的資料，是搭檔無法取得的關鍵背景。你必須把你的分析說出來——搭檔才能驗證。</div>
-          </div>
-          <div>
-            <div class="rc-sh">搭檔依賴</div>
-            <div class="rc-sb">你的邏輯能拆解資料，但無法親眼看見現場。你的搭檔看到了你永遠無法坐在桌前分析的那一半——沒有她，你的推理缺少地基。</div>
           </div>
           <div class="rc-quote">「給他一份報告，他能找出連撰寫者都沒發現的矛盾。但他需要有人告訴他現場實際長什麼樣。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
         </div>
