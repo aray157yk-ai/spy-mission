@@ -620,121 +620,48 @@ var SCENES={
 <text x="200" y="492" text-anchor="middle" font-family="monospace" fill="#1a3050" font-size="8">hover 各房間查看細節 · 與搭檔交叉比對</text>
 </svg>`,
     B:`<div style="display:flex;flex-direction:column;width:100%;height:100%;background:#08101a;" id="m3-docs">
-<style>
-#m3-docs .doc-viewer{flex:1;overflow-y:auto;padding:12px;background:#0b1219;border:1px solid #1a3050;margin:8px;border-radius:4px;min-height:0;}
-#m3-docs .doc-list{display:flex;flex-wrap:wrap;gap:6px;padding:8px;border-top:1px solid #1a3050;}
-#m3-docs .doc-tab{font-family:monospace;font-size:9px;padding:4px 8px;border:1px solid #1a3050;border-radius:3px;cursor:pointer;color:#405870;background:#0f1520;transition:all .2s;white-space:nowrap;}
-#m3-docs .doc-tab:hover{border-color:#00c8ff;color:#7090b0;}
-#m3-docs .doc-tab.active{border-color:#00c8ff;color:#00c8ff;background:#0c1f30;}
-#m3-docs .doc-tab.decoy{border-color:#1a3050;color:#2a4060;}
-#m3-docs .doc-content{font-family:monospace;font-size:10px;color:#7090b0;line-height:1.8;}
-#m3-docs .doc-title{color:#ffb700;font-size:11px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #1a3050;}
-#m3-docs .doc-key{color:#8aaccc;}
-#m3-docs .doc-redact{background:#1a3050;color:#1a3050;border-radius:2px;padding:0 4px;}
-#m3-docs .doc-warn{color:#ff6b35;}
-#m3-docs .doc-fade{color:#2a4060;}
-</style>
-<div class="doc-viewer" id="doc-display">
-  <div class="doc-content">
-    <div class="doc-title">// 請選擇文件查閱</div>
-    <span class="doc-fade">共 9 份文件。並非所有文件都與任務相關。</span>
-  </div>
+<div style="flex:1;overflow-y:auto;padding:12px;background:#0b1219;border:1px solid #1a3050;margin:8px;border-radius:4px;min-height:0;font-family:monospace;font-size:10px;color:#7090b0;" id="doc-display">
+  <div style="color:#ffb700;font-size:11px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #1a3050;">// 請選擇文件查閱</div>
+  <span style="color:#2a4060;">共 9 份文件。並非所有文件都與任務相關。</span>
 </div>
-<div class="doc-list" id="doc-list"></div>
-<scr'+'ipt>
-const DOCS=[
-  {id:1,label:"存取紀錄",useful:true,content:`<div class="doc-title">// 辦公室存取紀錄 · 77F</div>
-<span class="doc-key">日期：</span>事發當天<br>
-<span class="doc-key">記錄：</span><br>
-14:22 &nbsp;刷卡進入 — <span class="doc-redact">XXXXXX</span> 翼<br>
-14:38 &nbsp;刷卡進入 — <span class="doc-redact">XXXXXX</span> 翼<br>
-<span class="doc-warn">※ 記錄部分受損，翼別無法辨識</span><br><br>
-<span class="doc-key">備註：</span>兩筆紀錄時間相差16分鐘<br>
-一筆為陳博士本人，另一筆身份不明`},
-  {id:2,label:"人事檔案",useful:true,content:`<div class="doc-title">// 陳博士 · 人事檔案</div>
-<span class="doc-key">姓名：</span>陳明哲 博士<br>
-<span class="doc-key">入職日：</span>1998年3月15日<br>
-<span class="doc-key">職稱：</span>首席研究員<br>
-<span class="doc-key">辦公室：</span>77F（個人專屬）<br><br>
-<span class="doc-key">行為紀錄：</span><br>
-同事描述：「他習慣選最不顯眼、<br>
-離出口最遠的位置工作。」<br>
-「他不喜歡被人打擾。」<br><br>
-<span class="doc-key">家庭：</span>女兒 <span class="doc-redact">XX</span>，出生年份可見：<span class="doc-key">2005</span>`},
-  {id:3,label:"保險箱規格",useful:true,content:`<div class="doc-title">// 保險箱規格表 · 77F統一型號</div>
-<span class="doc-key">型號：</span>SecureVault X8<br>
-<span class="doc-key">密碼格式：</span>8位數字<br>
-<span class="doc-key">格式說明：</span>YYYYMMDD<br><br>
-<span class="doc-key">密碼提示設定：</span><br>
-陳明哲博士設定之提示語：<br>
-「<span class="doc-key">最重要的日子</span>」<br><br>
-<span class="doc-warn">※ 每間辦公室均配置相同型號</span><br>
-<span class="doc-warn">※ 密碼由各使用者自行設定</span>`},
-  {id:4,label:"錄音時間戳",useful:true,content:`<div class="doc-title">// 語音錄音 · 技術分析報告</div>
-<span class="doc-key">檔案編號：</span>C-0847<br>
-<span class="doc-key">錄音時間：</span>事發當天 18:47<br>
-<span class="doc-key">設備位置：</span>77F（GPS訊號微弱）<br><br>
-<span class="doc-key">環境聲分析：</span><br>
-背景噪音頻譜顯示：<br>
-錄音當下為<span class="doc-key">傍晚時段</span><br>
-非歷史記憶或回憶性陳述<br><br>
-<span class="doc-warn">※ 陳博士說「記得窗外的夕陽」</span><br>
-<span class="doc-warn">※ 此為當下實況，非過去記憶</span>`},
-  {id:5,label:"審訊摘要",useful:false,content:`<div class="doc-title">// 趙宇翔 · 審訊摘要</div>
-<span class="doc-key">時間：</span>落網後2小時<br>
-<span class="doc-key">態度：</span>配合度低<br><br>
-<span class="doc-key">關鍵陳述：</span><br>
-「你們找不到他的。」<br>
-「他比你們想的聰明多了。」<br>
-「<span class="doc-key">他不會讓任何人輕易找到的。</span>」<br><br>
-拒絕透露任何具體位置資訊<br>
-<span class="doc-fade">（參考價值有限）</span>`},
-  {id:6,label:"內部備忘錄",useful:false,content:`<div class="doc-title">// 影子局內部備忘錄 · 機密</div>
-<span class="doc-key">主旨：</span>東南亞行動部署調整<br>
-<span class="doc-key">日期：</span><span class="doc-redact">XXXX年XX月</span><br><br>
-關於馬來西亞分部的人員調度，<br>
-請各組組長於本週五前回報...<br><br>
-<span class="doc-fade">（內容與本案無關）</span>`},
-  {id:7,label:"研究報告",useful:false,content:`<div class="doc-title">// 陳博士研究報告摘要</div>
-<span class="doc-key">題目：</span>非線性加密演算法之應用<br><br>
-本研究探討在量子計算環境下，<br>
-傳統RSA加密體系之脆弱性...<br><br>
-附錄C包含實驗數據矩陣，<br>
-可見於第47至89頁...<br><br>
-<span class="doc-fade">（與本次任務定位無關）</span>`},
-  {id:8,label:"維修紀錄",useful:false,content:`<div class="doc-title">// 辦公大樓維修紀錄</div>
-<span class="doc-key">地點：</span>77F 7706室<br>
-<span class="doc-key">項目：</span>保險箱轉盤維修<br>
-<span class="doc-key">時間：</span>事發前一個月<br><br>
-<span class="doc-warn">轉盤有磨損，維修後留有工具痕跡</span><br><br>
-<span class="doc-key">備註：</span>維修完成，功能正常<br><br>
-<span class="doc-fade">※ 指紋痕跡來自維修人員</span>`},
-  {id:9,label:"休假申請",useful:false,content:`<div class="doc-title">// 休假申請書</div>
-<span class="doc-key">申請人：</span>林大明（行政組）<br>
-<span class="doc-key">日期：</span>事發前三天<br>
-<span class="doc-key">事由：</span>家庭旅遊<br>
-<span class="doc-key">天數：</span>5天<br><br>
-主管批准<br><br>
-<span class="doc-fade">（與本案完全無關）</span>`}
-];
-let activeDoc=null;
-const list=document.getElementById('doc-list');
-const display=document.getElementById('doc-display');
-DOCS.forEach(d=>{
-  const tab=document.createElement('div');
-  tab.className='doc-tab'+(d.useful?'':' decoy');
-  tab.textContent=d.label;
-  tab.onclick=()=>{
-    document.querySelectorAll('#m3-docs .doc-tab').forEach(t=>t.classList.remove('active'));
-    tab.classList.add('active');
-    display.innerHTML='<div class="doc-content">'+d.content+'</div>';
-  };
-  list.appendChild(tab);
-});
-<\/script>
+<div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px;border-top:1px solid #1a3050;" id="doc-list"></div>
 </div>`
   }
 };
+</script>
+
+<script>
+
+// Initialize mission 3 doc interface
+function initM3Docs(){
+  const DOCS=[
+    {id:1,label:"存取紀錄",content:"<b style=\"color:#ffb700\">辦公室存取紀錄 · 77F</b><br><br><span style=\"color:#8aaccc\">日期：</span>事發當天<br><span style=\"color:#8aaccc\">記錄：</span><br>14:22 &nbsp;刷卡進入 — <span style=\"background:#1a3050;color:#1a3050;padding:0 6px\">XXXXXX</span> 翼<br>14:38 &nbsp;刷卡進入 — <span style=\"background:#1a3050;color:#1a3050;padding:0 6px\">XXXXXX</span> 翼<br><br><span style=\"color:#ff6b35\">※ 記錄部分受損，翼別無法辨識</span><br><br>兩筆紀錄時間相差16分鐘<br>一筆為陳博士本人，另一筆身份不明"},
+    {id:2,label:"人事檔案",content:"<b style=\"color:#ffb700\">陳博士 · 人事檔案</b><br><br><span style=\"color:#8aaccc\">姓名：</span>陳明哲 博士<br><span style=\"color:#8aaccc\">入職日：</span>1998年3月15日<br><span style=\"color:#8aaccc\">職稱：</span>首席研究員<br><br><span style=\"color:#8aaccc\">行為紀錄：</span><br>同事描述：「他習慣選最不顯眼、<br>離出口最遠的位置工作。」<br><br><span style=\"color:#8aaccc\">家庭：</span>女兒，出生年份：<span style=\"color:#00c8ff\">2005</span>"},
+    {id:3,label:"保險箱規格",content:"<b style=\"color:#ffb700\">保險箱規格表 · 77F統一型號</b><br><br><span style=\"color:#8aaccc\">型號：</span>SecureVault X8<br><span style=\"color:#8aaccc\">密碼格式：</span>8位數字 (YYYYMMDD)<br><br><span style=\"color:#8aaccc\">密碼提示（陳博士設定）：</span><br>「<span style=\"color:#00c8ff\">最重要的日子</span>」<br><br><span style=\"color:#ff6b35\">※ 每間辦公室均配置相同型號<br>※ 密碼由各使用者自行設定</span>"},
+    {id:4,label:"錄音時間戳",content:"<b style=\"color:#ffb700\">語音錄音 · 技術分析報告</b><br><br><span style=\"color:#8aaccc\">檔案編號：</span>C-0847<br><span style=\"color:#8aaccc\">錄音時間：</span>事發當天 18:47<br><br><span style=\"color:#8aaccc\">環境聲分析：</span><br>錄音當下為<span style=\"color:#00c8ff\">傍晚時段</span><br>非歷史記憶或回憶性陳述<br><br><span style=\"color:#ff6b35\">※ 陳博士說「記得窗外的夕陽」<br>※ 此為當下實況，非過去記憶</span>"},
+    {id:5,label:"審訊摘要",content:"<b style=\"color:#ffb700\">趙宇翔 · 審訊摘要</b><br><br><span style=\"color:#8aaccc\">態度：</span>配合度低<br><br><span style=\"color:#8aaccc\">關鍵陳述：</span><br>「你們找不到他的。」<br>「他比你們想的聰明多了。」<br>「<span style=\"color:#00c8ff\">他不會讓任何人輕易找到的。</span>」<br><br><span style=\"color:#2a4060\">(參考價值有限)</span>"},
+    {id:6,label:"內部備忘錄",content:"<b style=\"color:#ffb700\">影子局內部備忘錄 · 機密</b><br><br><span style=\"color:#8aaccc\">主旨：</span>東南亞行動部署調整<br><br>關於馬來西亞分部的人員調度，<br>請各組組長於本週五前回報...<br><br><span style=\"color:#2a4060\">(內容與本案無關)</span>"},
+    {id:7,label:"研究報告",content:"<b style=\"color:#ffb700\">陳博士研究報告摘要</b><br><br><span style=\"color:#8aaccc\">題目：</span>非線性加密演算法之應用<br><br>本研究探討在量子計算環境下，<br>傳統RSA加密體系之脆弱性...<br><br><span style=\"color:#2a4060\">(與本次任務定位無關)</span>"},
+    {id:8,label:"維修紀錄",content:"<b style=\"color:#ffb700\">辦公大樓維修紀錄</b><br><br><span style=\"color:#8aaccc\">地點：</span>77F <span style=\"color:#ff6b35\">7706室</span><br><span style=\"color:#8aaccc\">項目：</span>保險箱轉盤維修<br><span style=\"color:#8aaccc\">時間：</span>事發前一個月<br><br>轉盤有磨損，維修後留有工具痕跡<br><br><span style=\"color:#2a4060\">※ 指紋痕跡來自維修人員，非使用者</span>"},
+    {id:9,label:"休假申請",content:"<b style=\"color:#ffb700\">休假申請書</b><br><br><span style=\"color:#8aaccc\">申請人：</span>林大明（行政組）<br><span style=\"color:#8aaccc\">日期：</span>事發前三天<br><span style=\"color:#8aaccc\">事由：</span>家庭旅遊<br><br>主管批准<br><br><span style=\"color:#2a4060\">(與本案完全無關)</span>"}
+  ];
+  const list=document.getElementById("doc-list");
+  const display=document.getElementById("doc-display");
+  if(!list||!display)return;
+  list.innerHTML="";
+  DOCS.forEach(d=>{
+    const tab=document.createElement("div");
+    tab.style.cssText="font-family:monospace;font-size:9px;padding:4px 8px;border:1px solid #1a3050;border-radius:3px;cursor:pointer;color:#405870;background:#0f1520;white-space:nowrap;";
+    tab.textContent=d.label;
+    tab.onclick=()=>{
+      list.querySelectorAll("div").forEach(t=>t.style.color="#405870");
+      tab.style.color="#00c8ff";tab.style.borderColor="#00c8ff";
+      display.innerHTML=`<div style="font-family:monospace;font-size:10px;color:#7090b0;line-height:1.8;">${d.content}</div>`;
+    };
+    list.appendChild(tab);
+  });
+}
+
 </script>
 
 <script type="module">
@@ -1175,6 +1102,11 @@ function startM(n){
   document.getElementById("sc-badge").textContent=S.role==="A"?"現場畫面":"情報文件";
   document.getElementById("intel-list").innerHTML=info.intel[S.role].map(t=>`<div class="ii">${t}</div>`).join("");
   // Only A sends intro, via Firebase check to prevent duplicates
+  // Init doc interface for mission 3
+  if(n===3&&S.role==="B"){
+    setTimeout(()=>initM3Docs(),100);
+  }
+
   if(S.role==="A"){
     get(ref(db,`rooms/${S.room}/introSent/m${n}`)).then(snap=>{
       if(!snap.exists()){
@@ -1224,7 +1156,11 @@ async function pushMsg(msg){await push(ref(db,`rooms/${S.room}/messages`),msg);}
 function addMsg(msg){
   const c=document.getElementById("msgs"),d=document.createElement("div");
   if(msg.type==="sys"){d.className="msg sys";d.innerHTML=`<div class="mb">${esc(msg.text)}</div>`;}
-  else if(msg.type==="ai"){d.className="msg ai";d.innerHTML=`<div class="mb"><div class="aih">局長指令</div>${esc(msg.text.replace("局長 > ",""))}</div>`;}
+  else if(msg.type==="ai"){
+    d.className="msg ai";
+    const aiText=esc(msg.text.replace("局長 > ","")).replace(/\n局長 > /g,"<br>").replace(/\n/g,"<br>");
+    d.innerHTML=`<div class="mb"><div class="aih">局長指令</div>${aiText}</div>`;
+  }
   else{
     const me=msg.role===S.role;
     d.className="msg "+(me?"me":"them");
