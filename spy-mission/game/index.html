@@ -919,7 +919,7 @@ function addMsg(msg){
 
 // ── AI ──
 async function triggerAI(msgObj){
-  if(cntA===0||cntB===0)return;
+  if(rMsgs.length<2)return; // Wait for both players to have spoken
   const m=S.mission,now=Date.now();
   if(aiCD[m]&&now-aiCD[m]<12000)return;
   aiCD[m]=now;
