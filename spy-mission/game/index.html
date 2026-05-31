@@ -472,8 +472,267 @@ var SCENES={
     B:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="15" y="15" width="200" height="255" fill="#060c14" stroke="#1a3050" stroke-width="1"/><text x="115" y="37" text-anchor="middle" fill="#1a3050" font-size="8" font-family="monospace">側角度畫面</text><rect x="30" y="200" width="170" height="5" fill="#0f1828"/><rect x="73" y="170" width="24" height="20" fill="#162030" stroke="#ffb700" stroke-width="1.5"/><ellipse cx="85" cy="196" rx="12" ry="7" fill="#162030" stroke="#ffb700" stroke-width="1.5"/><text x="85" y="225" text-anchor="middle" fill="#ffb700" font-size="8" font-family="monospace">咖啡杯 左手邊?</text><rect x="225" y="15" width="160" height="470" fill="#0c1520" stroke="#1a3050" stroke-width="1" rx="2"/><text x="305" y="38" text-anchor="middle" fill="#7090b0" font-size="9" font-family="monospace">訪談紀錄</text><text x="240" y="65" fill="#405870" font-size="8" font-family="monospace">趙宇翔：</text><text x="240" y="80" fill="#8aaccc" font-size="8" font-family="monospace">「我3點在開會」</text><text x="240" y="110" fill="#405870" font-size="8" font-family="monospace">同事：</text><text x="240" y="125" fill="#ff6b6b" font-size="8" font-family="monospace">「趙根本沒來」</text><text x="240" y="158" fill="#8aaccc" font-size="8" font-family="monospace">趙：左撇子</text><text x="240" y="173" fill="#405870" font-size="8" font-family="monospace">眼鏡：不明</text><text x="240" y="200" fill="#ff3355" font-size="9" font-family="monospace">訪談矛盾!</text></svg>'
   },
   3:{
-    A:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><text x="200" y="28" text-anchor="middle" fill="#ff3355" font-size="10" font-family="monospace">災難現場地圖</text><rect x="155" y="395" width="90" height="36" fill="#0a2015" stroke="#00e87a" stroke-width="1.5" rx="3"/><text x="200" y="418" text-anchor="middle" fill="#00e87a" font-size="10" font-family="monospace">基地</text><rect x="42" y="228" width="72" height="54" fill="#0f1828" stroke="#ff3355" stroke-width="2" rx="2"/><text x="78" y="252" text-anchor="middle" fill="#ff3355" font-size="11" font-family="monospace">A棟</text><text x="78" y="268" text-anchor="middle" fill="#b8cce0" font-size="8" font-family="monospace">8人/重傷</text><rect x="283" y="228" width="72" height="54" fill="#0f1828" stroke="#ffb700" stroke-width="2" rx="2"/><text x="319" y="252" text-anchor="middle" fill="#ffb700" font-size="11" font-family="monospace">B棟</text><text x="319" y="268" text-anchor="middle" fill="#b8cce0" font-size="8" font-family="monospace">2名醫生</text><rect x="143" y="48" width="114" height="54" fill="#0f1828" stroke="#00c8ff" stroke-width="1.5" rx="2"/><text x="200" y="72" text-anchor="middle" fill="#00c8ff" font-size="11" font-family="monospace">D棟</text><text x="200" y="88" text-anchor="middle" fill="#b8cce0" font-size="8" font-family="monospace">15名孩童·遠</text><line x1="200" y1="395" x2="98" y2="282" stroke="#254070" stroke-width="0.8" stroke-dasharray="4,3"/><line x1="200" y1="395" x2="302" y2="282" stroke="#254070" stroke-width="0.8" stroke-dasharray="4,3"/><line x1="200" y1="395" x2="200" y2="102" stroke="#254070" stroke-width="0.8" stroke-dasharray="4,3"/><text x="200" y="462" text-anchor="middle" fill="#ff3355" font-size="9" font-family="monospace">C棟位置不明 向搭檔確認</text></svg>',
-    B:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="15" y="15" width="370" height="470" fill="#110808" stroke="#ff3355" stroke-width="0.8" rx="4"/><rect x="15" y="15" width="370" height="44" fill="#1a0808" rx="4"/><text x="200" y="43" text-anchor="middle" fill="#ff3355" font-size="13" font-family="monospace">緊急情報</text><rect x="118" y="70" width="164" height="52" fill="#0a0808" rx="4" stroke="#ff3355" stroke-width="1"/><text x="200" y="106" text-anchor="middle" fill="#ff3355" font-size="30" font-family="monospace" font-weight="bold">120:00</text><text x="40" y="148" fill="#00e87a" font-size="10" font-family="monospace">B棟醫生獲救可救治A棟重傷者</text><text x="40" y="172" fill="#00c8ff" font-size="10" font-family="monospace">C棟12人 有衛星通訊設備</text><text x="40" y="196" fill="#ffb700" font-size="10" font-family="monospace">C棟位置：郊區（遠）</text><text x="40" y="228" fill="#ff3355" font-size="10" font-family="monospace">D棟超過2小時生存率降至15%</text><text x="40" y="252" fill="#405870" font-size="9" font-family="monospace">救援車：最多2次，每次10人</text><text x="200" y="420" text-anchor="middle" fill="#ffb700" font-size="10" font-family="monospace">先救B+D 或 B+C？與搭檔討論</text></svg>'
+    A:`<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;" id="m3-svg-a">
+<style>
+.room{cursor:pointer;transition:all .2s;}
+.room:hover .room-detail{display:block;}
+.room-detail{display:none;}
+.room-base{fill:#0f1828;stroke:#1a3050;stroke-width:1;}
+.room:hover .room-base{fill:#162535;stroke:#00c8ff;stroke-width:1.5;}
+.corridor{fill:#080e18;}
+.label{font-family:monospace;fill:#405870;font-size:9px;}
+.room-label{font-family:monospace;fill:#7090b0;font-size:10px;}
+.detail-text{font-family:monospace;fill:#8aaccc;font-size:7px;}
+.suspect{fill:#ff6b35;}
+.key-detail{fill:#00c8ff;}
+.hint{font-family:monospace;fill:#254070;font-size:7px;}
+</style>
+
+<!-- Background -->
+<rect width="400" height="500" fill="#08101a"/>
+
+<!-- Floor label -->
+<rect x="150" y="10" width="100" height="22" fill="#0f1f30" rx="3"/>
+<text x="200" y="26" text-anchor="middle" font-family="monospace" fill="#00c8ff" font-size="11">77F</text>
+
+<!-- Compass -->
+<g transform="translate(360,50)">
+  <circle r="18" fill="#0f1520" stroke="#1a3050" stroke-width="1"/>
+  <text x="0" y="-6" text-anchor="middle" font-family="monospace" fill="#405870" font-size="7">N</text>
+  <text x="0" y="12" text-anchor="middle" font-family="monospace" fill="#405870" font-size="7">S</text>
+  <text x="-12" y="4" text-anchor="middle" font-family="monospace" fill="#ffb700" font-size="7">W</text>
+  <text x="12" y="4" text-anchor="middle" font-family="monospace" fill="#405870" font-size="7">E</text>
+  <line x1="0" y1="-12" x2="0" y2="12" stroke="#254070" stroke-width="0.5"/>
+  <line x1="-12" y1="0" x2="12" y2="0" stroke="#254070" stroke-width="0.5"/>
+</g>
+
+<!-- Elevator -->
+<rect x="155" y="38" width="90" height="35" fill="#0c1a28" stroke="#1a3050" stroke-width="1" rx="2"/>
+<text x="200" y="58" text-anchor="middle" font-family="monospace" fill="#254070" font-size="9">電梯間</text>
+<line x1="200" y1="73" x2="200" y2="90" stroke="#1a3050" stroke-width="1"/>
+
+<!-- Central corridor -->
+<rect x="140" y="90" width="120" height="380" class="corridor" rx="1"/>
+<text x="200" y="285" text-anchor="middle" font-family="monospace" fill="#1a3050" font-size="8" writing-mode="tb">走廊</text>
+
+<!-- WEST SIDE rooms (7701-7703) -->
+<!-- 7701 -->
+<g class="room" id="r7701">
+  <rect x="20" y="95" width="118" height="110" class="room-base" rx="2"/>
+  <text x="79" y="115" text-anchor="middle" class="room-label">7701</text>
+  <text x="79" y="130" text-anchor="middle" class="label">西側</text>
+  <!-- Normal details always visible -->
+  <rect x="35" y="135" width="30" height="20" fill="#0a1520" stroke="#1a3050" stroke-width="0.5"/>
+  <text x="50" y="148" text-anchor="middle" class="hint">桌</text>
+  <rect x="75" y="140" width="15" height="10" fill="#0a1520" stroke="#1a3050" stroke-width="0.5"/>
+  <text x="83" y="148" text-anchor="middle" class="hint">櫃</text>
+  <!-- Hover details -->
+  <g class="room-detail">
+    <rect x="22" y="160" width="114" height="42" fill="#08101a" rx="2" opacity="0.95"/>
+    <text x="79" y="172" text-anchor="middle" class="detail-text">窗邊植物（枯萎）</text>
+    <text x="79" y="183" text-anchor="middle" class="detail-text">地板乾淨無痕跡</text>
+    <text x="79" y="194" text-anchor="middle" class="detail-text">保險箱：未使用跡象</text>
+  </g>
+</g>
+
+<!-- 7702 -->
+<g class="room" id="r7702">
+  <rect x="20" y="210" width="118" height="110" class="room-base" rx="2"/>
+  <text x="79" y="230" text-anchor="middle" class="room-label">7702</text>
+  <text x="79" y="245" text-anchor="middle" class="label">西側</text>
+  <rect x="35" y="250" width="30" height="20" fill="#0a1520" stroke="#1a3050" stroke-width="0.5"/>
+  <text x="50" y="263" text-anchor="middle" class="hint">桌</text>
+  <!-- Hover details -->
+  <g class="room-detail">
+    <rect x="22" y="275" width="114" height="42" fill="#08101a" rx="2" opacity="0.95"/>
+    <text x="79" y="287" text-anchor="middle" class="detail-text suspect">桌上有眼鏡盒（私人物品）</text>
+    <text x="79" y="298" text-anchor="middle" class="detail-text">椅子輕微歪斜</text>
+    <text x="79" y="309" text-anchor="middle" class="detail-text">地板有輕微痕跡</text>
+  </g>
+</g>
+
+<!-- 7703 ★ KEY ROOM -->
+<g class="room" id="r7703">
+  <rect x="20" y="325" width="118" height="140" class="room-base" rx="2"/>
+  <text x="79" y="345" text-anchor="middle" class="room-label" fill="#7090b0">7703</text>
+  <text x="79" y="360" text-anchor="middle" class="label">西側（最深處）</text>
+  <rect x="35" y="365" width="30" height="20" fill="#0a1520" stroke="#1a3050" stroke-width="0.5"/>
+  <text x="50" y="378" text-anchor="middle" class="hint">桌</text>
+  <!-- Hover details - key clues hidden here -->
+  <g class="room-detail">
+    <rect x="22" y="390" width="114" height="70" fill="#08101a" rx="2" opacity="0.95"/>
+    <text x="79" y="402" text-anchor="middle" class="detail-text">地板深處：細微灰塵痕跡</text>
+    <text x="79" y="413" text-anchor="middle" class="detail-text key-detail">桌上：翻面的照片</text>
+    <text x="79" y="424" text-anchor="middle" class="detail-text key-detail">日曆夾紙條：2005年9月</text>
+    <text x="79" y="435" text-anchor="middle" class="detail-text">紙條上可見數字「21」</text>
+    <text x="79" y="446" text-anchor="middle" class="detail-text">照片背面：「我最驕傲的日子」</text>
+  </g>
+</g>
+
+<!-- EAST SIDE rooms (7704-7706) -->
+<!-- 7704 -->
+<g class="room" id="r7704">
+  <rect x="262" y="95" width="118" height="110" class="room-base" rx="2"/>
+  <text x="321" y="115" text-anchor="middle" class="room-label">7704</text>
+  <text x="321" y="130" text-anchor="middle" class="label">東側</text>
+  <rect x="277" y="135" width="30" height="20" fill="#0a1520" stroke="#1a3050" stroke-width="0.5"/>
+  <text x="292" y="148" text-anchor="middle" class="hint">桌</text>
+  <g class="room-detail">
+    <rect x="264" y="160" width="114" height="42" fill="#08101a" rx="2" opacity="0.95"/>
+    <text x="321" y="172" text-anchor="middle" class="detail-text suspect">桌上文件未收拾</text>
+    <text x="321" y="183" text-anchor="middle" class="detail-text suspect">咖啡杯仍有溫度跡象</text>
+    <text x="321" y="194" text-anchor="middle" class="detail-text">椅子拉開，像剛離開</text>
+  </g>
+</g>
+
+<!-- 7705 -->
+<g class="room" id="r7705">
+  <rect x="262" y="210" width="118" height="110" class="room-base" rx="2"/>
+  <text x="321" y="230" text-anchor="middle" class="room-label">7705</text>
+  <text x="321" y="245" text-anchor="middle" class="label">東側</text>
+  <rect x="277" y="250" width="30" height="20" fill="#0a1520" stroke="#1a3050" stroke-width="0.5"/>
+  <text x="292" y="263" text-anchor="middle" class="hint">桌</text>
+  <g class="room-detail">
+    <rect x="264" y="275" width="114" height="42" fill="#08101a" rx="2" opacity="0.95"/>
+    <text x="321" y="287" text-anchor="middle" class="detail-text">地板有水漬</text>
+    <text x="321" y="298" text-anchor="middle" class="detail-text">窗邊有雨傘</text>
+    <text x="321" y="309" text-anchor="middle" class="detail-text suspect">抽屜半開，像匆忙收拾</text>
+  </g>
+</g>
+
+<!-- 7706 - strong decoy -->
+<g class="room" id="r7706">
+  <rect x="262" y="325" width="118" height="140" class="room-base" rx="2"/>
+  <text x="321" y="345" text-anchor="middle" class="room-label">7706</text>
+  <text x="321" y="360" text-anchor="middle" class="label">東側（最深處）</text>
+  <rect x="277" y="365" width="30" height="20" fill="#0a1520" stroke="#1a3050" stroke-width="0.5"/>
+  <text x="292" y="378" text-anchor="middle" class="hint">桌</text>
+  <g class="room-detail">
+    <rect x="264" y="390" width="114" height="70" fill="#08101a" rx="2" opacity="0.95"/>
+    <text x="321" y="402" text-anchor="middle" class="detail-text suspect">保險箱轉盤有指紋痕跡</text>
+    <text x="321" y="413" text-anchor="middle" class="detail-text suspect">桌上有便條紙（模糊）</text>
+    <text x="321" y="424" text-anchor="middle" class="detail-text">地板有明顯使用痕跡</text>
+    <text x="321" y="435" text-anchor="middle" class="detail-text">（維修紀錄可解釋痕跡）</text>
+  </g>
+</g>
+
+<!-- Hint text -->
+<text x="200" y="492" text-anchor="middle" font-family="monospace" fill="#1a3050" font-size="8">hover 各房間查看細節 · 與搭檔交叉比對</text>
+</svg>`,
+    B:`<div style="display:flex;flex-direction:column;width:100%;height:100%;background:#08101a;" id="m3-docs">
+<style>
+#m3-docs .doc-viewer{flex:1;overflow-y:auto;padding:12px;background:#0b1219;border:1px solid #1a3050;margin:8px;border-radius:4px;min-height:0;}
+#m3-docs .doc-list{display:flex;flex-wrap:wrap;gap:6px;padding:8px;border-top:1px solid #1a3050;}
+#m3-docs .doc-tab{font-family:monospace;font-size:9px;padding:4px 8px;border:1px solid #1a3050;border-radius:3px;cursor:pointer;color:#405870;background:#0f1520;transition:all .2s;white-space:nowrap;}
+#m3-docs .doc-tab:hover{border-color:#00c8ff;color:#7090b0;}
+#m3-docs .doc-tab.active{border-color:#00c8ff;color:#00c8ff;background:#0c1f30;}
+#m3-docs .doc-tab.decoy{border-color:#1a3050;color:#2a4060;}
+#m3-docs .doc-content{font-family:monospace;font-size:10px;color:#7090b0;line-height:1.8;}
+#m3-docs .doc-title{color:#ffb700;font-size:11px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #1a3050;}
+#m3-docs .doc-key{color:#8aaccc;}
+#m3-docs .doc-redact{background:#1a3050;color:#1a3050;border-radius:2px;padding:0 4px;}
+#m3-docs .doc-warn{color:#ff6b35;}
+#m3-docs .doc-fade{color:#2a4060;}
+</style>
+<div class="doc-viewer" id="doc-display">
+  <div class="doc-content">
+    <div class="doc-title">// 請選擇文件查閱</div>
+    <span class="doc-fade">共 9 份文件。並非所有文件都與任務相關。</span>
+  </div>
+</div>
+<div class="doc-list" id="doc-list"></div>
+<scr'+'ipt>
+const DOCS=[
+  {id:1,label:"存取紀錄",useful:true,content:`<div class="doc-title">// 辦公室存取紀錄 · 77F</div>
+<span class="doc-key">日期：</span>事發當天<br>
+<span class="doc-key">記錄：</span><br>
+14:22 &nbsp;刷卡進入 — <span class="doc-redact">XXXXXX</span> 翼<br>
+14:38 &nbsp;刷卡進入 — <span class="doc-redact">XXXXXX</span> 翼<br>
+<span class="doc-warn">※ 記錄部分受損，翼別無法辨識</span><br><br>
+<span class="doc-key">備註：</span>兩筆紀錄時間相差16分鐘<br>
+一筆為陳博士本人，另一筆身份不明`},
+  {id:2,label:"人事檔案",useful:true,content:`<div class="doc-title">// 陳博士 · 人事檔案</div>
+<span class="doc-key">姓名：</span>陳明哲 博士<br>
+<span class="doc-key">入職日：</span>1998年3月15日<br>
+<span class="doc-key">職稱：</span>首席研究員<br>
+<span class="doc-key">辦公室：</span>77F（個人專屬）<br><br>
+<span class="doc-key">行為紀錄：</span><br>
+同事描述：「他習慣選最不顯眼、<br>
+離出口最遠的位置工作。」<br>
+「他不喜歡被人打擾。」<br><br>
+<span class="doc-key">家庭：</span>女兒 <span class="doc-redact">XX</span>，出生年份可見：<span class="doc-key">2005</span>`},
+  {id:3,label:"保險箱規格",useful:true,content:`<div class="doc-title">// 保險箱規格表 · 77F統一型號</div>
+<span class="doc-key">型號：</span>SecureVault X8<br>
+<span class="doc-key">密碼格式：</span>8位數字<br>
+<span class="doc-key">格式說明：</span>YYYYMMDD<br><br>
+<span class="doc-key">密碼提示設定：</span><br>
+陳明哲博士設定之提示語：<br>
+「<span class="doc-key">最重要的日子</span>」<br><br>
+<span class="doc-warn">※ 每間辦公室均配置相同型號</span><br>
+<span class="doc-warn">※ 密碼由各使用者自行設定</span>`},
+  {id:4,label:"錄音時間戳",useful:true,content:`<div class="doc-title">// 語音錄音 · 技術分析報告</div>
+<span class="doc-key">檔案編號：</span>C-0847<br>
+<span class="doc-key">錄音時間：</span>事發當天 18:47<br>
+<span class="doc-key">設備位置：</span>77F（GPS訊號微弱）<br><br>
+<span class="doc-key">環境聲分析：</span><br>
+背景噪音頻譜顯示：<br>
+錄音當下為<span class="doc-key">傍晚時段</span><br>
+非歷史記憶或回憶性陳述<br><br>
+<span class="doc-warn">※ 陳博士說「記得窗外的夕陽」</span><br>
+<span class="doc-warn">※ 此為當下實況，非過去記憶</span>`},
+  {id:5,label:"審訊摘要",useful:false,content:`<div class="doc-title">// 趙宇翔 · 審訊摘要</div>
+<span class="doc-key">時間：</span>落網後2小時<br>
+<span class="doc-key">態度：</span>配合度低<br><br>
+<span class="doc-key">關鍵陳述：</span><br>
+「你們找不到他的。」<br>
+「他比你們想的聰明多了。」<br>
+「<span class="doc-key">他不會讓任何人輕易找到的。</span>」<br><br>
+拒絕透露任何具體位置資訊<br>
+<span class="doc-fade">（參考價值有限）</span>`},
+  {id:6,label:"內部備忘錄",useful:false,content:`<div class="doc-title">// 影子局內部備忘錄 · 機密</div>
+<span class="doc-key">主旨：</span>東南亞行動部署調整<br>
+<span class="doc-key">日期：</span><span class="doc-redact">XXXX年XX月</span><br><br>
+關於馬來西亞分部的人員調度，<br>
+請各組組長於本週五前回報...<br><br>
+<span class="doc-fade">（內容與本案無關）</span>`},
+  {id:7,label:"研究報告",useful:false,content:`<div class="doc-title">// 陳博士研究報告摘要</div>
+<span class="doc-key">題目：</span>非線性加密演算法之應用<br><br>
+本研究探討在量子計算環境下，<br>
+傳統RSA加密體系之脆弱性...<br><br>
+附錄C包含實驗數據矩陣，<br>
+可見於第47至89頁...<br><br>
+<span class="doc-fade">（與本次任務定位無關）</span>`},
+  {id:8,label:"維修紀錄",useful:false,content:`<div class="doc-title">// 辦公大樓維修紀錄</div>
+<span class="doc-key">地點：</span>77F 7706室<br>
+<span class="doc-key">項目：</span>保險箱轉盤維修<br>
+<span class="doc-key">時間：</span>事發前一個月<br><br>
+<span class="doc-warn">轉盤有磨損，維修後留有工具痕跡</span><br><br>
+<span class="doc-key">備註：</span>維修完成，功能正常<br><br>
+<span class="doc-fade">※ 指紋痕跡來自維修人員</span>`},
+  {id:9,label:"休假申請",useful:false,content:`<div class="doc-title">// 休假申請書</div>
+<span class="doc-key">申請人：</span>林大明（行政組）<br>
+<span class="doc-key">日期：</span>事發前三天<br>
+<span class="doc-key">事由：</span>家庭旅遊<br>
+<span class="doc-key">天數：</span>5天<br><br>
+主管批准<br><br>
+<span class="doc-fade">（與本案完全無關）</span>`}
+];
+let activeDoc=null;
+const list=document.getElementById('doc-list');
+const display=document.getElementById('doc-display');
+DOCS.forEach(d=>{
+  const tab=document.createElement('div');
+  tab.className='doc-tab'+(d.useful?'':' decoy');
+  tab.textContent=d.label;
+  tab.onclick=()=>{
+    document.querySelectorAll('#m3-docs .doc-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    display.innerHTML='<div class="doc-content">'+d.content+'</div>';
+  };
+  list.appendChild(tab);
+});
+<\/script>
+</div>`
   }
 };
 </script>
@@ -499,12 +758,12 @@ const SP={
 
 你的行為規則：
 1. 用繁體中文，語氣冷靜有壓迫感，像真實特工指揮官
-2. 稱呼他們為「夜鷹」或「獵犬」，不要說「探員A」或「探員B」
-3. 你不知道答案，你在等他們整合資訊推理
-4. 當他們說出有依據的推理結論時，說【任務完成】
-5. 當討論停滯，施壓：「時間不多了，你們的結論是什麼？」
-6. 當一人沉默，點名：「獵犬，你那邊的資料說什麼？」
-7. 絕對不提任何線索內容，只引導討論
+2. 稱呼「夜鷹」或「獵犬」，不說「探員A/B」
+3. 你在監控他們，不知道答案，等他們整合推理
+4. 【重要】當夜鷹和獵犬都同意「往左」或「向左走」這個方向，立即說【任務完成】並給予肯定
+5. 若只有一人說出方向，點名另一人確認：「獵犬，你同意嗎？」
+6. 若他們說出答案但沒說推理，簡單問一句：「你們的依據是什麼？」——得到任何回應後說【任務完成】
+7. 討論停滯時施壓：「時間不多了，結論？」
 8. 每次回應最多2句，開頭「局長 > 」`,
 
   2:`你是「局長」，影子局指揮官。你正在監控夜鷹和獵犬追查臥底間諜。
@@ -521,30 +780,37 @@ const SP={
 3. 說出嫌疑人但沒有完整排除其他人：「你能排除另外三個人嗎？」
 4. 咖啡杯爭議：「咖啡杯放左邊就代表是左撇子？這個邏輯說得通嗎？」
 5. 一人主導就點名另一人
-6. 推理完整說出趙宇翔後說【任務完成】
+6. 當夜鷹和獵犬都同意「趙宇翔」，立即說【任務完成】；若只有一人說出，點名另一人確認
 7. 每次回應最多2句，開頭「局長 > 」`,
 
-  3:`你是「局長」，影子局現場指揮官。你在等夜鷹和獵犬做救援決定。
+  3:`你是「局長」，影子局指揮官。你在監控夜鷹和獵犬合力找出陳博士藏在77F辦公室保險箱裡的座標。
 
-已知資訊：
-- 夜鷹（A）有地圖：A棟8人含重傷者（近）、B棟2名醫生（近）、D棟15孩童（遠）
-- 獵犬（B）有情報：救B棟醫生可接著救A棟重傷者、D棟超2小時生存率降至15%、C棟12人有衛星設備（遠）
-
-無標準答案，重點是協商過程。
+任務結構是接力推理，共三個節點：
+節點一：東翼還是西翼？正確答案是西翼（7701-7703）。因為陳博士說「記得窗外夕陽」，夕陽在西邊，東翼朝東看不到夕陽。干擾：E3保險箱有維修痕跡，容易誤導。
+節點二：7701、7702還是7703？正確答案是7703。因為7703離電梯最遠，符合陳博士「習慣選最不顯眼位置」，且地板深處有細微痕跡。干擾：7702有眼鏡盒（私人物品），讓人以為是那間。
+節點三：密碼8碼，答案是20050921（女兒生日）。入職日是19980315是陷阱。照片背面寫「我最驕傲的日子」，日曆是2005年9月，紙條上有「21」。
 
 你的行為規則：
-1. 繁體中文，製造緊迫感
-2. 稱呼「夜鷹」或「獵犬」
-3. 一人主導就問另一人：「獵犬，你同意嗎？」
-4. 快達成共識時加入變數：「剛收到情報——A棟重傷者中有一名外科醫生，這改變你們的決定嗎？」
-5. 兩人都說出各自立場並達成共識後說【任務完成】
-6. 每次回應最多2句，開頭「局長 > 」`
+1. 繁體中文，冷靜有壓迫感，稱呼「夜鷹」或「獵犬」
+2. 不直接給答案，用問題引導
+3. 當他們偏離方向（去找東翼）：「你們確定方向對嗎？語音裡有個細節你們忽略了。」
+4. 當節點討論充分，要求說出結論：「你們的結論是哪一翼？說出來。」
+5. 當出現分歧，點名需要確認的人：「獵犬，你的文件支持哪個選項？」
+6. 當說出20050921：說【任務完成】
+7. 每次回應最多2句，開頭「局長 > 」`
 };
 
 const MI={
   1:{name:"消失的研究員",intel:{A:["場景圖：辦公室現場（左側）","注意：日曆、照片、窗外天色","地板有腳印，觀察方向","細節模糊，需與搭檔討論"],B:["聲音轉錄檔案 C-0847（左側）","01:08 段落有關鍵字詞無法辨識","陳博士提到了「方向」和「那條路」","需與搭檔比對現場畫面推理含義"]},skip:"陳博士往左走。語音說「往反方向走」，指腳印方向（朝右）的反向，所以是往左。腳印可能是值班人員的。",intro:"局長 > 兩位探員，陳博士失蹤已超過六小時。他留下的線索一分為二，你們各持一半。立刻交換情報，找出他在哪裡。"},
   2:{name:"組織內的叛徒",intel:{A:["監視畫面截圖（左側）","下午3點，人影操作電腦","注意：姿勢方向、衣物、眼鏡","畫面模糊，解讀需討論"],B:["側角度畫面和訪談紀錄（左側）","注意咖啡杯的位置","趙宇翔的訪談有明顯矛盾","與搭檔整合觀察"]},skip:"間諜是趙宇翔。訪談矛盾（說在開會但同事說沒來）+ 左撇子 + 深色衣獨自行動。",intro:"局長 > 晶片資料已被複製，叛徒就在你們小隊內部。監視資料一分為二。告訴我是誰——但我要完整推理，不只是名字。"},
-  3:{name:"生死抉擇",intel:{A:["災難現場地圖（左側）","A棟：8人含重傷者，位置近","B棟：2名醫療人員，位置近","D棟：15名孩童，位置遠已失聯"],B:["緊急情報（左側）","B棟醫生獲救後可救治A棟重傷者","D棟孩童超2小時生存率降至15%","C棟12人有衛星設備，位置遠"]},skip:"沒有標準答案。常見選擇：B+D或B+C。重點是協商過程與理由。",intro:"局長 > 緊急狀況。爆炸倒數120分鐘，四個地點都有人被困，救援車只有兩次機會。合起來才能決定。"}
+  3:{name:"陳博士的下落",
+    intel:{
+      A:["77F樓層平面圖（左側）","仔細觀察每間房間的細節","某些細節需要hover才能看到","與獵犬的文件交叉比對才能推理"],
+      B:["文件列表（左側，共9份）","並非所有文件都有用","仔細閱讀每份文件的細節","與夜鷹的現場觀察交叉比對"]
+    },
+    skip:"答案是7703號房，密碼20050921。推理路徑：西翼（夕陽）→ 7703（最遠+痕跡）→ 20050921（女兒生日）。",
+    intro:"局長 > 趙宇翔落網前說了一句話：「他不會讓任何人輕易找到的。」\n局長 > 陳博士在逃跑之前，把最後的座標藏在辦公室的某個保險箱裡。\n局長 > 你們各自拿到了一部分資料，順序是亂的。\n局長 > 自己找出關聯。找到那個保險箱，打開它。"
+  }
 };
 
 // Intro lines moved to playIntro function
@@ -972,7 +1238,7 @@ function addMsg(msg){
 async function triggerAI(msgObj){
   if(rMsgs.length<2)return; // Wait for both players to have spoken
   const m=S.mission,now=Date.now();
-  if(aiCD[m]&&now-aiCD[m]<12000)return;
+  if(aiCD[m]&&now-aiCD[m]<8000)return;
   aiCD[m]=now;
   const getCodename=(role)=>role==="A"?"夜鷹":"獵犬";
   const hist=rMsgs.slice(-8).map(x=>`${x.sender}(${getCodename(x.role)}): ${x.text}`).join("\n");
@@ -991,11 +1257,19 @@ async function triggerAI(msgObj){
 // ── MISSION FLOW ──
 function completeMission(){set(ref(db,`rooms/${S.room}/mission`),S.mission+1);}
 
+const TRANSITION_MSG={
+  2:`局長 > 往左走。你們找到了。\n但陳博士的辦公室在他消失之前，已經有人進去過。\n保險箱被動過，晶片不見了。\n是誰知道他在哪裡？`,
+  3:`局長 > 趙宇翔。就是他。\n他進了辦公室，複製了晶片，洩露了陳博士的藏身地點。\n但我們在他身上找不到陳博士的位置。\n陳博士很聰明——他把最後的線索藏回了辦公室。\n就在你們剛才待過的地方。`,
+  4:`局長 > 任務完成。\n20050921。保險箱打開了。\n陳博士的位置確認。救援隊已出發。`
+};
+
 function showMOv(n){
   document.getElementById("ov-ic").textContent=n<=3?"🎯":"🏆";
   document.getElementById("ov-ti").textContent=`關卡 ${S.mission} 完成`;
   const info=MI[n];
-  document.getElementById("ov-su").textContent=n<=3?`下一關：${info?.name}`:"所有任務完成";
+  const transMsg=TRANSITION_MSG[n];
+  document.getElementById("ov-su").textContent=transMsg||( n<=3?`下一關：${info?.name}`:"所有任務完成");
+  document.getElementById("ov-su").style.whiteSpace="pre-line";
   document.getElementById("ov-an").style.display="none";
   document.getElementById("btn-next-m").textContent=n<=3?`進入關卡 ${n} ›`:"前往覆盤 ›";
   document.getElementById("mov").classList.add("on");
