@@ -548,7 +548,7 @@ function gc(){return String(Math.floor(1000+Math.random()*9000));}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
 const IMG_URLS={"char_a":"images/char_a.png","char_b":"images/char_b.png","m1_corridor":"images/m1_corridor.png","m1_transcript":"images/m1_transcript.png","m2_office":"images/m2_office.png","m2_docs":"images/m2_docs.png","m3_floor":"images/m3_floor.png","doc1":"images/doc1.png","doc2":"images/doc2.png","doc3":"images/doc3.png","doc4":"images/doc4.png","doc7":"images/doc7.png","doc8":"images/doc8.png","doc9":"images/doc9.png"};
-function gImg(id){return IMG_URLS[id]||";}
+function gImg(id){return IMG_URLS[id]||"";}
 
 // ── LOBBY ──
 document.getElementById("btn-create").addEventListener("click",()=>{
