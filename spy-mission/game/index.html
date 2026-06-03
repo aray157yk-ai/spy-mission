@@ -244,7 +244,7 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
   <button class="back-btn" id="btn-back-c">返回大廳</button>
   <div class="rcode-wrap">
     <div class="rcode-label">你的任務代碼</div>
-    <div class="rcode-val" id="create-code">------</div>
+    <div class="rcode-val" id="create-code">----</div>
     <div class="rcode-hint">將此代碼傳給搭檔<br>搭檔加入後將同時進入下一步</div>
     <div style="font-family:var(--mono);font-size:11px;color:var(--tx2);margin-top:10px;" id="create-status">等待搭檔連線中...</div>
     <div class="ring" id="create-ring" style="margin-top:14px;width:50px;height:50px;"></div>
@@ -257,7 +257,7 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
   <div class="icard">
     <div class="fg">
       <label class="fl">任務代碼</label>
-      <input class="fi" id="join-code" placeholder="輸入6位數字" maxlength="6" inputmode="numeric">
+      <input class="fi" id="join-code" placeholder="輸入4位數字" maxlength="4" inputmode="numeric">
     </div>
     <div class="err" id="join-err"></div>
     <button class="btn am" id="btn-proceed-j">加入任務 ›</button>
@@ -302,8 +302,8 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
       <!-- A -->
       <div class="role-slot slot-a" id="card-a">
         <div class="slot-img">
-          <div class="slot-img-ph">👤</div>
-          <div class="slot-img-lbl">AGENT · A</div>
+          <img src="images/char_a.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;"/>
+          <div class="slot-img-lbl" style="position:relative;z-index:1;">AGENT · A</div>
           <div class="slot-badge-wrap">
             <div id="badge-a-me" class="badge badge-me" style="display:none">▶ 我的選擇</div>
             <div id="badge-a-p" class="badge badge-p" style="display:none">搭檔選擇</div>
@@ -332,8 +332,8 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
       <!-- B -->
       <div class="role-slot slot-b" id="card-b">
         <div class="slot-img">
-          <div class="slot-img-ph">👤</div>
-          <div class="slot-img-lbl">AGENT · B</div>
+          <img src="images/char_b.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;"/>
+          <div class="slot-img-lbl" style="position:relative;z-index:1;">AGENT · B</div>
           <div class="slot-badge-wrap">
             <div id="badge-b-me" class="badge badge-me" style="display:none">▶ 我的選擇</div>
             <div id="badge-b-p" class="badge badge-p" style="display:none">搭檔選擇</div>
@@ -462,15 +462,15 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
 <script>
 var SCENES={
   1:{
-    A:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="0" y="380" width="400" height="120" fill="#0c1520"/><line x1="0" y1="380" x2="400" y2="380" stroke="#1a3050" stroke-width="1"/><rect x="40" y="300" width="320" height="12" fill="#162030" stroke="#1a3050" stroke-width="1"/><rect x="40" y="80" width="70" height="85" fill="#0f1828" stroke="#00c8ff" stroke-width="1" opacity="0.8"/><rect x="40" y="80" width="70" height="18" fill="#162030"/><text x="75" y="93" text-anchor="middle" fill="#00c8ff" font-size="9" font-family="monospace" opacity="0.7">日曆</text><text x="75" y="142" text-anchor="middle" fill="#405870" font-size="22" font-family="monospace">?</text><rect x="160" y="65" width="90" height="110" fill="#0f1828" stroke="#ffb700" stroke-width="1.5" opacity="0.9"/><rect x="168" y="73" width="74" height="80" fill="#0a1218"/><text x="205" y="120" text-anchor="middle" fill="#162535" font-size="36">👤</text><text x="205" y="153" text-anchor="middle" fill="#405870" font-size="7" font-family="monospace">照片·人物模糊</text><rect x="290" y="55" width="90" height="130" fill="#0a1828" stroke="#1a3050" stroke-width="1"/><text x="335" y="125" text-anchor="middle" fill="#3a6a9a" font-size="8" font-family="monospace">傍晚天色</text><ellipse cx="95" cy="418" rx="8" ry="12" fill="#1a3050" stroke="#00c8ff" stroke-width="0.8" opacity="0.7" transform="rotate(-15 95 418)"/><ellipse cx="122" cy="406" rx="7" ry="11" fill="#1a3050" stroke="#00c8ff" stroke-width="0.8" opacity="0.6" transform="rotate(10 122 406)"/><ellipse cx="148" cy="416" rx="8" ry="12" fill="#1a3050" stroke="#00c8ff" stroke-width="0.8" opacity="0.5"/><text x="118" y="450" text-anchor="middle" fill="#254070" font-size="9" font-family="monospace">腳印方向 →</text><rect x="268" y="245" width="82" height="58" fill="#0f1828" stroke="#ff3355" stroke-width="1.5" rx="2"/><text x="309" y="278" text-anchor="middle" fill="#ff3355" font-size="9" font-family="monospace">保險箱</text></svg>',
-    B:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="20" y="20" width="360" height="460" fill="#0c1520" stroke="#1a3050" stroke-width="1" rx="4"/><rect x="20" y="20" width="360" height="36" fill="#0f1f30" rx="4"/><text x="200" y="43" text-anchor="middle" fill="#ffb700" font-size="11" font-family="monospace">失蹤通報 · 機密等級3</text><text x="40" y="76" fill="#405870" font-size="9" font-family="monospace">目標：陳博士  職稱：首席研究員</text><text x="40" y="122" fill="#7090b0" font-size="10" font-family="monospace">語音紀錄摘要：</text><rect x="40" y="132" width="320" height="220" fill="#080e18" rx="3" stroke="#1a3050" stroke-width="0.5"/><text x="55" y="158" fill="#8aaccc" font-size="10" font-family="monospace">「如果你們找到這個，</text><text x="55" y="178" fill="#8aaccc" font-size="10" font-family="monospace"> 我已經去了那個地方——</text><text x="55" y="198" fill="#8aaccc" font-size="10" font-family="monospace"> 就是我們第一次討論計畫的地方。</text><text x="55" y="218" fill="#8aaccc" font-size="10" font-family="monospace"> 那天是星期三，傍晚，</text><text x="55" y="238" fill="#8aaccc" font-size="10" font-family="monospace"> 我記得窗外的夕陽。</text><text x="55" y="265" fill="#ff6b6b" font-size="10" font-family="monospace"> 現在是......危險的。</text><text x="55" y="285" fill="#ff6b6b" font-size="10" font-family="monospace"> 往反方向走。」</text><text x="40" y="380" fill="#ff3355" font-size="9" font-family="monospace">「反方向」含義不明</text><text x="40" y="398" fill="#405870" font-size="9" font-family="monospace">需與搭檔比對現場畫面</text></svg>'
+    A:'<img src="images/m1_corridor.png" style="width:100%;height:100%;object-fit:cover;"/>',
+    B:'<img src="images/m1_transcript.png" style="width:100%;height:100%;object-fit:cover;"/>'
   },
   2:{
-    A:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="15" y="15" width="370" height="400" fill="#060c14" stroke="#1a3050" stroke-width="1"/><text x="200" y="38" text-anchor="middle" fill="#1a3050" font-size="9" font-family="monospace">監視畫面截圖 · 15:00:32</text><rect x="30" y="48" width="340" height="300" fill="#040a10"/><rect x="40" y="295" width="320" height="6" fill="#0f1828"/><ellipse cx="200" cy="200" rx="22" ry="26" fill="#162535" stroke="#254070" stroke-width="0.5" opacity="0.8"/><ellipse cx="192" cy="192" rx="7" ry="4" fill="none" stroke="#00c8ff" stroke-width="0.8" opacity="0.5"/><ellipse cx="208" cy="192" rx="7" ry="4" fill="none" stroke="#00c8ff" stroke-width="0.8" opacity="0.5"/><path d="M185 226 Q160 252 145 275" stroke="#254070" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.7"/><text x="128" y="290" fill="#ff3355" font-size="8" font-family="monospace" opacity="0.8">手臂方向?</text><rect x="172" y="226" width="56" height="42" fill="#101820" stroke="#1a3050" stroke-width="0.5" rx="3" opacity="0.8"/><text x="30" y="372" fill="#00c8ff" font-size="9" font-family="monospace">REC 15:00:32</text><text x="290" y="372" fill="#ff3355" font-size="9" font-family="monospace">畫面模糊</text><text x="200" y="440" text-anchor="middle" fill="#254070" font-size="8" font-family="monospace">與搭檔比對，討論慣用手</text></svg>',
-    B:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="15" y="15" width="200" height="255" fill="#060c14" stroke="#1a3050" stroke-width="1"/><text x="115" y="37" text-anchor="middle" fill="#1a3050" font-size="8" font-family="monospace">側角度畫面</text><rect x="30" y="200" width="170" height="5" fill="#0f1828"/><rect x="73" y="170" width="24" height="20" fill="#162030" stroke="#ffb700" stroke-width="1.5"/><ellipse cx="85" cy="196" rx="12" ry="7" fill="#162030" stroke="#ffb700" stroke-width="1.5"/><text x="85" y="225" text-anchor="middle" fill="#ffb700" font-size="8" font-family="monospace">咖啡杯 左手邊?</text><rect x="225" y="15" width="160" height="470" fill="#0c1520" stroke="#1a3050" stroke-width="1" rx="2"/><text x="305" y="38" text-anchor="middle" fill="#7090b0" font-size="9" font-family="monospace">訪談紀錄</text><text x="240" y="65" fill="#405870" font-size="8" font-family="monospace">趙宇翔：</text><text x="240" y="80" fill="#8aaccc" font-size="8" font-family="monospace">「我3點在開會」</text><text x="240" y="110" fill="#405870" font-size="8" font-family="monospace">同事：</text><text x="240" y="125" fill="#ff6b6b" font-size="8" font-family="monospace">「趙根本沒來」</text><text x="240" y="158" fill="#8aaccc" font-size="8" font-family="monospace">趙：左撇子</text><text x="240" y="173" fill="#405870" font-size="8" font-family="monospace">眼鏡：不明</text><text x="240" y="200" fill="#ff3355" font-size="9" font-family="monospace">訪談矛盾!</text></svg>'
+    A:'<img src="images/m2_office.png" style="width:100%;height:100%;object-fit:cover;"/>',
+    B:'<img src="images/m2_docs.png" style="width:100%;height:100%;object-fit:cover;"/>'
   },
   3:{
-    A:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><text x="200" y="28" text-anchor="middle" fill="#ff3355" font-size="10" font-family="monospace">災難現場地圖</text><rect x="155" y="395" width="90" height="36" fill="#0a2015" stroke="#00e87a" stroke-width="1.5" rx="3"/><text x="200" y="418" text-anchor="middle" fill="#00e87a" font-size="10" font-family="monospace">基地</text><rect x="42" y="228" width="72" height="54" fill="#0f1828" stroke="#ff3355" stroke-width="2" rx="2"/><text x="78" y="252" text-anchor="middle" fill="#ff3355" font-size="11" font-family="monospace">A棟</text><text x="78" y="268" text-anchor="middle" fill="#b8cce0" font-size="8" font-family="monospace">8人/重傷</text><rect x="283" y="228" width="72" height="54" fill="#0f1828" stroke="#ffb700" stroke-width="2" rx="2"/><text x="319" y="252" text-anchor="middle" fill="#ffb700" font-size="11" font-family="monospace">B棟</text><text x="319" y="268" text-anchor="middle" fill="#b8cce0" font-size="8" font-family="monospace">2名醫生</text><rect x="143" y="48" width="114" height="54" fill="#0f1828" stroke="#00c8ff" stroke-width="1.5" rx="2"/><text x="200" y="72" text-anchor="middle" fill="#00c8ff" font-size="11" font-family="monospace">D棟</text><text x="200" y="88" text-anchor="middle" fill="#b8cce0" font-size="8" font-family="monospace">15名孩童·遠</text><line x1="200" y1="395" x2="98" y2="282" stroke="#254070" stroke-width="0.8" stroke-dasharray="4,3"/><line x1="200" y1="395" x2="302" y2="282" stroke="#254070" stroke-width="0.8" stroke-dasharray="4,3"/><line x1="200" y1="395" x2="200" y2="102" stroke="#254070" stroke-width="0.8" stroke-dasharray="4,3"/><text x="200" y="462" text-anchor="middle" fill="#ff3355" font-size="9" font-family="monospace">C棟位置不明 向搭檔確認</text></svg>',
+    A:'<img src="images/m3_floor.png" style="width:100%;height:100%;object-fit:cover;"/>',
     B:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="15" y="15" width="370" height="470" fill="#110808" stroke="#ff3355" stroke-width="0.8" rx="4"/><rect x="15" y="15" width="370" height="44" fill="#1a0808" rx="4"/><text x="200" y="43" text-anchor="middle" fill="#ff3355" font-size="13" font-family="monospace">緊急情報</text><rect x="118" y="70" width="164" height="52" fill="#0a0808" rx="4" stroke="#ff3355" stroke-width="1"/><text x="200" y="106" text-anchor="middle" fill="#ff3355" font-size="30" font-family="monospace" font-weight="bold">120:00</text><text x="40" y="148" fill="#00e87a" font-size="10" font-family="monospace">B棟醫生獲救可救治A棟重傷者</text><text x="40" y="172" fill="#00c8ff" font-size="10" font-family="monospace">C棟12人 有衛星通訊設備</text><text x="40" y="196" fill="#ffb700" font-size="10" font-family="monospace">C棟位置：郊區（遠）</text><text x="40" y="228" fill="#ff3355" font-size="10" font-family="monospace">D棟超過2小時生存率降至15%</text><text x="40" y="252" fill="#405870" font-size="9" font-family="monospace">救援車：最多2次，每次10人</text><text x="200" y="420" text-anchor="middle" fill="#ffb700" font-size="10" font-family="monospace">先救B+D 或 B+C？與搭檔討論</text></svg>'
   }
 };
@@ -500,6 +500,42 @@ const MI={
 
 const INTRO_LINES=["局長 > 通訊已加密。","局長 > 你們是影子局新進探員，今天是第一次正式任務。","局長 > 我是你們的指揮官。任務期間我會即時監控你們的通訊。","局長 > 記住——你們手上的情報都是片段的。","局長 > 只有互相溝通，才能還原真相。","局長 > 任務資料載入中..."];
 
+// Initialize mission 3 doc interface
+function initM3Docs(){
+  const DOCS=[
+    {id:1,label:"存取紀錄",img:"doc1",c:"<b style='color:#ffb700'>辦公室存取紀錄 77F</b><br>區域代號部分無法辨識"},
+    {id:2,label:"人事檔案",img:"doc2",c:"<b style='color:#ffb700'>陳博士人事檔案</b><br>入職日：1998年3月15日<br>習慣選最不顯眼、離出口最遠<br>女兒出生年份：<span style='color:#00c8ff'>2005</span>（日期模糊）"},
+    {id:3,label:"保險箱規格",img:"doc3",c:"<b style='color:#ffb700'>保險箱規格 SecureVault X8</b><br>密碼：8位數字 YYYYMMDD<br>提示：「<span style='color:#00c8ff'>最重要的日子</span>」"},
+    {id:4,label:"錄音時間戳",img:"doc4",c:"<b style='color:#ffb700'>語音錄音技術分析 C-0847</b><br>錄音時間：18:47 傍晚時段<br><span style='color:#ff6b35'>夕陽為當下實況</span>"},
+    {id:5,label:"研究報告",img:"doc7",c:"<b style='color:#ffb700'>陳博士研究報告摘要</b><br>非線性加密演算法<br><span style='color:#2a4060'>與任務定位無關</span>"},
+    {id:6,label:"維修紀錄",img:"doc8",c:"<b style='color:#ffb700'>辦公大樓維修紀錄</b><br><span style='color:#ff6b35'>77F 7706室保險箱轉盤維修</span>"},
+    {id:7,label:"休假申請",img:"doc9",c:"<b style='color:#ffb700'>休假申請書</b><br>林大明，家庭旅遊5天<br><span style='color:#2a4060'>與本案無關</span>"}
+  ];
+  const list=document.getElementById("doc-list");
+  const display=document.getElementById("doc-display");
+  if(!list||!display)return;
+  list.innerHTML="";
+  DOCS.forEach(d=>{
+    const tab=document.createElement("div");
+    tab.style.cssText="display:flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid #1a3050;border-radius:3px;cursor:pointer;background:#0f1520;width:100%;margin-bottom:4px;";
+    const thumb=document.createElement("img");
+    thumb.src=gImg(d.img);
+    thumb.style.cssText="width:28px;height:36px;object-fit:cover;border-radius:2px;flex-shrink:0;";
+    tab.appendChild(thumb);
+    const lbl=document.createElement("span");
+    lbl.textContent=d.label;
+    lbl.style.cssText="font-family:monospace;font-size:9px;color:#405870;";
+    tab.appendChild(lbl);
+    tab.onclick=()=>{
+      list.querySelectorAll("div").forEach(t=>t.style.borderColor="#1a3050");
+      tab.style.borderColor="#00c8ff";
+      const src=gImg(d.img);
+      display.innerHTML="<div style='font-family:monospace;font-size:10px;color:#7090b0;line-height:1.9;'><img src='"+src+"' style='width:100%;max-height:180px;object-fit:cover;border-radius:4px;margin-bottom:8px;'/>"+d.c+"</div>";
+    };
+    list.appendChild(tab);
+  });
+}
+
 let S={room:"",role:"",name:"",playerKey:"",mission:1,partnerName:"",tyTO:null};
 let rMsgs=[],aiCD={},cntA=0,cntB=0;
 let timerInterval=null,timerSec=60;
@@ -509,8 +545,11 @@ function ss(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remo
 function toast(m,d=2400){const t=document.getElementById("toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),d);}
 function sc(){const c=document.getElementById("msgs");c.scrollTop=c.scrollHeight;}
 function esc(t){return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-function gc(){return String(Math.floor(100000+Math.random()*900000));}
+function gc(){return String(Math.floor(1000+Math.random()*9000));}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+const IMG_URLS={"char_a":"images/char_a.png","char_b":"images/char_b.png","m1_corridor":"images/m1_corridor.png","m1_transcript":"images/m1_transcript.png","m2_office":"images/m2_office.png","m2_docs":"images/m2_docs.png","m3_floor":"images/m3_floor.png","doc1":"images/doc1.png","doc2":"images/doc2.png","doc3":"images/doc3.png","doc4":"images/doc4.png","doc7":"images/doc7.png","doc8":"images/doc8.png","doc9":"images/doc9.png"};
+function gImg(id){return IMG_URLS[id]||"";}
 
 // ── LOBBY ──
 document.getElementById("btn-create").addEventListener("click",()=>{
@@ -539,7 +578,7 @@ document.getElementById("btn-proceed-j").addEventListener("click",async()=>{
   const code=document.getElementById("join-code").value.trim();
   const err=document.getElementById("join-err");
   err.textContent="";
-  if(!code||code.length<6){err.textContent="請輸入6位數字代碼";return;}
+  if(!code||code.length<4){err.textContent="請輸入6位數字代碼";return;}
   S.room=code;S.isHost=false;
   ss("sw");
   document.getElementById("wait-code").textContent=code;
