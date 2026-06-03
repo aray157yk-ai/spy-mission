@@ -462,16 +462,1435 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
 <script>
 var SCENES={
   1:{
-    A:'<img src="images/m1_corridor.png" style="width:100%;height:100%;object-fit:cover;"/>',
-    B:'<img src="images/m1_transcript.png" style="width:100%;height:100%;object-fit:cover;"/>'
+    A:'<img src="images/m1_corridor.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>',
+    B:'<img src="images/m1_transcript.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>'
   },
   2:{
-    A:'<img src="images/m2_office.png" style="width:100%;height:100%;object-fit:cover;"/>',
-    B:'<img src="images/m2_docs.png" style="width:100%;height:100%;object-fit:cover;"/>'
+    A:'<img src="images/m2_office.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>',
+    B:'<img src="images/m2_docs.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>'
   },
   3:{
-    A:'<img src="images/m3_floor.png" style="width:100%;height:100%;object-fit:cover;"/>',
-    B:'<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><rect width="400" height="500" fill="#08101a"/><rect x="15" y="15" width="370" height="470" fill="#110808" stroke="#ff3355" stroke-width="0.8" rx="4"/><rect x="15" y="15" width="370" height="44" fill="#1a0808" rx="4"/><text x="200" y="43" text-anchor="middle" fill="#ff3355" font-size="13" font-family="monospace">緊急情報</text><rect x="118" y="70" width="164" height="52" fill="#0a0808" rx="4" stroke="#ff3355" stroke-width="1"/><text x="200" y="106" text-anchor="middle" fill="#ff3355" font-size="30" font-family="monospace" font-weight="bold">120:00</text><text x="40" y="148" fill="#00e87a" font-size="10" font-family="monospace">B棟醫生獲救可救治A棟重傷者</text><text x="40" y="172" fill="#00c8ff" font-size="10" font-family="monospace">C棟12人 有衛星通訊設備</text><text x="40" y="196" fill="#ffb700" font-size="10" font-family="monospace">C棟位置：郊區（遠）</text><text x="40" y="228" fill="#ff3355" font-size="10" font-family="monospace">D棟超過2小時生存率降至15%</text><text x="40" y="252" fill="#405870" font-size="9" font-family="monospace">救援車：最多2次，每次10人</text><text x="200" y="420" text-anchor="middle" fill="#ffb700" font-size="10" font-family="monospace">先救B+D 或 B+C？與搭檔討論</text></svg>'
+    A:'<img src="images/m3_floor.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>',
+    B:'<div id="m3-docs" style="display:flex;flex-direction:column;width:100%;height:100%;background:#08101a;"><div id="doc-display" style="flex:1;overflow-y:auto;padding:12px;background:#0b1219;border:1px solid #1a3050;margin:8px;border-radius:4px;font-family:monospace;font-size:10px;color:#7090b0;"><div style="color:#ffb700;margin-bottom:8px;">// 請選擇文件查閱</div><span style="color:#2a4060;">共 7 份文件。並非所有文件都與任務相關。</span></div><div id="doc-list" style="display:flex;flex-direction:column;gap:4px;padding:8px;border-top:1px solid #1a3050;overflow-y:auto;max-height:200px;"></div></div>'<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>影子局 — 機密行動</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c12;--s1:#0f1520;--s2:#162030;--s3:#1e2d42;
+  --b1:#1a3050;--b2:#254070;
+  --ac:#00c8ff;--am:#ffb700;--gn:#00e87a;--rd:#ff3355;
+  --tx:#b8cce0;--tx2:#7090b0;--tx3:#405870;
+  --mono:"Share Tech Mono",monospace;--body:"Noto Sans TC",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:var(--body);min-height:100vh;}
+body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,200,255,.005) 3px,rgba(0,200,255,.005) 4px);pointer-events:none;z-index:9999;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+
+.screen{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+.screen.active{display:flex;}
+#sg{display:none;flex-direction:column;height:100vh;padding:0;overflow:hidden;}
+#sg.active{display:flex;align-items:stretch;}
+
+/* LOGO */
+.logo{text-align:center;margin-bottom:36px;}
+.logo-eye{font-family:var(--mono);font-size:11px;color:var(--ac);letter-spacing:.4em;margin-bottom:8px;opacity:.7;}
+.logo-t{font-family:var(--mono);font-size:clamp(28px,5vw,50px);color:#fff;letter-spacing:.08em;}
+.logo-t em{color:var(--ac);font-style:normal;}
+.logo-s{font-size:12px;color:var(--tx2);margin-top:8px;letter-spacing:.15em;}
+
+/* BACK BTN */
+.back-btn{display:inline-flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b2);color:var(--tx);font-family:var(--mono);font-size:12px;letter-spacing:.1em;padding:10px 18px;border-radius:4px;cursor:pointer;margin-bottom:22px;transition:all .2s;}
+.back-btn:hover{border-color:var(--ac);color:var(--ac);}
+.back-btn::before{content:"←  ";}
+
+/* LOBBY */
+.lobby-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:520px;}
+.lc{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:28px;cursor:pointer;transition:all .2s;text-align:center;position:relative;overflow:hidden;}
+.lc::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--ac),transparent);opacity:0;transition:opacity .2s;}
+.lc:hover{border-color:var(--ac);transform:translateY(-2px);}.lc:hover::before{opacity:1;}
+.lc-icon{font-size:34px;margin-bottom:10px;}
+.lc-title{font-family:var(--mono);font-size:13px;color:#fff;letter-spacing:.1em;margin-bottom:6px;}
+.lc-desc{font-size:12px;color:var(--tx2);line-height:1.6;}
+
+/* ICARD */
+.icard{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:26px 30px;width:100%;max-width:400px;position:relative;}
+.icard::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--ac),transparent);}
+.fl{font-family:var(--mono);font-size:10px;color:var(--ac);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;display:block;}
+.fi{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:4px;color:#fff;font-family:var(--mono);font-size:16px;padding:11px 15px;outline:none;letter-spacing:.15em;transition:border-color .2s;}
+.fi:focus{border-color:var(--ac);}
+.fi::placeholder{color:var(--tx3);font-size:12px;letter-spacing:.05em;}
+.fg{margin-bottom:16px;}
+.fi-name{letter-spacing:.05em;font-size:14px;}
+
+/* ROOM CODE */
+.rcode-wrap{background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:26px 30px;text-align:center;width:100%;max-width:360px;position:relative;}
+.rcode-wrap::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--am),transparent);}
+.rcode-label{font-family:var(--mono);font-size:10px;color:var(--tx2);letter-spacing:.25em;margin-bottom:12px;}
+.rcode-val{font-family:var(--mono);font-size:40px;color:var(--ac);letter-spacing:.25em;margin-bottom:14px;text-shadow:0 0 20px rgba(0,200,255,.3);}
+.rcode-hint{font-size:12px;color:var(--tx2);margin-bottom:18px;line-height:1.6;}
+
+/* BUTTONS */
+.btn{display:block;width:100%;background:transparent;border:1px solid var(--ac);color:var(--ac);font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;padding:12px;cursor:pointer;border-radius:4px;transition:all .2s;}
+.btn:hover{background:rgba(0,200,255,.08);}
+.btn.am{border-color:var(--am);color:var(--am);}.btn.am:hover{background:rgba(255,183,0,.08);}
+.btn.rd{border-color:var(--rd);color:var(--rd);}.btn.rd:hover{background:rgba(255,51,85,.08);}
+.btn.gn{border-color:var(--gn);color:var(--gn);}.btn.gn:hover{background:rgba(0,232,122,.08);}
+.btn:disabled{opacity:.3;cursor:not-allowed;}
+.btn+.btn{margin-top:10px;}
+.err{color:var(--rd);font-family:var(--mono);font-size:11px;margin-top:8px;min-height:16px;}
+
+/* WAITING */
+.ring{width:68px;height:68px;margin:0 auto 20px;border:2px solid var(--b2);border-top-color:var(--ac);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* NAME INPUT */
+.name-card{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:26px 30px;width:100%;max-width:420px;position:relative;}
+.name-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gn),transparent);}
+.name-connected{display:flex;align-items:center;gap:8px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--b1);}
+.name-dot{width:8px;height:8px;border-radius:50%;background:var(--gn);animation:pulse 2s infinite;}
+.name-conn-txt{font-family:var(--mono);font-size:11px;color:var(--tx2);letter-spacing:.1em;}
+
+/* TIMER */
+.timer-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.timer-bar-bg{width:180px;height:5px;background:var(--s3);border-radius:3px;overflow:hidden;}
+.timer-bar{height:100%;border-radius:3px;background:var(--ac);transition:width .5s linear,background .5s;}
+.timer-bar.warn{background:var(--am);}.timer-bar.danger{background:var(--rd);}
+.timer-num{font-family:var(--mono);font-size:20px;color:var(--ac);letter-spacing:.1em;transition:color .5s;}
+.timer-num.warn{color:var(--am);}.timer-num.danger{color:var(--rd);}
+.timer-lbl{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.15em;}
+
+/* ROLE SELECT */
+.role-screen-wrap{width:100%;max-width:1100px;display:flex;flex-direction:column;align-items:center;}
+.role-header{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:24px;}
+.role-title{font-family:var(--mono);font-size:11px;color:var(--tx2);letter-spacing:.25em;text-transform:uppercase;}
+
+/* Cards grid */
+.role-grid{display:grid;grid-template-columns:1fr 20px 1fr;width:100%;margin-bottom:18px;align-items:start;}
+
+/* Role card: image | info */
+.role-slot{display:flex;border:1px solid var(--b1);border-radius:8px;overflow:hidden;
+  cursor:pointer;transition:transform .3s ease,filter .3s ease,border-color .3s ease;
+  filter:brightness(.55);min-height:380px;}
+.role-slot:hover{filter:brightness(.8);transform:scale(1.015);}
+.role-slot.me-sel{filter:brightness(1);transform:scale(1.02);border-color:var(--ac);}
+.role-slot.p-sel{filter:brightness(.75);border-color:var(--am);}
+.role-slot.both-sel{filter:brightness(1);transform:scale(1.02);border-color:var(--ac);
+  box-shadow:inset 0 0 0 2px var(--am);}
+.role-slot.me-conf{filter:brightness(1.05);transform:scale(1.02);border-color:var(--gn);
+  box-shadow:0 0 24px rgba(0,232,122,.25);}
+
+/* Image col */
+.slot-img{width:190px;flex-shrink:0;background:var(--s2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;position:relative;overflow:hidden;}
+.slot-img-ph{font-size:72px;opacity:.18;}
+.slot-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.slot-img-lbl{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.15em;z-index:1;}
+.slot-badge-wrap{position:absolute;bottom:10px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:4px;z-index:2;}
+.badge{font-family:var(--mono);font-size:9px;padding:4px 12px;border-radius:99px;letter-spacing:.08em;font-weight:700;}
+.badge-me{background:rgba(0,200,255,.9);color:#000;}
+.badge-p{background:rgba(255,183,0,.9);color:#000;}
+.badge-conf{background:rgba(0,232,122,.9);color:#000;}
+
+/* Info col */
+.slot-info{flex:1;background:var(--s1);padding:20px 18px;display:flex;flex-direction:column;gap:10px;min-width:0;overflow:hidden;}
+.rc-code{font-family:var(--mono);font-size:10px;letter-spacing:.12em;}
+.rc-code.a{color:var(--ac);}.rc-code.b{color:var(--am);}
+.rc-iq{font-family:var(--mono);font-size:9px;color:var(--tx3);margin-top:1px;}
+.rc-name{font-size:18px;font-weight:700;color:#fff;padding-bottom:10px;border-bottom:1px solid var(--b1);margin-bottom:2px;}
+.rc-sh{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.15em;margin-bottom:4px;}
+.rc-sb{font-size:11.5px;color:var(--tx2);line-height:1.75;}
+.rc-quote{font-size:11px;color:var(--tx2);line-height:1.75;font-style:italic;border-left:2px solid var(--b2);padding-left:10px;margin-top:auto;}
+
+/* Action row */
+.action-row{display:flex;gap:10px;width:100%;}
+.action-row .btn{flex:1;}
+
+/* INTRO */
+.intro-ov{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;flex-direction:column;align-items:center;justify-content:center;padding:48px;}
+.intro-ov.on{display:flex;}
+.intro-tx{font-family:var(--mono);font-size:14px;color:var(--tx);line-height:2.4;max-width:600px;white-space:pre-wrap;}
+.cur{display:inline-block;width:9px;height:15px;background:var(--ac);animation:blink .7s infinite;vertical-align:middle;margin-left:2px;}
+.intro-prompt{display:none;margin-top:30px;font-family:var(--mono);font-size:11px;color:var(--tx3);letter-spacing:.2em;animation:blink .7s infinite;}
+
+/* STATUS BAR */
+.statusbar{background:var(--s1);border-bottom:1px solid var(--b1);padding:9px 20px;display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:10px;flex-shrink:0;}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--gn);animation:pulse 2s infinite;}
+.si{color:var(--tx2);}.si span{color:var(--tx);}.sep{color:var(--b2);}
+
+/* GAME */
+.game-body{display:flex;flex:1;overflow:hidden;}
+.lp{width:40%;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;}
+.scene-area{flex:1;position:relative;overflow:hidden;background:var(--bg);min-height:0;}
+.sc-badge{position:absolute;top:10px;left:10px;background:rgba(8,12,18,.85);border:1px solid var(--b2);border-radius:3px;padding:3px 10px;font-family:var(--mono);font-size:9px;color:var(--ac);letter-spacing:.2em;z-index:10;}
+.sc-cap{position:absolute;bottom:0;left:0;right:0;padding:10px 14px;background:linear-gradient(transparent,rgba(8,12,18,.9));font-family:var(--mono);font-size:9px;color:var(--tx2);letter-spacing:.1em;}
+.agent-row{flex-shrink:0;border-top:1px solid var(--b1);padding:11px 14px;display:flex;align-items:center;gap:10px;}
+.av{width:42px;height:42px;border-radius:4px;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:18px;opacity:.5;flex-shrink:0;}
+.ag-code{font-family:var(--mono);font-size:9px;letter-spacing:.12em;margin-bottom:2px;}
+.ag-code.a{color:var(--ac);}.ag-code.b{color:var(--am);}
+.ag-name{font-size:14px;font-weight:700;color:#fff;}
+.intel-sec{flex-shrink:0;border-top:1px solid var(--b1);padding:10px 14px;max-height:160px;overflow-y:auto;}
+.il{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.12em;margin-bottom:7px;}
+.ii{font-size:12px;color:var(--tx);line-height:1.6;padding:5px 10px;background:var(--s2);border-left:2px solid var(--ac);border-radius:0 3px 3px 0;margin-bottom:4px;}
+.prog-row{flex-shrink:0;border-top:1px solid var(--b1);padding:8px 14px;display:flex;gap:5px;align-items:center;}
+.ps{flex:1;height:3px;border-radius:2px;background:var(--s3);}
+.ps.done{background:var(--gn);}.ps.active{background:var(--ac);animation:blink 1.5s infinite;}
+.pl{font-family:var(--mono);font-size:9px;color:var(--tx2);white-space:nowrap;}
+.bot-row{flex-shrink:0;border-top:1px solid var(--b1);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;}
+.prow{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);}
+.pd{width:7px;height:7px;border-radius:50%;background:var(--gn);}.pd.off{background:var(--rd);}
+.skip-h{font-family:var(--mono);font-size:9px;color:var(--tx3);}.skip-h span{color:var(--am);}
+
+/* CHAT */
+.rp{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.msgs{flex:1;overflow-y:auto;padding:16px 18px 8px;display:flex;flex-direction:column;gap:10px;}
+.msg{display:flex;flex-direction:column;gap:3px;max-width:76%;}
+.msg.me{align-self:flex-end;align-items:flex-end;}
+.msg.them{align-self:flex-start;}
+.msg.ai{align-self:stretch;max-width:100%;}
+.msg.sys{align-self:center;max-width:100%;}
+.mm{font-family:var(--mono);font-size:9px;color:var(--tx3);}
+.mb{padding:10px 14px;border-radius:4px;font-size:13px;line-height:1.65;}
+.msg.me .mb{background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.25);color:#ddeeff;border-radius:12px 4px 4px 12px;}
+.msg.them .mb{background:rgba(255,183,0,.08);border:1px solid rgba(255,183,0,.22);color:#fff5d0;border-radius:4px 12px 12px 4px;}
+.msg.ai .mb{background:var(--s2);border:1px solid var(--b1);border-left:3px solid var(--rd);color:var(--tx);border-radius:0 4px 4px 0;}
+.aih{font-family:var(--mono);font-size:9px;color:var(--rd);letter-spacing:.2em;margin-bottom:5px;}
+.msg.sys .mb{background:transparent;border:1px dashed var(--b2);color:var(--tx2);font-family:var(--mono);font-size:10px;text-align:center;padding:7px 14px;border-radius:3px;}
+.typew{padding:0 18px 5px;min-height:20px;}
+.typi{font-family:var(--mono);font-size:10px;color:var(--am);display:flex;align-items:center;gap:5px;}
+.tyd span{display:inline-block;width:3px;height:3px;background:var(--am);border-radius:50%;animation:tdot 1.2s infinite;}
+.tyd span:nth-child(2){animation-delay:.2s;}.tyd span:nth-child(3){animation-delay:.4s;}
+@keyframes tdot{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}}
+.ibar{padding:12px 18px;border-top:1px solid var(--b1);background:var(--s1);display:flex;gap:10px;align-items:flex-end;flex-shrink:0;}
+.ci{flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:4px;color:#fff;font-family:var(--body);font-size:13px;padding:9px 13px;outline:none;resize:none;line-height:1.5;max-height:90px;transition:border-color .2s;}
+.ci:focus{border-color:var(--ac);}
+.ci::placeholder{color:var(--tx3);}
+.sb{background:var(--ac);border:none;color:var(--bg);font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:9px 16px;cursor:pointer;border-radius:4px;white-space:nowrap;align-self:flex-end;font-weight:700;}
+.sb:hover{opacity:.85;}
+
+/* OVERLAY */
+.ov{display:none;position:fixed;inset:0;background:rgba(8,12,18,.95);z-index:1000;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px;}
+.ov.on{display:flex;}
+.ov-icon{font-size:50px;margin-bottom:14px;}
+.ov-title{font-family:var(--mono);font-size:22px;color:var(--ac);letter-spacing:.15em;margin-bottom:10px;}
+.ov-sub{color:var(--tx2);font-size:13px;margin-bottom:18px;line-height:1.8;max-width:460px;}
+.ov-ans{background:var(--s1);border:1px solid var(--am);border-radius:6px;padding:14px 18px;margin-bottom:18px;font-size:12px;color:var(--tx);line-height:1.8;max-width:460px;text-align:left;}
+.ov-al{font-family:var(--mono);font-size:9px;color:var(--am);letter-spacing:.2em;margin-bottom:7px;}
+
+/* REFLECT */
+.rfw{width:100%;max-width:560px;}
+.rq{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:18px;margin-bottom:12px;}
+.rqn{font-family:var(--mono);font-size:9px;color:var(--ac);letter-spacing:.2em;margin-bottom:5px;}
+.rqt{font-size:13px;color:#fff;margin-bottom:9px;line-height:1.6;}
+textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--s2);border:1px solid var(--ac);color:var(--ac);font-family:var(--mono);font-size:11px;padding:9px 16px;border-radius:4px;z-index:9000;transform:translateY(14px);opacity:0;transition:all .3s;pointer-events:none;}
+.toast.on{transform:translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- LOBBY -->
+<div class="screen active" id="sl">
+  <div class="logo">
+    <div class="logo-eye">classified · eyes only</div>
+    <div class="logo-t">影<em>子</em>局</div>
+    <div class="logo-s">SHADOW BUREAU · OPERATION UNIT 7</div>
+  </div>
+  <div class="lobby-grid">
+    <div class="lc" id="btn-create"><div class="lc-icon">📡</div><div class="lc-title">開啟任務</div><div class="lc-desc">建立新的任務房間，取得專屬代碼</div></div>
+    <div class="lc" id="btn-join"><div class="lc-icon">🔐</div><div class="lc-title">加入任務</div><div class="lc-desc">輸入搭檔給你的任務代碼加入</div></div>
+  </div>
+  <div style="margin-top:20px;font-family:var(--mono);font-size:10px;color:var(--tx3);text-align:center;letter-spacing:.1em">研究專用系統 · 所有對話將被記錄用於學術研究</div>
+</div>
+
+<!-- CREATE -->
+<div class="screen" id="sc">
+  <button class="back-btn" id="btn-back-c">返回大廳</button>
+  <div class="rcode-wrap">
+    <div class="rcode-label">你的任務代碼</div>
+    <div class="rcode-val" id="create-code">----</div>
+    <div class="rcode-hint">將此代碼傳給搭檔<br>搭檔加入後將同時進入下一步</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--tx2);margin-top:10px;" id="create-status">等待搭檔連線中...</div>
+    <div class="ring" id="create-ring" style="margin-top:14px;width:50px;height:50px;"></div>
+  </div>
+</div>
+
+<!-- JOIN -->
+<div class="screen" id="sj">
+  <button class="back-btn" id="btn-back-j">返回大廳</button>
+  <div class="icard">
+    <div class="fg">
+      <label class="fl">任務代碼</label>
+      <input class="fi" id="join-code" placeholder="輸入4位數字" maxlength="4" inputmode="numeric">
+    </div>
+    <div class="err" id="join-err"></div>
+    <button class="btn am" id="btn-proceed-j">加入任務 ›</button>
+  </div>
+</div>
+
+<!-- NAME INPUT -->
+<div class="screen" id="sname">
+  <div class="logo">
+    <div class="logo-eye">配對成功</div>
+    <div class="logo-t" style="font-size:28px">輸入<em>姓名</em></div>
+    <div class="logo-s">任務代碼：<span id="name-room-code" style="color:var(--ac);font-family:var(--mono);letter-spacing:.2em">------</span></div>
+  </div>
+  <div class="name-card">
+    <div class="name-connected">
+      <div class="name-dot"></div>
+      <div class="name-conn-txt">搭檔已連線，輸入你的姓名後等待對方</div>
+    </div>
+    <div class="fg">
+      <label class="fl">玩家姓名</label>
+      <input class="fi fi-name" id="name-input" placeholder="輸入你的姓名" maxlength="12">
+    </div>
+    <div class="err" id="name-err"></div>
+    <button class="btn" id="name-submit-btn">確認姓名 ›</button>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);text-align:center;margin-top:12px;" id="name-wait-status"></div>
+  </div>
+</div>
+
+<!-- ROLE SELECT -->
+<div class="screen" id="sr">
+  <div class="role-screen-wrap">
+    <div class="role-header">
+      <div class="role-title">選擇探員身份</div>
+      <div class="timer-wrap">
+        <div class="timer-num" id="timer-num">60</div>
+        <div class="timer-bar-bg"><div class="timer-bar" id="timer-bar" style="width:100%"></div></div>
+        <div class="timer-lbl" id="timer-lbl">秒後隨機分配</div>
+      </div>
+    </div>
+
+    <div class="role-grid">
+      <!-- A -->
+      <div class="role-slot slot-a" id="card-a">
+        <div class="slot-img">
+          <img src="images/char_a.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;"/>
+          <div class="slot-img-lbl" style="position:relative;z-index:1;">AGENT · A</div>
+          <div class="slot-badge-wrap">
+            <div id="badge-a-me" class="badge badge-me" style="display:none">▶ 我的選擇</div>
+            <div id="badge-a-p" class="badge badge-p" style="display:none">搭檔選擇</div>
+          </div>
+        </div>
+        <div class="slot-info">
+          <div>
+            <div class="rc-code a">// 代號：夜鷹 · NIGHTHAWK</div>
+            <div class="rc-iq">IQ 143 · 心理暨犯罪行為分析專家</div>
+            <div class="rc-name">林曉晨</div>
+          </div>
+          <div>
+            <div class="rc-sh">背景檔案</div>
+            <div class="rc-sb">曾任職某國家級情報機構鑑識部門八年，專精現場重建與視覺細節判讀。因連續偵破數起陳年懸案，三年前被影子局秘密徵召。</div>
+          </div>
+          <div>
+            <div class="rc-sh">能力評估</div>
+            <div class="rc-sb">對視覺資訊的記憶與解讀能力遠超常人。習慣在開口前觀察完所有細節，不輕易相信口頭陳述，只信自己親眼看到的。</div>
+          </div>
+          <div class="rc-quote">「她掃過一個房間，能注意到你看了十遍都沒發現的東西。但她需要有人幫她把線索連起來。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
+        </div>
+      </div>
+
+      <div></div><!-- gap -->
+
+      <!-- B -->
+      <div class="role-slot slot-b" id="card-b">
+        <div class="slot-img">
+          <img src="images/char_b.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;"/>
+          <div class="slot-img-lbl" style="position:relative;z-index:1;">AGENT · B</div>
+          <div class="slot-badge-wrap">
+            <div id="badge-b-me" class="badge badge-me" style="display:none">▶ 我的選擇</div>
+            <div id="badge-b-p" class="badge badge-p" style="display:none">搭檔選擇</div>
+          </div>
+        </div>
+        <div class="slot-info">
+          <div>
+            <div class="rc-code b">// 代號：獵犬 · BLOODHOUND</div>
+            <div class="rc-iq">IQ 151 · 邏輯推理暨行為模式分析專家</div>
+            <div class="rc-name">陳宇哲</div>
+          </div>
+          <div>
+            <div class="rc-sh">背景檔案</div>
+            <div class="rc-sb">曾任職某跨國刑事調查機構資深分析師七年，擅長從大量資訊中找出矛盾與異常模式。任職期間破案率達94%，兩年前因案件性質特殊，轉調影子局。</div>
+          </div>
+          <div>
+            <div class="rc-sh">能力評估</div>
+            <div class="rc-sb">思維極度縝密，習慣從資訊缺口切入。對任何「巧合」高度懷疑，需要搭檔補足現場直覺與視覺觀察。</div>
+          </div>
+          <div class="rc-quote">「給他一份報告，他能找出連撰寫者都沒發現的矛盾。但他需要有人告訴他現場實際長什麼樣。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="err" id="role-err"></div>
+    <div class="action-row">
+      <button class="btn" id="btn-confirm-r" disabled>選擇角色後確認 ›</button>
+      <button class="btn rd" id="btn-cancel-r" style="display:none;flex:0 0 auto;width:auto;padding:12px 18px;">取消確認</button>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);text-align:center;margin-top:12px;" id="role-status">請點選你的探員身份</div>
+  </div>
+</div>
+
+<!-- WAITING -->
+<div class="screen" id="sw">
+  <div class="ring"></div>
+  <div style="font-family:var(--mono);font-size:12px;color:var(--ac);letter-spacing:.2em;margin-bottom:10px">配對中</div>
+  <div style="font-size:12px;color:var(--tx2);">任務代碼：<span id="wait-code" style="color:#fff;font-family:var(--mono);font-size:16px;letter-spacing:.2em"></span></div>
+</div>
+
+<!-- INTRO -->
+<div class="intro-ov" id="intro-ov">
+  <div class="intro-tx" id="intro-tx"></div>
+  <div class="intro-prompt" id="intro-prompt">按任意鍵或點擊繼續</div>
+</div>
+
+<!-- GAME -->
+<div class="screen" id="sg">
+  <div class="statusbar">
+    <div class="sdot"></div>
+    <div class="si">探員：<span id="hud-n">-</span></div><div class="sep">|</div>
+    <div class="si">身份：<span id="hud-r">-</span></div><div class="sep">|</div>
+    <div class="si">任務：<span id="hud-m">-</span></div><div class="sep">|</div>
+    <div class="si">代碼：<span id="hud-c">-</span></div>
+  </div>
+  <div class="game-body">
+    <div class="lp">
+      <div class="scene-area">
+        <div class="sc-badge" id="sc-badge">現場畫面</div>
+        <div id="sc-cont" style="width:100%;height:100%;"></div>
+        <div class="sc-cap" id="sc-cap">仔細觀察，與搭檔討論你看到的細節</div>
+      </div>
+      <div class="agent-row">
+        <div class="av" id="ag-av" style="padding:0;overflow:hidden;"><img id="ag-av-img" style="width:100%;height:100%;object-fit:cover;object-position:top;" src=""/></div>
+        <div><div class="ag-code" id="ag-code">-</div><div class="ag-name" id="ag-name">-</div></div>
+      </div>
+      <div class="intel-sec"><div class="il">機密情報</div><div id="intel-list"></div></div>
+      <div class="prog-row">
+        <div class="ps active" id="p1"></div><div class="ps" id="p2"></div><div class="ps" id="p3"></div>
+        <div class="pl" id="pl">關卡 1/3</div>
+      </div>
+      <div class="bot-row">
+        <div class="prow"><div class="pd" id="pdot"></div><span id="plabel">等待搭檔...</span></div>
+        <div class="skip-h">卡關輸入 <span>/skip</span></div>
+      </div>
+    </div>
+    <div class="rp">
+      <div class="msgs" id="msgs"></div>
+      <div class="typew"><div class="typi" id="typi" style="display:none"><span id="tyn">搭檔</span> 正在輸入<div class="tyd"><span></span><span></span><span></span></div></div></div>
+      <div class="ibar">
+        <textarea class="ci" id="ci" rows="1" placeholder="輸入訊息... (Enter送出)　/skip 跳過此關" maxlength="500"></textarea>
+        <button class="sb" id="sb">送出</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REFLECT -->
+<div class="screen" id="srf">
+  <div style="text-align:center;margin-bottom:26px">
+    <div class="logo-eye">行動覆盤</div>
+    <div class="logo-t" style="font-size:28px">覆<em>盤</em></div>
+  </div>
+  <div class="rfw">
+    <div class="rq"><div class="rqn">Q1</div><div class="rqt">在這次任務中，你最依賴搭檔的哪一刻？為什麼？</div><textarea class="fi" id="rq1" placeholder="描述那個時刻..."></textarea></div>
+    <div class="rq"><div class="rqn">Q2</div><div class="rqt">你和搭檔有沒有意見不同的時候？你們是怎麼處理的？</div><textarea class="fi" id="rq2" placeholder="描述分歧與過程..."></textarea></div>
+    <div class="rq"><div class="rqn">Q3</div><div class="rqt">局長的介入有沒有讓你重新思考什麼？如果沒有局長，結果會不同嗎？</div><textarea class="fi" id="rq3" placeholder="反思局長的角色..."></textarea></div>
+    <div class="rq"><div class="rqn">Q4</div><div class="rqt">如果重來一次，你會怎麼改變你們合作的方式？</div><textarea class="fi" id="rq4" placeholder="改進建議..."></textarea></div>
+    <button class="btn" id="btn-submit-rf">提交覆盤報告 ›</button>
+    <div class="err" id="rf-err"></div>
+  </div>
+</div>
+
+<!-- END -->
+<div class="screen" id="se">
+  <div class="logo"><div class="logo-eye">行動完成</div><div class="logo-t" style="font-size:36px">任<em>務</em>達成</div></div>
+  <div class="icard" style="text-align:center;max-width:320px">
+    <div style="font-size:42px;margin-bottom:14px">🏆</div>
+    <div style="font-family:var(--mono);font-size:14px;color:var(--gn);margin-bottom:9px;letter-spacing:.1em">MISSION COMPLETE</div>
+    <div style="font-size:12px;color:var(--tx2);line-height:1.9">感謝你參與本次研究<br>資料已安全回傳至影子局<br><br>任務代碼：<span style="color:var(--ac);font-family:var(--mono)" id="end-code">-</span></div>
+  </div>
+</div>
+
+<!-- MISSION OVERLAY -->
+<div class="ov" id="mov">
+  <div class="ov-icon" id="ov-ic">✅</div>
+  <div class="ov-title" id="ov-ti">關卡完成</div>
+  <div class="ov-sub" id="ov-su"></div>
+  <div class="ov-ans" id="ov-an" style="display:none"><div class="ov-al">正確解答</div><div id="ov-ant"></div></div>
+  <button class="btn" style="max-width:220px" id="btn-next-m">繼續任務 ›</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- SCENES -->
+<script>
+var SCENES={
+  1:{
+    A:'<img src="images/m1_corridor.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>',
+    B:'<img src="images/m1_transcript.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>'
+  },
+  2:{
+    A:'<img src="images/m2_office.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>',
+    B:'<img src="images/m2_docs.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>'
+  },
+  3:{
+    A:'<img src="images/m3_floor.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>',
+    B:'<div id="m3-docs" style="display:flex;flex-direction:column;width:100%;height:100%;background:#08101a;"><div id="doc-display" style="flex:1;overflow-y:auto;padding:12px;background:#0b1219;border:1px solid #1a3050;margin:8px;border-radius:4px;font-family:monospace;font-size:10px;color:#7090b0;"><div style="color:#ffb700;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #1a3050;">// 請選擇文件查閱</div><span style="color:#2a4060;">共 7 份文件。並非所有文件都與任務相關。</span></div><div id="doc-list" style="display:flex;flex-direction:column;padding:8px;border-top:1px solid #1a3050;overflow-y:auto;max-height:45%;"></div></div>'<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>影子局 — 機密行動</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c12;--s1:#0f1520;--s2:#162030;--s3:#1e2d42;
+  --b1:#1a3050;--b2:#254070;
+  --ac:#00c8ff;--am:#ffb700;--gn:#00e87a;--rd:#ff3355;
+  --tx:#b8cce0;--tx2:#7090b0;--tx3:#405870;
+  --mono:"Share Tech Mono",monospace;--body:"Noto Sans TC",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:var(--body);min-height:100vh;}
+body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,200,255,.005) 3px,rgba(0,200,255,.005) 4px);pointer-events:none;z-index:9999;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+
+.screen{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+.screen.active{display:flex;}
+#sg{display:none;flex-direction:column;height:100vh;padding:0;overflow:hidden;}
+#sg.active{display:flex;align-items:stretch;}
+
+/* LOGO */
+.logo{text-align:center;margin-bottom:36px;}
+.logo-eye{font-family:var(--mono);font-size:11px;color:var(--ac);letter-spacing:.4em;margin-bottom:8px;opacity:.7;}
+.logo-t{font-family:var(--mono);font-size:clamp(28px,5vw,50px);color:#fff;letter-spacing:.08em;}
+.logo-t em{color:var(--ac);font-style:normal;}
+.logo-s{font-size:12px;color:var(--tx2);margin-top:8px;letter-spacing:.15em;}
+
+/* BACK BTN */
+.back-btn{display:inline-flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b2);color:var(--tx);font-family:var(--mono);font-size:12px;letter-spacing:.1em;padding:10px 18px;border-radius:4px;cursor:pointer;margin-bottom:22px;transition:all .2s;}
+.back-btn:hover{border-color:var(--ac);color:var(--ac);}
+.back-btn::before{content:"←  ";}
+
+/* LOBBY */
+.lobby-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:520px;}
+.lc{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:28px;cursor:pointer;transition:all .2s;text-align:center;position:relative;overflow:hidden;}
+.lc::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--ac),transparent);opacity:0;transition:opacity .2s;}
+.lc:hover{border-color:var(--ac);transform:translateY(-2px);}.lc:hover::before{opacity:1;}
+.lc-icon{font-size:34px;margin-bottom:10px;}
+.lc-title{font-family:var(--mono);font-size:13px;color:#fff;letter-spacing:.1em;margin-bottom:6px;}
+.lc-desc{font-size:12px;color:var(--tx2);line-height:1.6;}
+
+/* ICARD */
+.icard{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:26px 30px;width:100%;max-width:400px;position:relative;}
+.icard::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--ac),transparent);}
+.fl{font-family:var(--mono);font-size:10px;color:var(--ac);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;display:block;}
+.fi{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:4px;color:#fff;font-family:var(--mono);font-size:16px;padding:11px 15px;outline:none;letter-spacing:.15em;transition:border-color .2s;}
+.fi:focus{border-color:var(--ac);}
+.fi::placeholder{color:var(--tx3);font-size:12px;letter-spacing:.05em;}
+.fg{margin-bottom:16px;}
+.fi-name{letter-spacing:.05em;font-size:14px;}
+
+/* ROOM CODE */
+.rcode-wrap{background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:26px 30px;text-align:center;width:100%;max-width:360px;position:relative;}
+.rcode-wrap::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--am),transparent);}
+.rcode-label{font-family:var(--mono);font-size:10px;color:var(--tx2);letter-spacing:.25em;margin-bottom:12px;}
+.rcode-val{font-family:var(--mono);font-size:40px;color:var(--ac);letter-spacing:.25em;margin-bottom:14px;text-shadow:0 0 20px rgba(0,200,255,.3);}
+.rcode-hint{font-size:12px;color:var(--tx2);margin-bottom:18px;line-height:1.6;}
+
+/* BUTTONS */
+.btn{display:block;width:100%;background:transparent;border:1px solid var(--ac);color:var(--ac);font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;padding:12px;cursor:pointer;border-radius:4px;transition:all .2s;}
+.btn:hover{background:rgba(0,200,255,.08);}
+.btn.am{border-color:var(--am);color:var(--am);}.btn.am:hover{background:rgba(255,183,0,.08);}
+.btn.rd{border-color:var(--rd);color:var(--rd);}.btn.rd:hover{background:rgba(255,51,85,.08);}
+.btn.gn{border-color:var(--gn);color:var(--gn);}.btn.gn:hover{background:rgba(0,232,122,.08);}
+.btn:disabled{opacity:.3;cursor:not-allowed;}
+.btn+.btn{margin-top:10px;}
+.err{color:var(--rd);font-family:var(--mono);font-size:11px;margin-top:8px;min-height:16px;}
+
+/* WAITING */
+.ring{width:68px;height:68px;margin:0 auto 20px;border:2px solid var(--b2);border-top-color:var(--ac);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* NAME INPUT */
+.name-card{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:26px 30px;width:100%;max-width:420px;position:relative;}
+.name-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gn),transparent);}
+.name-connected{display:flex;align-items:center;gap:8px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--b1);}
+.name-dot{width:8px;height:8px;border-radius:50%;background:var(--gn);animation:pulse 2s infinite;}
+.name-conn-txt{font-family:var(--mono);font-size:11px;color:var(--tx2);letter-spacing:.1em;}
+
+/* TIMER */
+.timer-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.timer-bar-bg{width:180px;height:5px;background:var(--s3);border-radius:3px;overflow:hidden;}
+.timer-bar{height:100%;border-radius:3px;background:var(--ac);transition:width .5s linear,background .5s;}
+.timer-bar.warn{background:var(--am);}.timer-bar.danger{background:var(--rd);}
+.timer-num{font-family:var(--mono);font-size:20px;color:var(--ac);letter-spacing:.1em;transition:color .5s;}
+.timer-num.warn{color:var(--am);}.timer-num.danger{color:var(--rd);}
+.timer-lbl{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.15em;}
+
+/* ROLE SELECT */
+.role-screen-wrap{width:100%;max-width:1100px;display:flex;flex-direction:column;align-items:center;}
+.role-header{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:24px;}
+.role-title{font-family:var(--mono);font-size:11px;color:var(--tx2);letter-spacing:.25em;text-transform:uppercase;}
+
+/* Cards grid */
+.role-grid{display:grid;grid-template-columns:1fr 20px 1fr;width:100%;margin-bottom:18px;align-items:start;}
+
+/* Role card: image | info */
+.role-slot{display:flex;border:1px solid var(--b1);border-radius:8px;overflow:hidden;
+  cursor:pointer;transition:transform .3s ease,filter .3s ease,border-color .3s ease;
+  filter:brightness(.55);min-height:380px;}
+.role-slot:hover{filter:brightness(.8);transform:scale(1.015);}
+.role-slot.me-sel{filter:brightness(1);transform:scale(1.02);border-color:var(--ac);}
+.role-slot.p-sel{filter:brightness(.75);border-color:var(--am);}
+.role-slot.both-sel{filter:brightness(1);transform:scale(1.02);border-color:var(--ac);
+  box-shadow:inset 0 0 0 2px var(--am);}
+.role-slot.me-conf{filter:brightness(1.05);transform:scale(1.02);border-color:var(--gn);
+  box-shadow:0 0 24px rgba(0,232,122,.25);}
+
+/* Image col */
+.slot-img{width:190px;flex-shrink:0;background:var(--s2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;position:relative;overflow:hidden;}
+.slot-img-ph{font-size:72px;opacity:.18;}
+.slot-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.slot-img-lbl{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.15em;z-index:1;}
+.slot-badge-wrap{position:absolute;bottom:10px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:4px;z-index:2;}
+.badge{font-family:var(--mono);font-size:9px;padding:4px 12px;border-radius:99px;letter-spacing:.08em;font-weight:700;}
+.badge-me{background:rgba(0,200,255,.9);color:#000;}
+.badge-p{background:rgba(255,183,0,.9);color:#000;}
+.badge-conf{background:rgba(0,232,122,.9);color:#000;}
+
+/* Info col */
+.slot-info{flex:1;background:var(--s1);padding:20px 18px;display:flex;flex-direction:column;gap:10px;min-width:0;overflow:hidden;}
+.rc-code{font-family:var(--mono);font-size:10px;letter-spacing:.12em;}
+.rc-code.a{color:var(--ac);}.rc-code.b{color:var(--am);}
+.rc-iq{font-family:var(--mono);font-size:9px;color:var(--tx3);margin-top:1px;}
+.rc-name{font-size:18px;font-weight:700;color:#fff;padding-bottom:10px;border-bottom:1px solid var(--b1);margin-bottom:2px;}
+.rc-sh{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.15em;margin-bottom:4px;}
+.rc-sb{font-size:11.5px;color:var(--tx2);line-height:1.75;}
+.rc-quote{font-size:11px;color:var(--tx2);line-height:1.75;font-style:italic;border-left:2px solid var(--b2);padding-left:10px;margin-top:auto;}
+
+/* Action row */
+.action-row{display:flex;gap:10px;width:100%;}
+.action-row .btn{flex:1;}
+
+/* INTRO */
+.intro-ov{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;flex-direction:column;align-items:center;justify-content:center;padding:48px;}
+.intro-ov.on{display:flex;}
+.intro-tx{font-family:var(--mono);font-size:14px;color:var(--tx);line-height:2.4;max-width:600px;white-space:pre-wrap;}
+.cur{display:inline-block;width:9px;height:15px;background:var(--ac);animation:blink .7s infinite;vertical-align:middle;margin-left:2px;}
+.intro-prompt{display:none;margin-top:30px;font-family:var(--mono);font-size:11px;color:var(--tx3);letter-spacing:.2em;animation:blink .7s infinite;}
+
+/* STATUS BAR */
+.statusbar{background:var(--s1);border-bottom:1px solid var(--b1);padding:9px 20px;display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:10px;flex-shrink:0;}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--gn);animation:pulse 2s infinite;}
+.si{color:var(--tx2);}.si span{color:var(--tx);}.sep{color:var(--b2);}
+
+/* GAME */
+.game-body{display:flex;flex:1;overflow:hidden;}
+.lp{width:40%;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;}
+.scene-area{flex:1;position:relative;overflow:hidden;background:var(--bg);min-height:0;}
+.sc-badge{position:absolute;top:10px;left:10px;background:rgba(8,12,18,.85);border:1px solid var(--b2);border-radius:3px;padding:3px 10px;font-family:var(--mono);font-size:9px;color:var(--ac);letter-spacing:.2em;z-index:10;}
+.sc-cap{position:absolute;bottom:0;left:0;right:0;padding:10px 14px;background:linear-gradient(transparent,rgba(8,12,18,.9));font-family:var(--mono);font-size:9px;color:var(--tx2);letter-spacing:.1em;}
+.agent-row{flex-shrink:0;border-top:1px solid var(--b1);padding:11px 14px;display:flex;align-items:center;gap:10px;}
+.av{width:42px;height:42px;border-radius:4px;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:18px;opacity:.5;flex-shrink:0;}
+.ag-code{font-family:var(--mono);font-size:9px;letter-spacing:.12em;margin-bottom:2px;}
+.ag-code.a{color:var(--ac);}.ag-code.b{color:var(--am);}
+.ag-name{font-size:14px;font-weight:700;color:#fff;}
+.intel-sec{flex-shrink:0;border-top:1px solid var(--b1);padding:10px 14px;max-height:160px;overflow-y:auto;}
+.il{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.12em;margin-bottom:7px;}
+.ii{font-size:12px;color:var(--tx);line-height:1.6;padding:5px 10px;background:var(--s2);border-left:2px solid var(--ac);border-radius:0 3px 3px 0;margin-bottom:4px;}
+.prog-row{flex-shrink:0;border-top:1px solid var(--b1);padding:8px 14px;display:flex;gap:5px;align-items:center;}
+.ps{flex:1;height:3px;border-radius:2px;background:var(--s3);}
+.ps.done{background:var(--gn);}.ps.active{background:var(--ac);animation:blink 1.5s infinite;}
+.pl{font-family:var(--mono);font-size:9px;color:var(--tx2);white-space:nowrap;}
+.bot-row{flex-shrink:0;border-top:1px solid var(--b1);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;}
+.prow{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);}
+.pd{width:7px;height:7px;border-radius:50%;background:var(--gn);}.pd.off{background:var(--rd);}
+.skip-h{font-family:var(--mono);font-size:9px;color:var(--tx3);}.skip-h span{color:var(--am);}
+
+/* CHAT */
+.rp{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.msgs{flex:1;overflow-y:auto;padding:16px 18px 8px;display:flex;flex-direction:column;gap:10px;}
+.msg{display:flex;flex-direction:column;gap:3px;max-width:76%;}
+.msg.me{align-self:flex-end;align-items:flex-end;}
+.msg.them{align-self:flex-start;}
+.msg.ai{align-self:stretch;max-width:100%;}
+.msg.sys{align-self:center;max-width:100%;}
+.mm{font-family:var(--mono);font-size:9px;color:var(--tx3);}
+.mb{padding:10px 14px;border-radius:4px;font-size:13px;line-height:1.65;}
+.msg.me .mb{background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.25);color:#ddeeff;border-radius:12px 4px 4px 12px;}
+.msg.them .mb{background:rgba(255,183,0,.08);border:1px solid rgba(255,183,0,.22);color:#fff5d0;border-radius:4px 12px 12px 4px;}
+.msg.ai .mb{background:var(--s2);border:1px solid var(--b1);border-left:3px solid var(--rd);color:var(--tx);border-radius:0 4px 4px 0;}
+.aih{font-family:var(--mono);font-size:9px;color:var(--rd);letter-spacing:.2em;margin-bottom:5px;}
+.msg.sys .mb{background:transparent;border:1px dashed var(--b2);color:var(--tx2);font-family:var(--mono);font-size:10px;text-align:center;padding:7px 14px;border-radius:3px;}
+.typew{padding:0 18px 5px;min-height:20px;}
+.typi{font-family:var(--mono);font-size:10px;color:var(--am);display:flex;align-items:center;gap:5px;}
+.tyd span{display:inline-block;width:3px;height:3px;background:var(--am);border-radius:50%;animation:tdot 1.2s infinite;}
+.tyd span:nth-child(2){animation-delay:.2s;}.tyd span:nth-child(3){animation-delay:.4s;}
+@keyframes tdot{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}}
+.ibar{padding:12px 18px;border-top:1px solid var(--b1);background:var(--s1);display:flex;gap:10px;align-items:flex-end;flex-shrink:0;}
+.ci{flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:4px;color:#fff;font-family:var(--body);font-size:13px;padding:9px 13px;outline:none;resize:none;line-height:1.5;max-height:90px;transition:border-color .2s;}
+.ci:focus{border-color:var(--ac);}
+.ci::placeholder{color:var(--tx3);}
+.sb{background:var(--ac);border:none;color:var(--bg);font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:9px 16px;cursor:pointer;border-radius:4px;white-space:nowrap;align-self:flex-end;font-weight:700;}
+.sb:hover{opacity:.85;}
+
+/* OVERLAY */
+.ov{display:none;position:fixed;inset:0;background:rgba(8,12,18,.95);z-index:1000;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px;}
+.ov.on{display:flex;}
+.ov-icon{font-size:50px;margin-bottom:14px;}
+.ov-title{font-family:var(--mono);font-size:22px;color:var(--ac);letter-spacing:.15em;margin-bottom:10px;}
+.ov-sub{color:var(--tx2);font-size:13px;margin-bottom:18px;line-height:1.8;max-width:460px;}
+.ov-ans{background:var(--s1);border:1px solid var(--am);border-radius:6px;padding:14px 18px;margin-bottom:18px;font-size:12px;color:var(--tx);line-height:1.8;max-width:460px;text-align:left;}
+.ov-al{font-family:var(--mono);font-size:9px;color:var(--am);letter-spacing:.2em;margin-bottom:7px;}
+
+/* REFLECT */
+.rfw{width:100%;max-width:560px;}
+.rq{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:18px;margin-bottom:12px;}
+.rqn{font-family:var(--mono);font-size:9px;color:var(--ac);letter-spacing:.2em;margin-bottom:5px;}
+.rqt{font-size:13px;color:#fff;margin-bottom:9px;line-height:1.6;}
+textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--s2);border:1px solid var(--ac);color:var(--ac);font-family:var(--mono);font-size:11px;padding:9px 16px;border-radius:4px;z-index:9000;transform:translateY(14px);opacity:0;transition:all .3s;pointer-events:none;}
+.toast.on{transform:translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- LOBBY -->
+<div class="screen active" id="sl">
+  <div class="logo">
+    <div class="logo-eye">classified · eyes only</div>
+    <div class="logo-t">影<em>子</em>局</div>
+    <div class="logo-s">SHADOW BUREAU · OPERATION UNIT 7</div>
+  </div>
+  <div class="lobby-grid">
+    <div class="lc" id="btn-create"><div class="lc-icon">📡</div><div class="lc-title">開啟任務</div><div class="lc-desc">建立新的任務房間，取得專屬代碼</div></div>
+    <div class="lc" id="btn-join"><div class="lc-icon">🔐</div><div class="lc-title">加入任務</div><div class="lc-desc">輸入搭檔給你的任務代碼加入</div></div>
+  </div>
+  <div style="margin-top:20px;font-family:var(--mono);font-size:10px;color:var(--tx3);text-align:center;letter-spacing:.1em">研究專用系統 · 所有對話將被記錄用於學術研究</div>
+</div>
+
+<!-- CREATE -->
+<div class="screen" id="sc">
+  <button class="back-btn" id="btn-back-c">返回大廳</button>
+  <div class="rcode-wrap">
+    <div class="rcode-label">你的任務代碼</div>
+    <div class="rcode-val" id="create-code">----</div>
+    <div class="rcode-hint">將此代碼傳給搭檔<br>搭檔加入後將同時進入下一步</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--tx2);margin-top:10px;" id="create-status">等待搭檔連線中...</div>
+    <div class="ring" id="create-ring" style="margin-top:14px;width:50px;height:50px;"></div>
+  </div>
+</div>
+
+<!-- JOIN -->
+<div class="screen" id="sj">
+  <button class="back-btn" id="btn-back-j">返回大廳</button>
+  <div class="icard">
+    <div class="fg">
+      <label class="fl">任務代碼</label>
+      <input class="fi" id="join-code" placeholder="輸入4位數字" maxlength="4" inputmode="numeric">
+    </div>
+    <div class="err" id="join-err"></div>
+    <button class="btn am" id="btn-proceed-j">加入任務 ›</button>
+  </div>
+</div>
+
+<!-- NAME INPUT -->
+<div class="screen" id="sname">
+  <div class="logo">
+    <div class="logo-eye">配對成功</div>
+    <div class="logo-t" style="font-size:28px">輸入<em>姓名</em></div>
+    <div class="logo-s">任務代碼：<span id="name-room-code" style="color:var(--ac);font-family:var(--mono);letter-spacing:.2em">------</span></div>
+  </div>
+  <div class="name-card">
+    <div class="name-connected">
+      <div class="name-dot"></div>
+      <div class="name-conn-txt">搭檔已連線，輸入你的姓名後等待對方</div>
+    </div>
+    <div class="fg">
+      <label class="fl">玩家姓名</label>
+      <input class="fi fi-name" id="name-input" placeholder="輸入你的姓名" maxlength="12">
+    </div>
+    <div class="err" id="name-err"></div>
+    <button class="btn" id="name-submit-btn">確認姓名 ›</button>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);text-align:center;margin-top:12px;" id="name-wait-status"></div>
+  </div>
+</div>
+
+<!-- ROLE SELECT -->
+<div class="screen" id="sr">
+  <div class="role-screen-wrap">
+    <div class="role-header">
+      <div class="role-title">選擇探員身份</div>
+      <div class="timer-wrap">
+        <div class="timer-num" id="timer-num">60</div>
+        <div class="timer-bar-bg"><div class="timer-bar" id="timer-bar" style="width:100%"></div></div>
+        <div class="timer-lbl" id="timer-lbl">秒後隨機分配</div>
+      </div>
+    </div>
+
+    <div class="role-grid">
+      <!-- A -->
+      <div class="role-slot slot-a" id="card-a">
+        <div class="slot-img">
+          <img src="images/char_a.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;"/>
+          <div class="slot-img-lbl" style="position:relative;z-index:1;">AGENT · A</div>
+          <div class="slot-badge-wrap">
+            <div id="badge-a-me" class="badge badge-me" style="display:none">▶ 我的選擇</div>
+            <div id="badge-a-p" class="badge badge-p" style="display:none">搭檔選擇</div>
+          </div>
+        </div>
+        <div class="slot-info">
+          <div>
+            <div class="rc-code a">// 代號：夜鷹 · NIGHTHAWK</div>
+            <div class="rc-iq">IQ 143 · 心理暨犯罪行為分析專家</div>
+            <div class="rc-name">林曉晨</div>
+          </div>
+          <div>
+            <div class="rc-sh">背景檔案</div>
+            <div class="rc-sb">曾任職某國家級情報機構鑑識部門八年，專精現場重建與視覺細節判讀。因連續偵破數起陳年懸案，三年前被影子局秘密徵召。</div>
+          </div>
+          <div>
+            <div class="rc-sh">能力評估</div>
+            <div class="rc-sb">對視覺資訊的記憶與解讀能力遠超常人。習慣在開口前觀察完所有細節，不輕易相信口頭陳述，只信自己親眼看到的。</div>
+          </div>
+          <div class="rc-quote">「她掃過一個房間，能注意到你看了十遍都沒發現的東西。但她需要有人幫她把線索連起來。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
+        </div>
+      </div>
+
+      <div></div><!-- gap -->
+
+      <!-- B -->
+      <div class="role-slot slot-b" id="card-b">
+        <div class="slot-img">
+          <img src="images/char_b.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;"/>
+          <div class="slot-img-lbl" style="position:relative;z-index:1;">AGENT · B</div>
+          <div class="slot-badge-wrap">
+            <div id="badge-b-me" class="badge badge-me" style="display:none">▶ 我的選擇</div>
+            <div id="badge-b-p" class="badge badge-p" style="display:none">搭檔選擇</div>
+          </div>
+        </div>
+        <div class="slot-info">
+          <div>
+            <div class="rc-code b">// 代號：獵犬 · BLOODHOUND</div>
+            <div class="rc-iq">IQ 151 · 邏輯推理暨行為模式分析專家</div>
+            <div class="rc-name">陳宇哲</div>
+          </div>
+          <div>
+            <div class="rc-sh">背景檔案</div>
+            <div class="rc-sb">曾任職某跨國刑事調查機構資深分析師七年，擅長從大量資訊中找出矛盾與異常模式。任職期間破案率達94%，兩年前因案件性質特殊，轉調影子局。</div>
+          </div>
+          <div>
+            <div class="rc-sh">能力評估</div>
+            <div class="rc-sb">思維極度縝密，習慣從資訊缺口切入。對任何「巧合」高度懷疑，需要搭檔補足現場直覺與視覺觀察。</div>
+          </div>
+          <div class="rc-quote">「給他一份報告，他能找出連撰寫者都沒發現的矛盾。但他需要有人告訴他現場實際長什麼樣。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="err" id="role-err"></div>
+    <div class="action-row">
+      <button class="btn" id="btn-confirm-r" disabled>選擇角色後確認 ›</button>
+      <button class="btn rd" id="btn-cancel-r" style="display:none;flex:0 0 auto;width:auto;padding:12px 18px;">取消確認</button>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);text-align:center;margin-top:12px;" id="role-status">請點選你的探員身份</div>
+  </div>
+</div>
+
+<!-- WAITING -->
+<div class="screen" id="sw">
+  <div class="ring"></div>
+  <div style="font-family:var(--mono);font-size:12px;color:var(--ac);letter-spacing:.2em;margin-bottom:10px">配對中</div>
+  <div style="font-size:12px;color:var(--tx2);">任務代碼：<span id="wait-code" style="color:#fff;font-family:var(--mono);font-size:16px;letter-spacing:.2em"></span></div>
+</div>
+
+<!-- INTRO -->
+<div class="intro-ov" id="intro-ov">
+  <div class="intro-tx" id="intro-tx"></div>
+  <div class="intro-prompt" id="intro-prompt">按任意鍵或點擊繼續</div>
+</div>
+
+<!-- GAME -->
+<div class="screen" id="sg">
+  <div class="statusbar">
+    <div class="sdot"></div>
+    <div class="si">探員：<span id="hud-n">-</span></div><div class="sep">|</div>
+    <div class="si">身份：<span id="hud-r">-</span></div><div class="sep">|</div>
+    <div class="si">任務：<span id="hud-m">-</span></div><div class="sep">|</div>
+    <div class="si">代碼：<span id="hud-c">-</span></div>
+  </div>
+  <div class="game-body">
+    <div class="lp">
+      <div class="scene-area">
+        <div class="sc-badge" id="sc-badge">現場畫面</div>
+        <div id="sc-cont" style="width:100%;height:100%;"></div>
+        <div class="sc-cap" id="sc-cap">仔細觀察，與搭檔討論你看到的細節</div>
+      </div>
+      <div class="agent-row">
+        <div class="av" id="ag-av" style="padding:0;overflow:hidden;"><img id="ag-av-img" style="width:100%;height:100%;object-fit:cover;object-position:top;" src=""/></div>
+        <div><div class="ag-code" id="ag-code">-</div><div class="ag-name" id="ag-name">-</div></div>
+      </div>
+      <div class="intel-sec"><div class="il">機密情報</div><div id="intel-list"></div></div>
+      <div class="prog-row">
+        <div class="ps active" id="p1"></div><div class="ps" id="p2"></div><div class="ps" id="p3"></div>
+        <div class="pl" id="pl">關卡 1/3</div>
+      </div>
+      <div class="bot-row">
+        <div class="prow"><div class="pd" id="pdot"></div><span id="plabel">等待搭檔...</span></div>
+        <div class="skip-h">卡關輸入 <span>/skip</span></div>
+      </div>
+    </div>
+    <div class="rp">
+      <div class="msgs" id="msgs"></div>
+      <div class="typew"><div class="typi" id="typi" style="display:none"><span id="tyn">搭檔</span> 正在輸入<div class="tyd"><span></span><span></span><span></span></div></div></div>
+      <div class="ibar">
+        <textarea class="ci" id="ci" rows="1" placeholder="輸入訊息... (Enter送出)　/skip 跳過此關" maxlength="500"></textarea>
+        <button class="sb" id="sb">送出</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REFLECT -->
+<div class="screen" id="srf">
+  <div style="text-align:center;margin-bottom:26px">
+    <div class="logo-eye">行動覆盤</div>
+    <div class="logo-t" style="font-size:28px">覆<em>盤</em></div>
+  </div>
+  <div class="rfw">
+    <div class="rq"><div class="rqn">Q1</div><div class="rqt">在這次任務中，你最依賴搭檔的哪一刻？為什麼？</div><textarea class="fi" id="rq1" placeholder="描述那個時刻..."></textarea></div>
+    <div class="rq"><div class="rqn">Q2</div><div class="rqt">你和搭檔有沒有意見不同的時候？你們是怎麼處理的？</div><textarea class="fi" id="rq2" placeholder="描述分歧與過程..."></textarea></div>
+    <div class="rq"><div class="rqn">Q3</div><div class="rqt">局長的介入有沒有讓你重新思考什麼？如果沒有局長，結果會不同嗎？</div><textarea class="fi" id="rq3" placeholder="反思局長的角色..."></textarea></div>
+    <div class="rq"><div class="rqn">Q4</div><div class="rqt">如果重來一次，你會怎麼改變你們合作的方式？</div><textarea class="fi" id="rq4" placeholder="改進建議..."></textarea></div>
+    <button class="btn" id="btn-submit-rf">提交覆盤報告 ›</button>
+    <div class="err" id="rf-err"></div>
+  </div>
+</div>
+
+<!-- END -->
+<div class="screen" id="se">
+  <div class="logo"><div class="logo-eye">行動完成</div><div class="logo-t" style="font-size:36px">任<em>務</em>達成</div></div>
+  <div class="icard" style="text-align:center;max-width:320px">
+    <div style="font-size:42px;margin-bottom:14px">🏆</div>
+    <div style="font-family:var(--mono);font-size:14px;color:var(--gn);margin-bottom:9px;letter-spacing:.1em">MISSION COMPLETE</div>
+    <div style="font-size:12px;color:var(--tx2);line-height:1.9">感謝你參與本次研究<br>資料已安全回傳至影子局<br><br>任務代碼：<span style="color:var(--ac);font-family:var(--mono)" id="end-code">-</span></div>
+  </div>
+</div>
+
+<!-- MISSION OVERLAY -->
+<div class="ov" id="mov">
+  <div class="ov-icon" id="ov-ic">✅</div>
+  <div class="ov-title" id="ov-ti">關卡完成</div>
+  <div class="ov-sub" id="ov-su"></div>
+  <div class="ov-ans" id="ov-an" style="display:none"><div class="ov-al">正確解答</div><div id="ov-ant"></div></div>
+  <button class="btn" style="max-width:220px" id="btn-next-m">繼續任務 ›</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- SCENES -->
+<script>
+var SCENES={
+  1:{
+    A:'<img src="images/m1_corridor.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>',
+    B:'<img src="images/m1_transcript.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>'
+  },
+  2:{
+    A:'<img src="images/m2_office.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>',
+    B:'<img src="images/m2_docs.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>'
+  },
+  3:{
+    A:'<img src="images/m3_floor.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>',
+    B:'<div id="m3-docs" style="display:flex;flex-direction:column;width:100%;height:100%;background:#08101a;"><div id="doc-display" style="flex:1;overflow-y:auto;padding:12px;background:#0b1219;border:1px solid #1a3050;margin:8px;border-radius:4px;font-family:monospace;font-size:10px;color:#7090b0;"><div style="color:#ffb700;margin-bottom:8px;">// 請選擇文件查閱</div><span style="color:#2a4060;">共 7 份文件。並非所有文件都與任務相關。</span></div><div id="doc-list" style="display:flex;flex-direction:column;gap:4px;padding:8px;border-top:1px solid #1a3050;overflow-y:auto;max-height:200px;"></div></div>'<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>影子局 — 機密行動</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c12;--s1:#0f1520;--s2:#162030;--s3:#1e2d42;
+  --b1:#1a3050;--b2:#254070;
+  --ac:#00c8ff;--am:#ffb700;--gn:#00e87a;--rd:#ff3355;
+  --tx:#b8cce0;--tx2:#7090b0;--tx3:#405870;
+  --mono:"Share Tech Mono",monospace;--body:"Noto Sans TC",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:var(--body);min-height:100vh;}
+body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,200,255,.005) 3px,rgba(0,200,255,.005) 4px);pointer-events:none;z-index:9999;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+
+.screen{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+.screen.active{display:flex;}
+#sg{display:none;flex-direction:column;height:100vh;padding:0;overflow:hidden;}
+#sg.active{display:flex;align-items:stretch;}
+
+/* LOGO */
+.logo{text-align:center;margin-bottom:36px;}
+.logo-eye{font-family:var(--mono);font-size:11px;color:var(--ac);letter-spacing:.4em;margin-bottom:8px;opacity:.7;}
+.logo-t{font-family:var(--mono);font-size:clamp(28px,5vw,50px);color:#fff;letter-spacing:.08em;}
+.logo-t em{color:var(--ac);font-style:normal;}
+.logo-s{font-size:12px;color:var(--tx2);margin-top:8px;letter-spacing:.15em;}
+
+/* BACK BTN */
+.back-btn{display:inline-flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b2);color:var(--tx);font-family:var(--mono);font-size:12px;letter-spacing:.1em;padding:10px 18px;border-radius:4px;cursor:pointer;margin-bottom:22px;transition:all .2s;}
+.back-btn:hover{border-color:var(--ac);color:var(--ac);}
+.back-btn::before{content:"←  ";}
+
+/* LOBBY */
+.lobby-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:520px;}
+.lc{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:28px;cursor:pointer;transition:all .2s;text-align:center;position:relative;overflow:hidden;}
+.lc::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--ac),transparent);opacity:0;transition:opacity .2s;}
+.lc:hover{border-color:var(--ac);transform:translateY(-2px);}.lc:hover::before{opacity:1;}
+.lc-icon{font-size:34px;margin-bottom:10px;}
+.lc-title{font-family:var(--mono);font-size:13px;color:#fff;letter-spacing:.1em;margin-bottom:6px;}
+.lc-desc{font-size:12px;color:var(--tx2);line-height:1.6;}
+
+/* ICARD */
+.icard{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:26px 30px;width:100%;max-width:400px;position:relative;}
+.icard::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--ac),transparent);}
+.fl{font-family:var(--mono);font-size:10px;color:var(--ac);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;display:block;}
+.fi{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:4px;color:#fff;font-family:var(--mono);font-size:16px;padding:11px 15px;outline:none;letter-spacing:.15em;transition:border-color .2s;}
+.fi:focus{border-color:var(--ac);}
+.fi::placeholder{color:var(--tx3);font-size:12px;letter-spacing:.05em;}
+.fg{margin-bottom:16px;}
+.fi-name{letter-spacing:.05em;font-size:14px;}
+
+/* ROOM CODE */
+.rcode-wrap{background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:26px 30px;text-align:center;width:100%;max-width:360px;position:relative;}
+.rcode-wrap::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--am),transparent);}
+.rcode-label{font-family:var(--mono);font-size:10px;color:var(--tx2);letter-spacing:.25em;margin-bottom:12px;}
+.rcode-val{font-family:var(--mono);font-size:40px;color:var(--ac);letter-spacing:.25em;margin-bottom:14px;text-shadow:0 0 20px rgba(0,200,255,.3);}
+.rcode-hint{font-size:12px;color:var(--tx2);margin-bottom:18px;line-height:1.6;}
+
+/* BUTTONS */
+.btn{display:block;width:100%;background:transparent;border:1px solid var(--ac);color:var(--ac);font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;padding:12px;cursor:pointer;border-radius:4px;transition:all .2s;}
+.btn:hover{background:rgba(0,200,255,.08);}
+.btn.am{border-color:var(--am);color:var(--am);}.btn.am:hover{background:rgba(255,183,0,.08);}
+.btn.rd{border-color:var(--rd);color:var(--rd);}.btn.rd:hover{background:rgba(255,51,85,.08);}
+.btn.gn{border-color:var(--gn);color:var(--gn);}.btn.gn:hover{background:rgba(0,232,122,.08);}
+.btn:disabled{opacity:.3;cursor:not-allowed;}
+.btn+.btn{margin-top:10px;}
+.err{color:var(--rd);font-family:var(--mono);font-size:11px;margin-top:8px;min-height:16px;}
+
+/* WAITING */
+.ring{width:68px;height:68px;margin:0 auto 20px;border:2px solid var(--b2);border-top-color:var(--ac);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* NAME INPUT */
+.name-card{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:26px 30px;width:100%;max-width:420px;position:relative;}
+.name-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gn),transparent);}
+.name-connected{display:flex;align-items:center;gap:8px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--b1);}
+.name-dot{width:8px;height:8px;border-radius:50%;background:var(--gn);animation:pulse 2s infinite;}
+.name-conn-txt{font-family:var(--mono);font-size:11px;color:var(--tx2);letter-spacing:.1em;}
+
+/* TIMER */
+.timer-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.timer-bar-bg{width:180px;height:5px;background:var(--s3);border-radius:3px;overflow:hidden;}
+.timer-bar{height:100%;border-radius:3px;background:var(--ac);transition:width .5s linear,background .5s;}
+.timer-bar.warn{background:var(--am);}.timer-bar.danger{background:var(--rd);}
+.timer-num{font-family:var(--mono);font-size:20px;color:var(--ac);letter-spacing:.1em;transition:color .5s;}
+.timer-num.warn{color:var(--am);}.timer-num.danger{color:var(--rd);}
+.timer-lbl{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.15em;}
+
+/* ROLE SELECT */
+.role-screen-wrap{width:100%;max-width:1100px;display:flex;flex-direction:column;align-items:center;}
+.role-header{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:24px;}
+.role-title{font-family:var(--mono);font-size:11px;color:var(--tx2);letter-spacing:.25em;text-transform:uppercase;}
+
+/* Cards grid */
+.role-grid{display:grid;grid-template-columns:1fr 20px 1fr;width:100%;margin-bottom:18px;align-items:start;}
+
+/* Role card: image | info */
+.role-slot{display:flex;border:1px solid var(--b1);border-radius:8px;overflow:hidden;
+  cursor:pointer;transition:transform .3s ease,filter .3s ease,border-color .3s ease;
+  filter:brightness(.55);min-height:380px;}
+.role-slot:hover{filter:brightness(.8);transform:scale(1.015);}
+.role-slot.me-sel{filter:brightness(1);transform:scale(1.02);border-color:var(--ac);}
+.role-slot.p-sel{filter:brightness(.75);border-color:var(--am);}
+.role-slot.both-sel{filter:brightness(1);transform:scale(1.02);border-color:var(--ac);
+  box-shadow:inset 0 0 0 2px var(--am);}
+.role-slot.me-conf{filter:brightness(1.05);transform:scale(1.02);border-color:var(--gn);
+  box-shadow:0 0 24px rgba(0,232,122,.25);}
+
+/* Image col */
+.slot-img{width:190px;flex-shrink:0;background:var(--s2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;position:relative;overflow:hidden;}
+.slot-img-ph{font-size:72px;opacity:.18;}
+.slot-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.slot-img-lbl{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.15em;z-index:1;}
+.slot-badge-wrap{position:absolute;bottom:10px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:4px;z-index:2;}
+.badge{font-family:var(--mono);font-size:9px;padding:4px 12px;border-radius:99px;letter-spacing:.08em;font-weight:700;}
+.badge-me{background:rgba(0,200,255,.9);color:#000;}
+.badge-p{background:rgba(255,183,0,.9);color:#000;}
+.badge-conf{background:rgba(0,232,122,.9);color:#000;}
+
+/* Info col */
+.slot-info{flex:1;background:var(--s1);padding:20px 18px;display:flex;flex-direction:column;gap:10px;min-width:0;overflow:hidden;}
+.rc-code{font-family:var(--mono);font-size:10px;letter-spacing:.12em;}
+.rc-code.a{color:var(--ac);}.rc-code.b{color:var(--am);}
+.rc-iq{font-family:var(--mono);font-size:9px;color:var(--tx3);margin-top:1px;}
+.rc-name{font-size:18px;font-weight:700;color:#fff;padding-bottom:10px;border-bottom:1px solid var(--b1);margin-bottom:2px;}
+.rc-sh{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.15em;margin-bottom:4px;}
+.rc-sb{font-size:11.5px;color:var(--tx2);line-height:1.75;}
+.rc-quote{font-size:11px;color:var(--tx2);line-height:1.75;font-style:italic;border-left:2px solid var(--b2);padding-left:10px;margin-top:auto;}
+
+/* Action row */
+.action-row{display:flex;gap:10px;width:100%;}
+.action-row .btn{flex:1;}
+
+/* INTRO */
+.intro-ov{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;flex-direction:column;align-items:center;justify-content:center;padding:48px;}
+.intro-ov.on{display:flex;}
+.intro-tx{font-family:var(--mono);font-size:14px;color:var(--tx);line-height:2.4;max-width:600px;white-space:pre-wrap;}
+.cur{display:inline-block;width:9px;height:15px;background:var(--ac);animation:blink .7s infinite;vertical-align:middle;margin-left:2px;}
+.intro-prompt{display:none;margin-top:30px;font-family:var(--mono);font-size:11px;color:var(--tx3);letter-spacing:.2em;animation:blink .7s infinite;}
+
+/* STATUS BAR */
+.statusbar{background:var(--s1);border-bottom:1px solid var(--b1);padding:9px 20px;display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:10px;flex-shrink:0;}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--gn);animation:pulse 2s infinite;}
+.si{color:var(--tx2);}.si span{color:var(--tx);}.sep{color:var(--b2);}
+
+/* GAME */
+.game-body{display:flex;flex:1;overflow:hidden;}
+.lp{width:40%;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;}
+.scene-area{flex:1;position:relative;overflow:hidden;background:var(--bg);min-height:0;}
+.sc-badge{position:absolute;top:10px;left:10px;background:rgba(8,12,18,.85);border:1px solid var(--b2);border-radius:3px;padding:3px 10px;font-family:var(--mono);font-size:9px;color:var(--ac);letter-spacing:.2em;z-index:10;}
+.sc-cap{position:absolute;bottom:0;left:0;right:0;padding:10px 14px;background:linear-gradient(transparent,rgba(8,12,18,.9));font-family:var(--mono);font-size:9px;color:var(--tx2);letter-spacing:.1em;}
+.agent-row{flex-shrink:0;border-top:1px solid var(--b1);padding:11px 14px;display:flex;align-items:center;gap:10px;}
+.av{width:42px;height:42px;border-radius:4px;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:18px;opacity:.5;flex-shrink:0;}
+.ag-code{font-family:var(--mono);font-size:9px;letter-spacing:.12em;margin-bottom:2px;}
+.ag-code.a{color:var(--ac);}.ag-code.b{color:var(--am);}
+.ag-name{font-size:14px;font-weight:700;color:#fff;}
+.intel-sec{flex-shrink:0;border-top:1px solid var(--b1);padding:10px 14px;max-height:160px;overflow-y:auto;}
+.il{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.12em;margin-bottom:7px;}
+.ii{font-size:12px;color:var(--tx);line-height:1.6;padding:5px 10px;background:var(--s2);border-left:2px solid var(--ac);border-radius:0 3px 3px 0;margin-bottom:4px;}
+.prog-row{flex-shrink:0;border-top:1px solid var(--b1);padding:8px 14px;display:flex;gap:5px;align-items:center;}
+.ps{flex:1;height:3px;border-radius:2px;background:var(--s3);}
+.ps.done{background:var(--gn);}.ps.active{background:var(--ac);animation:blink 1.5s infinite;}
+.pl{font-family:var(--mono);font-size:9px;color:var(--tx2);white-space:nowrap;}
+.bot-row{flex-shrink:0;border-top:1px solid var(--b1);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;}
+.prow{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);}
+.pd{width:7px;height:7px;border-radius:50%;background:var(--gn);}.pd.off{background:var(--rd);}
+.skip-h{font-family:var(--mono);font-size:9px;color:var(--tx3);}.skip-h span{color:var(--am);}
+
+/* CHAT */
+.rp{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.msgs{flex:1;overflow-y:auto;padding:16px 18px 8px;display:flex;flex-direction:column;gap:10px;}
+.msg{display:flex;flex-direction:column;gap:3px;max-width:76%;}
+.msg.me{align-self:flex-end;align-items:flex-end;}
+.msg.them{align-self:flex-start;}
+.msg.ai{align-self:stretch;max-width:100%;}
+.msg.sys{align-self:center;max-width:100%;}
+.mm{font-family:var(--mono);font-size:9px;color:var(--tx3);}
+.mb{padding:10px 14px;border-radius:4px;font-size:13px;line-height:1.65;}
+.msg.me .mb{background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.25);color:#ddeeff;border-radius:12px 4px 4px 12px;}
+.msg.them .mb{background:rgba(255,183,0,.08);border:1px solid rgba(255,183,0,.22);color:#fff5d0;border-radius:4px 12px 12px 4px;}
+.msg.ai .mb{background:var(--s2);border:1px solid var(--b1);border-left:3px solid var(--rd);color:var(--tx);border-radius:0 4px 4px 0;}
+.aih{font-family:var(--mono);font-size:9px;color:var(--rd);letter-spacing:.2em;margin-bottom:5px;}
+.msg.sys .mb{background:transparent;border:1px dashed var(--b2);color:var(--tx2);font-family:var(--mono);font-size:10px;text-align:center;padding:7px 14px;border-radius:3px;}
+.typew{padding:0 18px 5px;min-height:20px;}
+.typi{font-family:var(--mono);font-size:10px;color:var(--am);display:flex;align-items:center;gap:5px;}
+.tyd span{display:inline-block;width:3px;height:3px;background:var(--am);border-radius:50%;animation:tdot 1.2s infinite;}
+.tyd span:nth-child(2){animation-delay:.2s;}.tyd span:nth-child(3){animation-delay:.4s;}
+@keyframes tdot{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}}
+.ibar{padding:12px 18px;border-top:1px solid var(--b1);background:var(--s1);display:flex;gap:10px;align-items:flex-end;flex-shrink:0;}
+.ci{flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:4px;color:#fff;font-family:var(--body);font-size:13px;padding:9px 13px;outline:none;resize:none;line-height:1.5;max-height:90px;transition:border-color .2s;}
+.ci:focus{border-color:var(--ac);}
+.ci::placeholder{color:var(--tx3);}
+.sb{background:var(--ac);border:none;color:var(--bg);font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:9px 16px;cursor:pointer;border-radius:4px;white-space:nowrap;align-self:flex-end;font-weight:700;}
+.sb:hover{opacity:.85;}
+
+/* OVERLAY */
+.ov{display:none;position:fixed;inset:0;background:rgba(8,12,18,.95);z-index:1000;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px;}
+.ov.on{display:flex;}
+.ov-icon{font-size:50px;margin-bottom:14px;}
+.ov-title{font-family:var(--mono);font-size:22px;color:var(--ac);letter-spacing:.15em;margin-bottom:10px;}
+.ov-sub{color:var(--tx2);font-size:13px;margin-bottom:18px;line-height:1.8;max-width:460px;}
+.ov-ans{background:var(--s1);border:1px solid var(--am);border-radius:6px;padding:14px 18px;margin-bottom:18px;font-size:12px;color:var(--tx);line-height:1.8;max-width:460px;text-align:left;}
+.ov-al{font-family:var(--mono);font-size:9px;color:var(--am);letter-spacing:.2em;margin-bottom:7px;}
+
+/* REFLECT */
+.rfw{width:100%;max-width:560px;}
+.rq{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:18px;margin-bottom:12px;}
+.rqn{font-family:var(--mono);font-size:9px;color:var(--ac);letter-spacing:.2em;margin-bottom:5px;}
+.rqt{font-size:13px;color:#fff;margin-bottom:9px;line-height:1.6;}
+textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--s2);border:1px solid var(--ac);color:var(--ac);font-family:var(--mono);font-size:11px;padding:9px 16px;border-radius:4px;z-index:9000;transform:translateY(14px);opacity:0;transition:all .3s;pointer-events:none;}
+.toast.on{transform:translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- LOBBY -->
+<div class="screen active" id="sl">
+  <div class="logo">
+    <div class="logo-eye">classified · eyes only</div>
+    <div class="logo-t">影<em>子</em>局</div>
+    <div class="logo-s">SHADOW BUREAU · OPERATION UNIT 7</div>
+  </div>
+  <div class="lobby-grid">
+    <div class="lc" id="btn-create"><div class="lc-icon">📡</div><div class="lc-title">開啟任務</div><div class="lc-desc">建立新的任務房間，取得專屬代碼</div></div>
+    <div class="lc" id="btn-join"><div class="lc-icon">🔐</div><div class="lc-title">加入任務</div><div class="lc-desc">輸入搭檔給你的任務代碼加入</div></div>
+  </div>
+  <div style="margin-top:20px;font-family:var(--mono);font-size:10px;color:var(--tx3);text-align:center;letter-spacing:.1em">研究專用系統 · 所有對話將被記錄用於學術研究</div>
+</div>
+
+<!-- CREATE -->
+<div class="screen" id="sc">
+  <button class="back-btn" id="btn-back-c">返回大廳</button>
+  <div class="rcode-wrap">
+    <div class="rcode-label">你的任務代碼</div>
+    <div class="rcode-val" id="create-code">----</div>
+    <div class="rcode-hint">將此代碼傳給搭檔<br>搭檔加入後將同時進入下一步</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--tx2);margin-top:10px;" id="create-status">等待搭檔連線中...</div>
+    <div class="ring" id="create-ring" style="margin-top:14px;width:50px;height:50px;"></div>
+  </div>
+</div>
+
+<!-- JOIN -->
+<div class="screen" id="sj">
+  <button class="back-btn" id="btn-back-j">返回大廳</button>
+  <div class="icard">
+    <div class="fg">
+      <label class="fl">任務代碼</label>
+      <input class="fi" id="join-code" placeholder="輸入4位數字" maxlength="4" inputmode="numeric">
+    </div>
+    <div class="err" id="join-err"></div>
+    <button class="btn am" id="btn-proceed-j">加入任務 ›</button>
+  </div>
+</div>
+
+<!-- NAME INPUT -->
+<div class="screen" id="sname">
+  <div class="logo">
+    <div class="logo-eye">配對成功</div>
+    <div class="logo-t" style="font-size:28px">輸入<em>姓名</em></div>
+    <div class="logo-s">任務代碼：<span id="name-room-code" style="color:var(--ac);font-family:var(--mono);letter-spacing:.2em">------</span></div>
+  </div>
+  <div class="name-card">
+    <div class="name-connected">
+      <div class="name-dot"></div>
+      <div class="name-conn-txt">搭檔已連線，輸入你的姓名後等待對方</div>
+    </div>
+    <div class="fg">
+      <label class="fl">玩家姓名</label>
+      <input class="fi fi-name" id="name-input" placeholder="輸入你的姓名" maxlength="12">
+    </div>
+    <div class="err" id="name-err"></div>
+    <button class="btn" id="name-submit-btn">確認姓名 ›</button>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);text-align:center;margin-top:12px;" id="name-wait-status"></div>
+  </div>
+</div>
+
+<!-- ROLE SELECT -->
+<div class="screen" id="sr">
+  <div class="role-screen-wrap">
+    <div class="role-header">
+      <div class="role-title">選擇探員身份</div>
+      <div class="timer-wrap">
+        <div class="timer-num" id="timer-num">60</div>
+        <div class="timer-bar-bg"><div class="timer-bar" id="timer-bar" style="width:100%"></div></div>
+        <div class="timer-lbl" id="timer-lbl">秒後隨機分配</div>
+      </div>
+    </div>
+
+    <div class="role-grid">
+      <!-- A -->
+      <div class="role-slot slot-a" id="card-a">
+        <div class="slot-img">
+          <img src="images/char_a.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;"/>
+          <div class="slot-img-lbl" style="position:relative;z-index:1;">AGENT · A</div>
+          <div class="slot-badge-wrap">
+            <div id="badge-a-me" class="badge badge-me" style="display:none">▶ 我的選擇</div>
+            <div id="badge-a-p" class="badge badge-p" style="display:none">搭檔選擇</div>
+          </div>
+        </div>
+        <div class="slot-info">
+          <div>
+            <div class="rc-code a">// 代號：夜鷹 · NIGHTHAWK</div>
+            <div class="rc-iq">IQ 143 · 心理暨犯罪行為分析專家</div>
+            <div class="rc-name">林曉晨</div>
+          </div>
+          <div>
+            <div class="rc-sh">背景檔案</div>
+            <div class="rc-sb">曾任職某國家級情報機構鑑識部門八年，專精現場重建與視覺細節判讀。因連續偵破數起陳年懸案，三年前被影子局秘密徵召。</div>
+          </div>
+          <div>
+            <div class="rc-sh">能力評估</div>
+            <div class="rc-sb">對視覺資訊的記憶與解讀能力遠超常人。習慣在開口前觀察完所有細節，不輕易相信口頭陳述，只信自己親眼看到的。</div>
+          </div>
+          <div class="rc-quote">「她掃過一個房間，能注意到你看了十遍都沒發現的東西。但她需要有人幫她把線索連起來。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
+        </div>
+      </div>
+
+      <div></div><!-- gap -->
+
+      <!-- B -->
+      <div class="role-slot slot-b" id="card-b">
+        <div class="slot-img">
+          <img src="images/char_b.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;"/>
+          <div class="slot-img-lbl" style="position:relative;z-index:1;">AGENT · B</div>
+          <div class="slot-badge-wrap">
+            <div id="badge-b-me" class="badge badge-me" style="display:none">▶ 我的選擇</div>
+            <div id="badge-b-p" class="badge badge-p" style="display:none">搭檔選擇</div>
+          </div>
+        </div>
+        <div class="slot-info">
+          <div>
+            <div class="rc-code b">// 代號：獵犬 · BLOODHOUND</div>
+            <div class="rc-iq">IQ 151 · 邏輯推理暨行為模式分析專家</div>
+            <div class="rc-name">陳宇哲</div>
+          </div>
+          <div>
+            <div class="rc-sh">背景檔案</div>
+            <div class="rc-sb">曾任職某跨國刑事調查機構資深分析師七年，擅長從大量資訊中找出矛盾與異常模式。任職期間破案率達94%，兩年前因案件性質特殊，轉調影子局。</div>
+          </div>
+          <div>
+            <div class="rc-sh">能力評估</div>
+            <div class="rc-sb">思維極度縝密，習慣從資訊缺口切入。對任何「巧合」高度懷疑，需要搭檔補足現場直覺與視覺觀察。</div>
+          </div>
+          <div class="rc-quote">「給他一份報告，他能找出連撰寫者都沒發現的矛盾。但他需要有人告訴他現場實際長什麼樣。」<br><span style="color:var(--tx3);font-size:10px;">— 局長評語</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="err" id="role-err"></div>
+    <div class="action-row">
+      <button class="btn" id="btn-confirm-r" disabled>選擇角色後確認 ›</button>
+      <button class="btn rd" id="btn-cancel-r" style="display:none;flex:0 0 auto;width:auto;padding:12px 18px;">取消確認</button>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);text-align:center;margin-top:12px;" id="role-status">請點選你的探員身份</div>
+  </div>
+</div>
+
+<!-- WAITING -->
+<div class="screen" id="sw">
+  <div class="ring"></div>
+  <div style="font-family:var(--mono);font-size:12px;color:var(--ac);letter-spacing:.2em;margin-bottom:10px">配對中</div>
+  <div style="font-size:12px;color:var(--tx2);">任務代碼：<span id="wait-code" style="color:#fff;font-family:var(--mono);font-size:16px;letter-spacing:.2em"></span></div>
+</div>
+
+<!-- INTRO -->
+<div class="intro-ov" id="intro-ov">
+  <div class="intro-tx" id="intro-tx"></div>
+  <div class="intro-prompt" id="intro-prompt">按任意鍵或點擊繼續</div>
+</div>
+
+<!-- GAME -->
+<div class="screen" id="sg">
+  <div class="statusbar">
+    <div class="sdot"></div>
+    <div class="si">探員：<span id="hud-n">-</span></div><div class="sep">|</div>
+    <div class="si">身份：<span id="hud-r">-</span></div><div class="sep">|</div>
+    <div class="si">任務：<span id="hud-m">-</span></div><div class="sep">|</div>
+    <div class="si">代碼：<span id="hud-c">-</span></div>
+  </div>
+  <div class="game-body">
+    <div class="lp">
+      <div class="scene-area">
+        <div class="sc-badge" id="sc-badge">現場畫面</div>
+        <div id="sc-cont" style="width:100%;height:100%;"></div>
+        <div class="sc-cap" id="sc-cap">仔細觀察，與搭檔討論你看到的細節</div>
+      </div>
+      <div class="agent-row">
+        <div class="av" id="ag-av" style="padding:0;overflow:hidden;"><img id="ag-av-img" style="width:100%;height:100%;object-fit:cover;object-position:top;" src=""/></div>
+        <div><div class="ag-code" id="ag-code">-</div><div class="ag-name" id="ag-name">-</div></div>
+      </div>
+      <div class="intel-sec"><div class="il">機密情報</div><div id="intel-list"></div></div>
+      <div class="prog-row">
+        <div class="ps active" id="p1"></div><div class="ps" id="p2"></div><div class="ps" id="p3"></div>
+        <div class="pl" id="pl">關卡 1/3</div>
+      </div>
+      <div class="bot-row">
+        <div class="prow"><div class="pd" id="pdot"></div><span id="plabel">等待搭檔...</span></div>
+        <div class="skip-h">卡關輸入 <span>/skip</span></div>
+      </div>
+    </div>
+    <div class="rp">
+      <div class="msgs" id="msgs"></div>
+      <div class="typew"><div class="typi" id="typi" style="display:none"><span id="tyn">搭檔</span> 正在輸入<div class="tyd"><span></span><span></span><span></span></div></div></div>
+      <div class="ibar">
+        <textarea class="ci" id="ci" rows="1" placeholder="輸入訊息... (Enter送出)　/skip 跳過此關" maxlength="500"></textarea>
+        <button class="sb" id="sb">送出</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REFLECT -->
+<div class="screen" id="srf">
+  <div style="text-align:center;margin-bottom:26px">
+    <div class="logo-eye">行動覆盤</div>
+    <div class="logo-t" style="font-size:28px">覆<em>盤</em></div>
+  </div>
+  <div class="rfw">
+    <div class="rq"><div class="rqn">Q1</div><div class="rqt">在這次任務中，你最依賴搭檔的哪一刻？為什麼？</div><textarea class="fi" id="rq1" placeholder="描述那個時刻..."></textarea></div>
+    <div class="rq"><div class="rqn">Q2</div><div class="rqt">你和搭檔有沒有意見不同的時候？你們是怎麼處理的？</div><textarea class="fi" id="rq2" placeholder="描述分歧與過程..."></textarea></div>
+    <div class="rq"><div class="rqn">Q3</div><div class="rqt">局長的介入有沒有讓你重新思考什麼？如果沒有局長，結果會不同嗎？</div><textarea class="fi" id="rq3" placeholder="反思局長的角色..."></textarea></div>
+    <div class="rq"><div class="rqn">Q4</div><div class="rqt">如果重來一次，你會怎麼改變你們合作的方式？</div><textarea class="fi" id="rq4" placeholder="改進建議..."></textarea></div>
+    <button class="btn" id="btn-submit-rf">提交覆盤報告 ›</button>
+    <div class="err" id="rf-err"></div>
+  </div>
+</div>
+
+<!-- END -->
+<div class="screen" id="se">
+  <div class="logo"><div class="logo-eye">行動完成</div><div class="logo-t" style="font-size:36px">任<em>務</em>達成</div></div>
+  <div class="icard" style="text-align:center;max-width:320px">
+    <div style="font-size:42px;margin-bottom:14px">🏆</div>
+    <div style="font-family:var(--mono);font-size:14px;color:var(--gn);margin-bottom:9px;letter-spacing:.1em">MISSION COMPLETE</div>
+    <div style="font-size:12px;color:var(--tx2);line-height:1.9">感謝你參與本次研究<br>資料已安全回傳至影子局<br><br>任務代碼：<span style="color:var(--ac);font-family:var(--mono)" id="end-code">-</span></div>
+  </div>
+</div>
+
+<!-- MISSION OVERLAY -->
+<div class="ov" id="mov">
+  <div class="ov-icon" id="ov-ic">✅</div>
+  <div class="ov-title" id="ov-ti">關卡完成</div>
+  <div class="ov-sub" id="ov-su"></div>
+  <div class="ov-ans" id="ov-an" style="display:none"><div class="ov-al">正確解答</div><div id="ov-ant"></div></div>
+  <button class="btn" style="max-width:220px" id="btn-next-m">繼續任務 ›</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- SCENES -->
+<script>
+var SCENES={
+  1:{
+    A:'<img src="images/m1_corridor.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>',
+    B:'<img src="images/m1_transcript.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>'
+  },
+  2:{
+    A:'<img src="images/m2_office.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>',
+    B:'<img src="images/m2_docs.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>'
+  },
+  3:{
+    A:'<img src="images/m3_floor.png" style="width:100%;height:100%;object-fit:contain;background:#0a1218;"/>',
+    B:'<div id="m3-docs" style="display:flex;flex-direction:column;width:100%;height:100%;background:#08101a;"><div id="doc-display" style="flex:1;overflow-y:auto;padding:12px;background:#0b1219;border:1px solid #1a3050;margin:8px;border-radius:4px;min-height:0;font-family:monospace;font-size:10px;color:#7090b0;"><div style="color:#ffb700;margin-bottom:8px;">// 請選擇文件查閱</div><span style="color:#2a4060;">共7份文件，並非全都有用。</span></div><div id="doc-list" style="display:flex;flex-direction:column;padding:8px;border-top:1px solid #1a3050;overflow-y:auto;"></div></div>'
   }
 };
 </script>
@@ -808,7 +2227,18 @@ function initGame(){
   onChildAdded(ref(db,`rooms/${room}/messages`),snap=>{
     if(window._shownKeys.has(snap.key))return;
     window._shownKeys.add(snap.key);
-    addMsg(snap.val());
+    const msgData=snap.val();
+    addMsg(msgData);
+    // Add to rMsgs for AI context (only chat messages, not sys/ai)
+    if(msgData.type!=="sys"&&msgData.type!=="ai"&&msgData.mission===S.mission){
+      if(!rMsgs.find(m=>m.ts===msgData.ts&&m.sender===msgData.sender)){
+        rMsgs.push(msgData);
+        // Trigger AI when receiving partner message
+        if(msgData.role!==S.role&&rMsgs.length>=2){
+          triggerAI(msgData);
+        }
+      }
+    }
   });
 
   onValue(ref(db,`rooms/${room}/typing/${pr}`),snap=>{
@@ -861,6 +2291,7 @@ function startM(n){
   document.getElementById("ag-name").textContent=isA?"林曉晨":"陳宇哲";
   const avImg=document.getElementById("ag-av-img");if(avImg)avImg.src=gImg(isA?"char_a":"char_b");
   document.getElementById("sc-cont").innerHTML=SCENES[n][S.role];
+  if(n===3&&S.role==="B"){setTimeout(()=>initM3Docs(),100);}
   document.getElementById("sc-badge").textContent=S.role==="A"?"現場畫面":"情報文件";
   document.getElementById("intel-list").innerHTML=info.intel[S.role].map(t=>`<div class="ii">${t}</div>`).join("");
   // Only A sends intro, via Firebase check to prevent duplicates
@@ -920,9 +2351,9 @@ function addMsg(msg){
 
 // ── AI ──
 async function triggerAI(msgObj){
-  if(cntA===0||cntB===0)return;
+  if(rMsgs.length<2)return;
   const m=S.mission,now=Date.now();
-  if(aiCD[m]&&now-aiCD[m]<12000)return;
+  if(aiCD[m]&&now-aiCD[m]<8000)return;
   aiCD[m]=now;
   const hist=rMsgs.slice(-8).map(x=>`${x.sender}(探員${x.role}): ${x.text}`).join("\n");
   const prompt=`對話記錄：\n${hist}\n\n最新：${msgObj.sender}(探員${msgObj.role}): ${msgObj.text}\n\n以局長身份回應：`;
