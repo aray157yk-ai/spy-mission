@@ -408,7 +408,7 @@ textarea.fi{resize:vertical;min-height:75px;letter-spacing:0;font-size:13px;}
       <div class="bot-row">
         <div class="prow"><div class="pd" id="pdot"></div><span id="plabel">等待搭檔...</span></div>
         <div style="display:flex;align-items:center;gap:10px;">
-          <button id="btn-hint" style="font-family:var(--mono);font-size:9px;color:var(--am);background:transparent;border:1px solid var(--am);padding:4px 10px;border-radius:3px;cursor:pointer;letter-spacing:.1em;" onclick="requestHint()">💡 提示</button>
+          <button id="btn-hint" style="font-family:var(--mono);font-size:9px;color:var(--am);background:transparent;border:1px solid var(--am);padding:4px 10px;border-radius:3px;cursor:pointer;letter-spacing:.1em;">💡 提示</button>
           <div class="skip-h">卡關輸入 <span>/skip</span></div>
         </div>
       </div>
@@ -473,7 +473,7 @@ var SCENES={
     B:'<img src="images/m2_docs.png" style="width:100%;height:100%;object-fit:contain;object-position:center top;background:#0a1218;"/>'
   },
   3:{
-    A:'<img src="images/m3_floor.png" style="width:100%;height:100%;object-fit:contain;object-position:center top;background:#0a1218;"/>',
+    A:'<img src="images/m3_floor.png" style="width:auto;height:100%;max-width:100%;object-fit:contain;background:#0a1218;display:block;margin:0 auto;"/>',
     B:'<div id="m3-docs" style="display:flex;flex-direction:column;width:100%;height:100%;background:#08101a;"><div id="doc-display" style="height:68%;overflow-y:auto;padding:10px;background:#0b1219;border:1px solid #1a3050;margin:8px 8px 4px 8px;border-radius:4px;font-family:monospace;font-size:10px;color:#7090b0;flex-shrink:0;"><div style="color:#ffb700;margin-bottom:6px;">// 請選擇文件</div><span style="color:#2a4060;">共7份，並非全都有用</span></div><div id="doc-list" style="flex:1;display:flex;flex-direction:column;padding:4px 8px;border-top:1px solid #1a3050;overflow-y:auto;min-height:0;"></div></div>'
   }
 };
@@ -496,9 +496,9 @@ const SP={
 };
 
 const MI={
-  1:{name:"消失的研究員",intel:{A:["場景圖：辦公室現場（左側）","注意：日曆、照片、窗外天色","地板有腳印，觀察方向","細節模糊，需與搭檔討論"],B:["失蹤語音摘要（左側）","「去了第一次討論計畫的地方」","關鍵：「往反方向走」是什麼意思？","需與搭檔比對現場畫面"]},skip:"陳博士往左走。語音說「往反方向走」，指腳印方向（朝右）的反向，所以是往左。腳印可能是值班人員的。",intro:"局長 > 兩位探員，陳博士失蹤已超過六小時。他留下的線索一分為二，你們各持一半。立刻交換情報，找出他在哪裡。"},
-  2:{name:"組織內的叛徒",intel:{A:["監視畫面截圖（左側）","下午3點，人影操作電腦","注意：姿勢方向、衣物、眼鏡","畫面模糊，解讀需討論"],B:["側角度畫面和訪談紀錄（左側）","注意咖啡杯的位置","趙宇翔的訪談有明顯矛盾","與搭檔整合觀察"]},skip:"間諜是趙宇翔。訪談矛盾（說在開會但同事說沒來）+ 左撇子 + 深色衣獨自行動。",intro:"局長 > 晶片資料已被複製，叛徒就在你們小隊內部。監視資料一分為二。告訴我是誰——但我要完整推理，不只是名字。"},
-  3:{name:"生死抉擇",intel:{A:["災難現場地圖（左側）","A棟：8人含重傷者，位置近","B棟：2名醫療人員，位置近","D棟：15名孩童，位置遠已失聯"],B:["緊急情報（左側）","B棟醫生獲救後可救治A棟重傷者","D棟孩童超2小時生存率降至15%","C棟12人有衛星設備，位置遠"]},skip:"沒有標準答案。常見選擇：B+D或B+C。重點是協商過程與理由。",intro:"局長 > 緊急狀況。爆炸倒數120分鐘，四個地點都有人被困，救援車只有兩次機會。合起來才能決定。"}
+  1:{name:"消失的研究員",intel:{A:["場景圖：辦公室現場（左側）","注意：日曆、照片、窗外天色","地板有腳印，觀察方向","細節模糊，需與搭檔討論"],B:["失蹤語音摘要（左側）","「去了第一次討論計畫的地方」","關鍵：「往反方向走」是什麼意思？","需與搭檔比對現場畫面"]},skip:"陳博士往左走。語音說「往反方向走」，指腳印方向（朝右）的反向，所以是往左。腳印可能是值班人員的。",intro:"局長 > 夜鷹，觀察左側走廊：注意電梯和樓梯兩個出口的差異，以及地板上的細節。\n局長 > 獵犬，閱讀語音轉錄和門禁紀錄：找出陳博士的習慣路線。\n局長 > 交換你們各自看到的，推理出他往哪個方向逃。"},
+  2:{name:"組織內的叛徒",intel:{A:["監視畫面截圖（左側）","下午3點，人影操作電腦","注意：姿勢方向、衣物、眼鏡","畫面模糊，解讀需討論"],B:["側角度畫面和訪談紀錄（左側）","注意咖啡杯的位置","趙宇翔的訪談有明顯矛盾","與搭檔整合觀察"]},skip:"間諜是趙宇翔。訪談矛盾（說在開會但同事說沒來）+ 左撇子 + 深色衣獨自行動。",intro:"局長 > 陳博士把加密座標藏在辦公室某處。趙宇翔翻遍整間辦公室，但沒找到。\n局長 > 夜鷹，仔細觀察辦公室現場——哪個地方最顯眼卻最容易被忽略？\n局長 > 獵犬，閱讀三份文件——陳博士的藏東西邏輯就在裡面。\n局長 > 交換你們的發現，推理出座標藏在哪裡。"},
+  3:{name:"生死抉擇",intel:{A:["災難現場地圖（左側）","A棟：8人含重傷者，位置近","B棟：2名醫療人員，位置近","D棟：15名孩童，位置遠已失聯"],B:["緊急情報（左側）","B棟醫生獲救後可救治A棟重傷者","D棟孩童超2小時生存率降至15%","C棟12人有衛星設備，位置遠"]},skip:"沒有標準答案。常見選擇：B+D或B+C。重點是協商過程與理由。",intro:"局長 > 座標指向77F的某個保險箱，密碼是8位數字。\n局長 > 夜鷹，看樓層平面圖——hover各房間查看細節，注意窗戶方向和特殊痕跡。\n局長 > 獵犬，看7份文件（非全部有用）——找出正確房間和密碼的線索。\n局長 > 交換發現，確認正確房間和密碼。"}
 };
 
 const INTRO_LINES=["局長 > 通訊已加密。","局長 > 你們是影子局新進探員，今天是第一次正式任務。","局長 > 我是你們的指揮官。任務期間我會即時監控你們的通訊。","局長 > 記住——你們手上的情報都是片段的。","局長 > 只有互相溝通，才能還原真相。","局長 > 任務資料載入中..."];
@@ -812,7 +812,8 @@ function initGame(){
     window._shownKeys.add(snap.key);
     const msgData=snap.val();
     addMsg(msgData);
-    if(msgData.type!=="sys"&&msgData.type!=="ai"&&msgData.mission===S.mission){if(!rMsgs.find(m=>m.ts===msgData.ts)){rMsgs.push(msgData);if(msgData.role!==S.role&&rMsgs.length>=2)triggerAI(msgData);}}
+    if(msgData.type!=="sys"&&msgData.type!=="ai"&&msgData.mission===S.mission){if(!rMsgs.find(m=>m.ts===msgData.ts)){rMsgs.push(msgData);// Only A's device triggers AI to avoid duplicate calls
+      if(S.role==="A"&&msgData.role!==S.role&&rMsgs.length>=2)triggerAI(msgData);}}
   });
 
   onValue(ref(db,`rooms/${room}/typing/${pr}`),snap=>{
@@ -900,7 +901,7 @@ async function sendMsg(){
   await pushMsg(msg);
   if(S.role==="A")cntA++;else cntB++;
   rMsgs.push(msg);
-  triggerAI(msg);
+  if(S.role==="A")triggerAI(msg);
 }
 
 async function pushMsg(msg){await push(ref(db,`rooms/${S.room}/messages`),msg);}
@@ -957,7 +958,8 @@ async function requestHint(){
     const reply=data?.choices?.[0]?.message?.content?.trim();
     if(reply)await pushMsg({type:"ai",text:reply,sender:"局長",mission:S.mission,ts:Date.now()});
   }catch(e){console.error("Hint err:",e);}
-  if(btn){btn.disabled=false;btn.textContent="💡 提示";}
+  hintCD=Date.now()-14000; // Start cooldown display
+  updateAICDDisplay();
 }
 
 // ── MISSION FLOW ──
@@ -981,6 +983,16 @@ document.getElementById("btn-next-m").addEventListener("click",()=>{
 
 function showReflect(){ss("srf");}
 
+document.getElementById("btn-hint").addEventListener("click",requestHint);
+// AI cooldown display
+let aiCDTimer=null;
+function updateAICDDisplay(){
+  const btn=document.getElementById("btn-hint");
+  if(!btn)return;
+  const remaining=Math.ceil((15000-(Date.now()-hintCD))/1000);
+  if(remaining>0){btn.textContent=`⏳ ${remaining}s`;btn.disabled=true;if(!aiCDTimer)aiCDTimer=setInterval(updateAICDDisplay,1000);}
+  else{btn.textContent="💡 提示";btn.disabled=false;if(aiCDTimer){clearInterval(aiCDTimer);aiCDTimer=null;}}
+}
 document.getElementById("btn-submit-rf").addEventListener("click",async()=>{
   const vals=["rq1","rq2","rq3","rq4"].map(id=>document.getElementById(id).value.trim());
   if(vals.some(v=>!v)){document.getElementById("rf-err").textContent="請回答所有問題";return;}
