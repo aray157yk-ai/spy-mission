@@ -474,7 +474,7 @@ var SCENES={
   },
   3:{
     A:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#0a1218;"><img src="images/m3_floor.png" style="max-width:100%;max-height:100%;object-fit:contain;"/></div>',
-    B:'<div id="m3-docs" style="display:flex;flex-direction:column;width:100%;height:100%;background:#08101a;"><div id="doc-display" style="flex:1;min-height:0;overflow-y:auto;background:#0b1219;border:1px solid #1a3050;margin:8px 8px 4px 8px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#2a4060;font-family:monospace;font-size:9px;">點擊文件查看</div><div id="doc-list" style="flex:1;display:flex;flex-direction:column;padding:4px 8px;border-top:1px solid #1a3050;overflow-y:auto;min-height:0;"></div></div>'
+    B:'<div id="m3-docs" style="display:flex;flex-direction:column;width:100%;height:100%;background:#08101a;"><div id="doc-display" style="flex:3;min-height:0;overflow-y:auto;background:#0b1219;border:1px solid #1a3050;margin:8px 8px 4px 8px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#2a4060;font-family:monospace;font-size:9px;">點擊文件查看</div><div id="doc-list" style="flex:1;display:flex;flex-direction:column;padding:4px 8px;border-top:1px solid #1a3050;overflow-y:auto;min-height:0;max-height:25%;"></div></div>'
   }
 };
 </script>
@@ -496,9 +496,9 @@ const SP={
 };
 
 const MI={
-  1:{name:"消失的研究員",intel:{A:["場景圖：辦公室現場（左側）","注意：日曆、照片、窗外天色","地板有腳印，觀察方向","細節模糊，需與搭檔討論"],B:["失蹤語音摘要（左側）","「去了第一次討論計畫的地方」","關鍵：「往反方向走」是什麼意思？","需與搭檔比對現場畫面"]},skip:"陳博士往左走。語音說「往反方向走」，指腳印方向（朝右）的反向，所以是往左。腳印可能是值班人員的。",intro:"局長 > 夜鷹，觀察左側走廊：注意電梯和樓梯兩個出口的差異，以及地板上的細節。\n局長 > 獵犬，閱讀語音轉錄和門禁紀錄：找出陳博士的習慣路線。\n局長 > 交換你們各自看到的，推理出他往哪個方向逃。"},
-  2:{name:"組織內的叛徒",intel:{A:["監視畫面截圖（左側）","下午3點，人影操作電腦","注意：姿勢方向、衣物、眼鏡","畫面模糊，解讀需討論"],B:["側角度畫面和訪談紀錄（左側）","注意咖啡杯的位置","趙宇翔的訪談有明顯矛盾","與搭檔整合觀察"]},skip:"間諜是趙宇翔。訪談矛盾（說在開會但同事說沒來）+ 左撇子 + 深色衣獨自行動。",intro:"局長 > 陳博士把加密座標藏在辦公室某處。趙宇翔翻遍整間辦公室，但沒找到。\n局長 > 夜鷹，仔細觀察辦公室現場——哪個地方最顯眼卻最容易被忽略？\n局長 > 獵犬，閱讀三份文件——陳博士的藏東西邏輯就在裡面。\n局長 > 交換你們的發現，推理出座標藏在哪裡。"},
-  3:{name:"生死抉擇",intel:{A:["災難現場地圖（左側）","A棟：8人含重傷者，位置近","B棟：2名醫療人員，位置近","D棟：15名孩童，位置遠已失聯"],B:["緊急情報（左側）","B棟醫生獲救後可救治A棟重傷者","D棟孩童超2小時生存率降至15%","C棟12人有衛星設備，位置遠"]},skip:"沒有標準答案。常見選擇：B+D或B+C。重點是協商過程與理由。",intro:"局長 > 座標指向77F的某個保險箱，密碼是8位數字。\n局長 > 夜鷹，看樓層平面圖——hover各房間查看細節，注意窗戶方向和特殊痕跡。\n局長 > 獵犬，看7份文件（非全部有用）——找出正確房間和密碼的線索。\n局長 > 交換發現，確認正確房間和密碼。"}
+  1:{name:"消失的研究員",intel:{A:["場景圖：辦公室現場（左側）","注意：日曆、照片、窗外天色","地板有腳印，觀察方向","細節模糊，需與搭檔討論"],B:["失蹤語音摘要（左側）","「去了第一次討論計畫的地方」","關鍵：「往反方向走」是什麼意思？","需與搭檔比對現場畫面"]},skip:"陳博士往左走。語音說「往反方向走」，指腳印方向（朝右）的反向，所以是往左。腳印可能是值班人員的。",intro:"局長 > 陳博士失蹤，走廊現場留下了線索。\n局長 > 夜鷹：你看到走廊現場圖，仔細觀察電梯（左側）和樓梯（右側）方向——有什麼不一樣？\n局長 > 獵犬：你有語音轉錄和門禁紀錄，找出陳博士平時的移動習慣。\n局長 > 你們的任務：判斷陳博士是從左邊（電梯）還是右邊（樓梯）離開。將你們各自看到的告訴對方。"},
+  2:{name:"組織內的叛徒",intel:{A:["監視畫面截圖（左側）","下午3點，人影操作電腦","注意：姿勢方向、衣物、眼鏡","畫面模糊，解讀需討論"],B:["側角度畫面和訪談紀錄（左側）","注意咖啡杯的位置","趙宇翔的訪談有明顯矛盾","與搭檔整合觀察"]},skip:"間諜是趙宇翔。訪談矛盾（說在開會但同事說沒來）+ 左撇子 + 深色衣獨自行動。",intro:"局長 > 陳博士逃跑前，把加密座標藏在辦公室某處。趙宇翔翻遍了整間辦公室，沒有找到。\\n局長 > 夜鷹：觀察辦公室現場，注意每個角落的物件——哪個地方最顯眼、但最容易被人忽略？\\n局長 > 獵犬：閱讀三份文件，陳博士的日記透露了他的藏東西邏輯。\\n局長 > 你們的任務：找出座標藏在辦公室的哪裡。把你們各自看到的告訴對方。""},
+  3:{name:"生死抉擇",intel:{A:["災難現場地圖（左側）","A棟：8人含重傷者，位置近","B棟：2名醫療人員，位置近","D棟：15名孩童，位置遠已失聯"],B:["緊急情報（左側）","B棟醫生獲救後可救治A棟重傷者","D棟孩童超2小時生存率降至15%","C棟12人有衛星設備，位置遠"]},skip:"沒有標準答案。常見選擇：B+D或B+C。重點是協商過程與理由。",intro:"局長 > 座標指向77F的某個保險箱，密碼是8位數字（格式：YYYYMMDD）。\\n局長 > 夜鷹：用滑鼠hover樓層平面圖上的各個房間——注意窗戶朝向和房間內的特殊細節。\\n局長 > 獵犬：仔細閱讀7份文件，不是全部都有用——找出正確房間和密碼的關鍵線索。\\n局長 > 你們的任務：說出正確的房間號碼，以及8位數密碼。把你們各自的發現告訴對方。"}
 };
 
 const STAGE1_A=[
