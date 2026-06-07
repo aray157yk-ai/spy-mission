@@ -474,7 +474,7 @@ var SCENES={
   },
   3:{
     A:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#0a1218;"><img src="images/m3_floor.png" style="max-width:100%;max-height:100%;object-fit:contain;"/></div>',
-    B:'<div id="m3-docs" style="display:flex;flex-direction:column;width:100%;height:100%;background:#08101a;"><div id="doc-display" style="height:68%;overflow-y:auto;padding:10px;background:#0b1219;border:1px solid #1a3050;margin:8px 8px 4px 8px;border-radius:4px;font-family:monospace;font-size:10px;color:#7090b0;flex-shrink:0;"><div style="color:#ffb700;margin-bottom:4px;font-family:monospace;font-size:9px;">// 情報文件 · 點擊查看</div></div><div id="doc-list" style="flex:1;display:flex;flex-direction:column;padding:4px 8px;border-top:1px solid #1a3050;overflow-y:auto;min-height:0;"></div></div>'
+    B:'<div id="m3-docs" style="display:flex;flex-direction:column;width:100%;height:100%;background:#08101a;"><div id="doc-display" style="flex:1;min-height:0;overflow-y:auto;background:#0b1219;border:1px solid #1a3050;margin:8px 8px 4px 8px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#2a4060;font-family:monospace;font-size:9px;">點擊文件查看</div><div id="doc-list" style="flex:1;display:flex;flex-direction:column;padding:4px 8px;border-top:1px solid #1a3050;overflow-y:auto;min-height:0;"></div></div>'
   }
 };
 </script>
@@ -501,7 +501,45 @@ const MI={
   3:{name:"生死抉擇",intel:{A:["災難現場地圖（左側）","A棟：8人含重傷者，位置近","B棟：2名醫療人員，位置近","D棟：15名孩童，位置遠已失聯"],B:["緊急情報（左側）","B棟醫生獲救後可救治A棟重傷者","D棟孩童超2小時生存率降至15%","C棟12人有衛星設備，位置遠"]},skip:"沒有標準答案。常見選擇：B+D或B+C。重點是協商過程與理由。",intro:"局長 > 座標指向77F的某個保險箱，密碼是8位數字。\n局長 > 夜鷹，看樓層平面圖——hover各房間查看細節，注意窗戶方向和特殊痕跡。\n局長 > 獵犬，看7份文件（非全部有用）——找出正確房間和密碼的線索。\n局長 > 交換發現，確認正確房間和密碼。"}
 };
 
-const INTRO_LINES=["局長 > 通訊已加密。","局長 > 你們是影子局新進探員，今天是第一次正式任務。","局長 > 我是你們的指揮官。任務期間我會即時監控你們的通訊。","局長 > 記住——你們手上的情報都是片段的。","局長 > 只有互相溝通，才能還原真相。","局長 > 任務資料載入中..."];
+const STAGE1_A=[
+  ["局長 > 林曉晨。",60,800],
+  ["局長 > 我觀察你很久了。",45,400],
+  ["局長 > 八個月前，北部發生了一起失蹤案。",35,300],
+  ["局長 > 失蹤的是一名十一歲的女孩。",35,400],
+  ["局長 > 警方查了三週，什麼都沒有。",35,600],
+  ["局長 > 你是第四天進現場的。",45,400],
+  ["局長 > 只知道你在現場待了不到二十分鐘，",35,200],
+  ["局長 > 然後走出來，說出了一個地址。",50,1000],
+  ["局長 > 女孩在那裡。",65,1200],
+  ["局長 > 所以我找到你了。",50,0],
+];
+const STAGE2_A=[
+  ["局長 > 這個任務，你會看到很多東西。",40,300],
+  ["局長 > 但你看到的，只有一半。",45,400],
+  ["局長 > 你的搭檔有你沒有的那一塊。",45,400],
+  ["局長 > 說出你看到的。不要假設對方知道。",40,500],
+  ["局長 > 記住——合作，是這次任務的核心。",40,400],
+  ["局長 > 任務開始。",65,0],
+];
+const STAGE1_B=[
+  ["局長 > 陳宇哲。",60,800],
+  ["局長 > 我觀察你很久了。",45,400],
+  ["局長 > 五年前，你還在刑事組的時候，",35,300],
+  ["局長 > 有一起案子，所有人都認為已經結案了。",35,300],
+  ["局長 > 只有你不信。",65,800],
+  ["局長 > 你花了四個月，找出了十七個說不通的地方。",35,600],
+  ["局長 > 那個認罪的人，是被冤枉的。",45,800],
+  ["局長 > 你把他找出來了。",50,1000],
+  ["局長 > 所以我找到你了。",50,0],
+];
+const STAGE2_B=[
+  ["局長 > 這個任務，你會拿到很多資料。",40,300],
+  ["局長 > 但資料永遠只說了一半的故事。",40,500],
+  ["局長 > 你的搭檔看到了你無法取得的現場。",45,400],
+  ["局長 > 問她你看不懂的地方。把你發現的說出來。",35,500],
+  ["局長 > 記住——合作，是這次任務的核心。",40,400],
+  ["局長 > 任務開始。",65,0],
+];
 
 // Initialize mission 3 doc interface
 function initM3Docs(){
@@ -533,7 +571,7 @@ function initM3Docs(){
       list.querySelectorAll("div").forEach(t=>t.style.borderColor="#1a3050");
       tab.style.borderColor="#00c8ff";
       const src=gImg(d.img);
-      display.innerHTML="<div style='font-family:monospace;font-size:10px;color:#7090b0;line-height:1.9;'><img src='"+src+"' style='width:100%;max-height:180px;object-fit:cover;object-position:center top;border-radius:4px;margin-bottom:8px;'/>"+d.c+"</div>";
+      display.innerHTML="<img src='"+src+"' style='width:100%;height:100%;object-fit:contain;border-radius:4px;display:block;'/>";
     };
     list.appendChild(tab);
   });
@@ -837,16 +875,35 @@ function initGame(){
 }
 
 // ── INTRO ──
-async function playIntro(){
-  const ov=document.getElementById("intro-ov"),tx=document.getElementById("intro-tx");
-  ov.classList.add("on");tx.innerHTML="";
-  for(const line of INTRO_LINES){await typeText(tx,line);await sleep(480);tx.innerHTML+="\n";}
-  document.getElementById("intro-prompt").style.display="block";
-  await new Promise(r=>{
+async function playLines(lines,el){
+  for(const [text,speed,pause] of lines){
+    await typeText(el,text,speed);
+    el.innerHTML+="\n";
+    if(pause>0)await sleep(pause);
+  }
+}
+async function waitKey(){
+  return new Promise(r=>{
     const dismiss=()=>{document.removeEventListener("keydown",dismiss);document.removeEventListener("click",dismiss);r();};
     document.addEventListener("keydown",dismiss);
-    setTimeout(()=>document.addEventListener("click",dismiss),300);
+    setTimeout(()=>document.addEventListener("click",dismiss),500);
   });
+}
+async function playIntro(){
+  const s1=S.role==="A"?STAGE1_A:STAGE1_B;
+  const s2=S.role==="A"?STAGE2_A:STAGE2_B;
+  const ov=document.getElementById("intro-ov");
+  const tx=document.getElementById("intro-tx");
+  const prompt=document.getElementById("intro-prompt");
+  ov.classList.add("on");
+  tx.innerHTML="";prompt.style.display="none";
+  await playLines(s1,tx);
+  prompt.style.display="block";
+  await waitKey();
+  tx.innerHTML="";prompt.style.display="none";
+  await playLines(s2,tx);
+  prompt.style.display="block";
+  await waitKey();
   ov.classList.remove("on");
   startM(1);
 }
@@ -966,6 +1023,8 @@ async function requestHint(){
   const now=Date.now();
   if(now-hintCD<15000){toast(`請再等 ${Math.ceil((15000-(now-hintCD))/1000)} 秒`);return;}
   hintCD=now;
+  // Sync cooldown to partner immediately
+  set(ref(db,`rooms/${S.room}/aiCooldown`),{ts:now,mission:S.mission});
   const btn=document.getElementById("btn-hint");
   if(btn){btn.disabled=true;btn.textContent="⏳ 請求中...";}
   startHintTimer();
