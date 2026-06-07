@@ -1008,23 +1008,27 @@ function addMsg(msg){
 }
 
 // ── AI ──
-// Check for completion keywords only - no AI response
-async function checkCompletion(msgObj){
+// Check completion - needs conclusive phrase, not just keyword mention
+function checkCompletion(msgObj){
   if(rMsgs.length<2)return;
-  const m=S.mission,now=Date.now();
-  if(aiCD[m]&&now-aiCD[m]<5000)return;
-  const hist=rMsgs.slice(-6).map(x=>x.text).join(" ");
-  const prompt=`以下是對話內容：${hist}\n\n你是任務判斷系統。只判斷兩人是否已經達成共識說出了正確答案。任務${m}的答案是：${m===1?"樓梯或右邊出口":m===2?"日曆":"7703和20050921"}。如果兩人都提到了答案並表示同意，只回覆【任務完成】，其他情況不要回覆任何東西。`;
-  try{
-    const res=await fetch(GU,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+GK},
-      body:JSON.stringify({model:"llama-3.3-70b-versatile",messages:[{role:"user",content:prompt}],max_tokens:20,temperature:0})});
-    const data=await res.json();
-    const reply=data?.choices?.[0]?.message?.content?.trim();
-    if(reply&&reply.includes("任務完成")){
-      aiCD[m]=now;
-      completeMission();
-    }
-  }catch(e){}
+  const m=S.mission;
+  const rolesSpoken=new Set(rMsgs.slice(-8).map(x=>x.role));
+  if(rolesSpoken.size<2)return;
+  const txt=msgObj.text;
+  // Must be a conclusive statement - answer + conclusion verb
+  const conclusive=["答案是","藏在","是在","就是","結論","確認是","所以是","應該是","在日曆","走樓梯","從樓梯","7703","20050921"];
+  const hasConclusion=conclusive.some(w=>txt.includes(w));
+  if(!hasConclusion)return;
+  // Then check if it matches the mission answer
+  const answers={
+    1:["樓梯","右邊","右側"],
+    2:["日曆"],
+    3:["7703","20050921"]
+  };
+  const kws=answers[m]||[];
+  if(kws.some(w=>txt.includes(w))){
+    completeMission();
+  }
 }
 
 async function triggerAI(msgObj){
