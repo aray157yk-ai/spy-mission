@@ -910,6 +910,17 @@ async function playIntro(){
   prompt.style.display="block";
   await waitKey();
   ov.classList.remove("on");
+  // A sends intro immediately so it's in Firebase when game screen loads
+  if(S.role==="A"){
+    const n=1;
+    const info=MI[n];
+    get(ref(db,`rooms/${S.room}/introSent/m${n}`)).then(async snap=>{
+      if(!snap.exists()){
+        await set(ref(db,`rooms/${S.room}/introSent/m${n}`),true);
+        await pushMsg({type:"ai",text:info.intro,sender:"局長",mission:n,ts:Date.now()});
+      }
+    });
+  }
   startM(1);
 }
 
@@ -950,7 +961,8 @@ document.getElementById("intel-list").innerHTML=
   const roleDesc=isA?"你負責觀察現場場景：注意視覺細節、空間方位、物理痕跡":"你負責分析情報資料：閱讀文件、找出邏輯線索、交叉比對";
   document.getElementById("intel-label").innerHTML=`角色定位 <span style="color:var(--${isA?'ac':'am'});font-size:8px;margin-left:6px;">${isA?"夜鷹·現場觀察":"獵犬·資料分析"}</span>`;
   // Only A sends intro, via Firebase check to prevent duplicates
-  if(S.role==="A"){setTimeout(async()=>{const snap=await get(ref(db,`rooms/${S.room}/introSent/m${n}`));if(!snap.exists()){await set(ref(db,`rooms/${S.room}/introSent/m${n}`),true);await pushMsg({type:"ai",text:info.intro,sender:"局長",mission:n,ts:Date.now()});}},4000);}
+  // For missions 2+, A sends intro after brief delay
+  if(S.role==="A"&&n>1){setTimeout(async()=>{const snap=await get(ref(db,`rooms/${S.room}/introSent/m${n}`));if(!snap.exists()){await set(ref(db,`rooms/${S.room}/introSent/m${n}`),true);await pushMsg({type:"ai",text:info.intro,sender:"局長",mission:n,ts:Date.now()});}},1000);}
   document.getElementById("ci").disabled=false;
   document.getElementById("sb").disabled=false;
 }
