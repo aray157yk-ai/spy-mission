@@ -490,11 +490,10 @@ const GK="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";
 const GU="https://api.groq.com/openai/v1/chat/completions";
 
 const SP={
-  1:"你是「局長」，影子局指揮官，不是AI，是故事裡真實存在的角色。你在監控兩名探員查陳博士失蹤案。探員A看到辦公室場景（腳印朝右、傍晚天色、模糊照片）。探員B看到語音摘要（往反方向走、很危險）。答案：陳博士往左走（反方向=腳印朝右的反向）。規則：1.冷靜有壓迫感，像真實指揮官 2.你不知道答案，在等他們報告 3.討論停滯時施壓 4.一人沉默就點名另一人 5.絕對不說任何線索內容 6.推理充分達成結論說【任務完成】7.繁體中文2句內，開頭「局長 > 」",
-  2:"你是「局長」，影子局指揮官，不是AI。你在監控兩名探員追查間諜。答案是趙宇翔。A看監視畫面（姿勢模糊、深色衣、眼鏡反光不確定）。B看側角度和訪談（趙說在開會但同事說沒來、趙是左撇子、咖啡杯在左邊）。規則：1.語氣像在審訊 2.說出嫌疑人但沒排除其他人就問「能排除另外三個嗎？」3.咖啡杯爭議時問「這算證據嗎？」4.一人主導就點名另一人 5.推理完整說出趙宇翔說【任務完成】6.繁體中文2句內，開頭「局長 > 」",
-  3:"你是「局長」，影子局現場指揮官，不是AI。你在等兩名探員做救援決定，沒有標準答案。A知道：A棟8人含重傷者近、B棟2名醫生近、D棟15孩童遠。B知道：救B棟醫生可救A棟重傷者、D棟超2小時生存率降至15%、C棟12人有衛星設備在郊區。規則：1.製造緊迫感 2.一人主導就問另一人同意嗎 3.快達成共識時說「剛收到情報：A棟重傷者中有外科醫生，這改變你們決定嗎？」4.兩人都說出觀點轉變後說【任務完成】5.繁體中文2句內，開頭「局長 > 」"
+  1:"你是「局長」，影子局指揮官。你在監控夜鷹（林曉晨）和獵犬（陳宇哲）找出陳博士逃跑方向。答案：陳博士往樓梯方向（右側出口）逃。夜鷹看走廊現場（樓梯方向有掉落物）。獵犬看門禁紀錄（平常走電梯=習慣方向，換條路=樓梯）。規則：1.繁體中文稱夜鷹或獵犬 2.只要任何一人說出樓梯或右邊，立刻問另一人是否同意 3.兩人都同意樓梯/右邊/右側立刻說【任務完成】，不需要完整推理 4.討論停滯施壓 5.每次最多2句，開頭「局長 > 」",
+  2:"你是「局長」，影子局指揮官。答案：座標藏在日曆背面。夜鷹看辦公室現場。獵犬看三份文件（日記說最顯眼的地方最安全、記憶宮殿概念）。規則：1.繁體中文稱夜鷹或獵犬 2.只要任何一人說出日曆，立刻問另一人是否同意 3.兩人都同意日曆立刻說【任務完成】 4.每次最多2句，開頭「局長 > 」",
+  3:"你是「局長」，影子局指揮官。答案：7703號房，密碼20050921。夜鷹看樓層平面圖。獵犬看7份文件。規則：1.繁體中文稱夜鷹或獵犬 2.有人說出西翼或7703或20050921，確認另一人同意後說【任務完成】 3.推理分三步：東西翼→房間號→密碼，每步確認後進下一步 4.每次最多2句，開頭「局長 > 」"
 };
-
 const INTROS={
   1:'局長 > 陳博士失蹤，走廊現場留下了線索。\n局長 > 夜鷹：你看到走廊現場圖，仔細觀察電梯（左側）和樓梯（右側）方向——有什麼不一樣？\n局長 > 獵犬：你有語音轉錄和門禁紀錄，找出陳博士平時的移動習慣。\n局長 > 你們的任務：判斷陳博士是從左邊（電梯）還是右邊（樓梯）離開。',
   2:'局長 > 陳博士逃跑前，把加密座標藏在辦公室某處。趙宇翔翻遍了整間辦公室，沒有找到。\n局長 > 夜鷹：觀察辦公室現場，注意每個角落的物件——哪個地方最顯眼、但最容易被人忽略？\n局長 > 獵犬：閱讀三份文件，陳博士的日記透露了他的藏東西邏輯。\n局長 > 你們的任務：找出座標藏在辦公室的哪裡。',
@@ -995,7 +994,7 @@ async function sendMsg(){
   await pushMsg(msg);
   if(S.role==="A")cntA++;else cntB++;
   rMsgs.push(msg);
-  if(S.role==="A")triggerAI(msg);
+  if(S.role==="A")checkCompletion(msg);
 }
 
 async function pushMsg(msg){await push(ref(db,`rooms/${S.room}/messages`),msg);}
@@ -1009,6 +1008,25 @@ function addMsg(msg){
 }
 
 // ── AI ──
+// Check for completion keywords only - no AI response
+async function checkCompletion(msgObj){
+  if(rMsgs.length<2)return;
+  const m=S.mission,now=Date.now();
+  if(aiCD[m]&&now-aiCD[m]<5000)return;
+  const hist=rMsgs.slice(-6).map(x=>x.text).join(" ");
+  const prompt=`以下是對話內容：${hist}\n\n你是任務判斷系統。只判斷兩人是否已經達成共識說出了正確答案。任務${m}的答案是：${m===1?"樓梯或右邊出口":m===2?"日曆":"7703和20050921"}。如果兩人都提到了答案並表示同意，只回覆【任務完成】，其他情況不要回覆任何東西。`;
+  try{
+    const res=await fetch(GU,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+GK},
+      body:JSON.stringify({model:"llama-3.3-70b-versatile",messages:[{role:"user",content:prompt}],max_tokens:20,temperature:0})});
+    const data=await res.json();
+    const reply=data?.choices?.[0]?.message?.content?.trim();
+    if(reply&&reply.includes("任務完成")){
+      aiCD[m]=now;
+      completeMission();
+    }
+  }catch(e){}
+}
+
 async function triggerAI(msgObj){
   if(rMsgs.length<1)return;
   const m=S.mission,now=Date.now();
